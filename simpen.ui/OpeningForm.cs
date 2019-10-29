@@ -20,6 +20,7 @@ enum FieldType
     KKS
 }
 
+
 public partial class OpeningForm : Form
 {
 
