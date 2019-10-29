@@ -1,0 +1,41 @@
+<P3DEquipment instanceID="DGNEC::154f0b0000::ECXA::1" xmlns="SP3DReview.04.02">
+    <ConstructionStatus>2</ConstructionStatus>
+    <ConstructionStatus2>2</ConstructionStatus2>
+    <EqType0>2780</EqType0>
+    <FabricationType>7</FabricationType>
+    <FabricationRequirement>10</FabricationRequirement>
+    <LocationX>60.65</LocationX>
+    <LocationY>37</LocationY>
+    <LocationZ>-10.6</LocationZ>
+    <MTO_ReportingRequirements>5</MTO_ReportingRequirements>
+    <MTO_ReportingType>5</MTO_ReportingType>
+    <SP3D_DateCreated>636584261460000000</SP3D_DateCreated>
+    <SP3D_DateLastModified>636728570210000000</SP3D_DateLastModified>
+    <SP3D_ApprovalStatus>1</SP3D_ApprovalStatus>
+    <SP3D_ApprovalReason>1</SP3D_ApprovalReason>
+    <SP3D_PermissionGroup>129</SP3D_PermissionGroup>
+    <OrientationMatrix_x0>-5.16873162940729E-17</OrientationMatrix_x0>
+    <OrientationMatrix_x1>-1</OrientationMatrix_x1>
+    <OrientationMatrix_x2>0</OrientationMatrix_x2>
+    <OrientationMatrix_y0>1</OrientationMatrix_y0>
+    <OrientationMatrix_y1>6.12323399573677E-17</OrientationMatrix_y1>
+    <OrientationMatrix_y2>0</OrientationMatrix_y2>
+    <OrientationMatrix_z0>8.49323324291977E-16</OrientationMatrix_z0>
+    <OrientationMatrix_z1>0</OrientationMatrix_z1>
+    <OrientationMatrix_z2>1</OrientationMatrix_z2>
+    <Range1X>60.5694999694824</Range1X>
+    <Range1Y>36.9990005493164</Range1Y>
+    <Range1Z>-10.6805000305176</Range1Z>
+    <Range2X>60.7304992675781</Range2X>
+    <Range2Y>37.4010009765625</Range2Y>
+    <Range2Z>-10.5194997787476</Range2Z>
+    <Oid>00004e2e-0000-0000-b301-0560c45ab404</Oid>
+    <UID> @a=0027!!20014##338995671430660531</UID>
+    <Name>10KLE20BQ2601</Name>
+    <Description>T3-5-40</Description>
+    <CatalogPartNumber>PenRound-t3</CatalogPartNumber>
+    <ShortMaterialDescription>HVAC Penetration</ShortMaterialDescription>
+    <SP3D_SystemPath>HnhNPP\1\10KLE\051-10UKA-10KLE20</SP3D_SystemPath>
+    <SP3D_UserCreated>SP\i_kovkova</SP3D_UserCreated>
+    <SP3D_UserLastModified>SP\a_terentiev</SP3D_UserLastModified>
+</P3DEquipment>

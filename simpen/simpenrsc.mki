@@ -1,0 +1,52 @@
+#--------------------------------------------------------------------------------------
+#
+#    $RCSfile: simpenrsc.mki,v $
+#   $Revision: 1.2 $
+#       $Date: 2005/08/17 12:28:42 $
+#
+#  $Copyright: (c) 2005 Bentley Systems, Incorporated. All rights reserved. $
+#
+#--------------------------------------------------------------------------------------
+appName   = simpen
+sAppName  = simpen
+
+maRscs = $(o)$(appName).mi    \
+        $(o)$(appName).rsc     \
+         $(o)$(appName)str.rsc
+
+#------------------------------------------------------------------------
+# Create & compile the app's dialog resources using rcomp
+#------------------------------------------------------------------------
+$(o)$(appName).rsc    : $(baseDir)$(appName).r     \
+              $(privateInc)$(appName).h
+
+
+#----------------------------------------------------------------------
+#    The following section builds any translatable resource modules for
+#   the application.
+#----------------------------------------------------------------------
+
+$(o)$(sAppName)str.rsc        : $(langSpec)$(sAppName)str.r     \
+                                  $(privateInc)$(appName).h
+
+#----------------------------------------------------------------------
+#   The final step in building the application is lib'ing the applications
+#   intermediate application with the translatable resources built in
+#   this makefile. This step generates the final, and possibly translated,
+#   MDL application.
+#----------------------------------------------------------------------
+
+$(tfmdlapps)$(appName).ma        : $(maRscs)
+    $(msg)
+    > $(o)make.opt
+    -o$@
+    $(maRscs)
+    <
+    $(RLibCmd) @$(o)make.opt
+    ~time
+
+# End of build.  NOTE: This line is helpful by terminating the
+#                      last rule with a blank line. This is necessary
+#                      to prevent concatenation with other '.mki'
+#                      rules in the Foreign Language Translation Kit.
+

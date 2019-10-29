@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<KeyinTree xmlns="http://www.bentley.com/schemas/1.0/MicroStation/AddIn/KeyinTree.xsd">
+
+    <RootKeyinTable ID="root">
+        <Keyword SubtableRef="Commands" CommandClass="MacroCommand" CommandWord="SIMPEN.UI" >
+            <Options Required="true"/>
+        </Keyword>
+    </RootKeyinTable>
+
+    <SubKeyinTables>
+        <KeyinTable ID="Commands">
+            <Keyword CommandWord="FORM"/>
+            <Keyword CommandWord="readData"><Options Hidden="true"/></Keyword>
+            <Keyword CommandWord="reload"><Options Hidden="true"/></Keyword>
+            <Keyword CommandWord="enableAddToModel"><Options Hidden="true"/></Keyword>
+            <Keyword CommandWord="sendTaskData"><Options Hidden="true"/></Keyword>
+            <Keyword CommandWord="setdgdata"><Options Hidden="true"/></Keyword>
+        </KeyinTable>
+    </SubKeyinTables>
+
+    <KeyinHandlers>
+        <KeyinHandler Keyin="SIMPEN.UI FORM" Function="simpen.ui.Keyins.showForm"/>
+        <KeyinHandler Keyin="SIMPEN.UI readData" Function="simpen.ui.Keyins.readData"/>
+        <KeyinHandler Keyin="SIMPEN.UI reload" Function="simpen.ui.Keyins.reload"/>
+        <KeyinHandler Keyin="SIMPEN.UI enableAddToModel" Function="simpen.ui.Keyins.enableAddToModel"/>
+        <KeyinHandler Keyin="SIMPEN.UI sendTaskData" Function="simpen.ui.Keyins.sendTaskData"/>
+        <KeyinHandler Keyin="SIMPEN.UI setdgdata" Function="simpen.ui.Keyins.setDgData"/>
+    </KeyinHandlers>
+
+</KeyinTree>

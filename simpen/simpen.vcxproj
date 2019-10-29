@@ -1,0 +1,121 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{1C1C8D19-F586-4ED7-839F-41745AF16DAF}</ProjectGuid>
+    <RootNamespace>simpen</RootNamespace>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <SccProjectName>SAK</SccProjectName>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccProvider>SAK</SccProvider>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>14.0.25431.1</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+    <IncludePath>C:\aecosim_ss6\AECOsimBuildingDesigner\mdl\include;C:\Program Files %28x86%29\Bentley\MicroStation V8i %28SELECTseries%29\MicroStation\mdl\include;C:\Program Files %28x86%29\Bentley\MicroStation V8i %28SELECTseries%29\MicroStation\mdl\MicroStationAPI;$(IncludePath)</IncludePath>
+    <LibraryPath>c:\aecosim_ss6\AECOsimBuildingDesigner\mdl\library;C:\Program Files %28x86%29\Bentley\MicroStation V8i %28SELECTseries%29\MicroStation\mdl\library;c:\Program Files (x86)\Bentley\MicroStation V8i (SELECTseries)\MicroStation\;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="ContourOpeningTool.cpp" />
+    <ClCompile Include="ElementHelper.cpp" />
+    <ClCompile Include="Opening.cpp" />
+    <ClCompile Include="OpeningHelper.cpp" />
+    <ClCompile Include="RectPen.cpp" />
+    <ClCompile Include="RectPenDraw.cpp" />
+    <ClCompile Include="RectPenPlace.cpp" />
+    <ClCompile Include="simpen.cpp" />
+    <ClCompile Include="RectPenLocate.cpp" />
+    <ClCompile Include="pipepen.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ContourOpeningTool.h" />
+    <ClInclude Include="ElementHelper.h" />
+    <ClInclude Include="english\simpentxt.h" />
+    <ClInclude Include="Opening.h" />
+    <ClInclude Include="OpeningHelper.h" />
+    <ClInclude Include="pipepen.h" />
+    <ClInclude Include="RectPen.h" />
+    <ClInclude Include="RectPenDraw.h" />
+    <ClInclude Include="RectPenLocate.h" />
+    <ClInclude Include="RectPenPlace.h" />
+    <ClInclude Include="simpen.h" />
+    <ClInclude Include="simpencmd.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="english\simpenstr.r" />
+    <None Include="simpen.mke" />
+    <None Include="simpen.r" />
+    <None Include="simpencmd.r" />
+    <None Include="simpenrsc.mki" />
+    <None Include="simpentyp.mt" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
