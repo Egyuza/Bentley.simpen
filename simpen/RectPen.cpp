@@ -87,6 +87,25 @@ void setCExprVal(double* cexpr, double value) {
 }
 
 StatusInt RectPenTask::updateByCell(MSElementCP elP) {
+
+    int count = 0;
+    MSElementDescrP edP;
+    mdlElmdscr_new(&edP, NULL, elP);
+
+    MSElementDescrP currDescrP;
+    MSElementDescrP prevDescrP;
+
+    for (currDescrP = edP->h.firstElem;
+        currDescrP->h.next != NULL;
+        currDescrP = currDescrP->h.next, count++) 
+    {        
+        prevDescrP = currDescrP->h.previous;
+    }
+    
+    if (count > 0) {
+        ;
+    }
+
     int res = mdlCell_extract(&origin, bounds, NULL, NULL, NULL, 0, elP);
     return res;
 

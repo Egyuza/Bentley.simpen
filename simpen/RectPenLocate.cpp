@@ -157,7 +157,9 @@ EditElemHandleP RectPenLocate::BuildLocateAgenda(HitPathCP path, MstnButtonEvent
     DgnModelRefP cellModelP = elHandle->GetModelRef();
 
     MSElementDescr* edP = NULL;
-    mdlElmdscr_duplicate(&edP, elHandle->GetElemDescrP());
+    //mdlElmdscr_duplicate(&edP, elHandle->GetElemDescrP());
+
+    edP = elHandle->GetElemDescrP();
 
     if (mdlModelRef_isReference(cellModelP)) {
         // если элемент в рефе, то трансформируем его под активную модель
@@ -172,8 +174,47 @@ EditElemHandleP RectPenLocate::BuildLocateAgenda(HitPathCP path, MstnButtonEvent
         mdlElmdscr_transform(edP, &tran);
     }
     
-    
     // TODO ! НУЖНА ПРОВЕРКА НА ТО, ЧТО ЭЛЕМЕНТ - ЭТО ЗАДАНИЕ НА ПРОХОДКУ
+
+    // обработка объекта-задания из SPF:
+    {
+        MSElementDescrP recEdP = edP;
+        while (recEdP->el.ehdr.type == CELL_HEADER_ELM) {
+            if (recEdP->h.firstElem->el.ehdr.type != CELL_HEADER_ELM) { 
+                // если первый дочерний уже не цел, то начинаем проверку
+
+                // бывают задания, в которых присутствует лишняя сфера-поверхность,
+                // за счёт которой переопределяется интересующий проектировнщика
+                // диапазон задания
+
+                DPoint3d headBounds[8];
+                mdlCell_extract(NULL, headBounds, NULL, NULL, NULL, 0, &edP->el);
+
+                MSElementDescrP curEdP = recEdP;
+                while (curEdP != NULL && curEdP->el.ehdr.type == CELL_HEADER_ELM) {
+                    DPoint3d bounds[8];
+                    mdlCell_extract(NULL, bounds, NULL, NULL, NULL, 0, &curEdP->el);
+
+                    int matchCount = 0;
+                    for (int i = 0; i < 8; ++i) {
+                        for (int j = 0; j < 8; ++j) {
+                            if (mdlVec_equalTolerance(&bounds[i], &headBounds[j], 0.1)) {
+                                ++matchCount;
+                            }
+                        }
+                    }
+                    if (matchCount >= 4) {
+                        edP = curEdP;
+                        break;
+                    }
+                    curEdP = curEdP->h.next;
+                }
+            }
+            recEdP = recEdP->h.firstElem;
+        }
+    }
+
+    //mdlCell_extract(NULL, NULL, NULL, NULL, name, 256, &child->el);
 
     RotMatrix rot;
     DPoint3d scale;
@@ -226,7 +267,7 @@ EditElemHandleP RectPenLocate::BuildLocateAgenda(HitPathCP path, MstnButtonEvent
         }
     }
 
-    mdlElmdscr_freeAll(&edP);
+    // mdlElmdscr_freeAll(&edP);
 
     return  elHandle;
 }

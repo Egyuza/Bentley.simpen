@@ -67,7 +67,7 @@ void cmdAddToModel(char *unparsedP)
     }
 }
 
-// Only allow elements of our type to be located...
+// Фильтр элементов, которые будут доступны пользователю для выбора
 bool ContourOpeningTool::OnPostLocate(HitPathCP path, char *cantAcceptReason) {
     if (!__super::OnPostLocate(path, cantAcceptReason))
         return false;
