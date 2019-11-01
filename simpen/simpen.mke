@@ -47,15 +47,17 @@ $(reqdObjs)$(tstdir)        : $(reqdObjs)$(tstdir)
 # Define macros for files included in our link and resource merge
 #------------------------------------------------------------------------
 dlmObjs = \
+    $(o)CExpression$(oext)  \
+    $(o)OpeningTask$(oext)  \
+    $(o)ContourOpeningTool$(oext)  \
+    $(o)OpeningHelper$(oext)  \
+    $(o)Opening$(oext)  \
     $(o)ElementHelper$(oext)  \
     $(o)pipepen$(oext)  \
     $(o)RectPen$(oext)  \
     $(o)RectPenLocate$(oext)  \
     $(o)RectPenDraw$(oext)  \
     $(o)RectPenPlace$(oext)  \
-    $(o)ContourOpeningTool$(oext)  \
-    $(o)Opening$(oext)  \
-    $(o)OpeningHelper$(oext)  \
     $(o)$(appName)$(oext)  \
     $(mdlLibs)BentleyDgn.lib \
     $(mdlLibs)toolsubs.lib \
@@ -95,6 +97,14 @@ $(o)$(sAppName)typ.rsc        : $(o)$(sAppName)typ.r
 #------------------------------------------------------------------------
 $(o)$(appName)$(oext) : $(baseDir)$(appName).cpp   $(baseDir)$(appName).h
 
+$(o)CExpression$(oext) : $(baseDir)CExpression.cpp   $(baseDir)CExpression.h
+
+$(o)OpeningTask$(oext) : $(baseDir)OpeningTask.cpp   $(baseDir)OpeningTask.h
+
+$(o)Opening$(oext) : $(baseDir)Opening.cpp   $(baseDir)Opening.h
+
+$(o)OpeningHelper$(oext) : $(baseDir)OpeningHelper.cpp   $(baseDir)OpeningHelper.h
+
 $(o)pipepen$(oext) : $(baseDir)pipepen.cpp   $(baseDir)pipepen.h
                  
 $(o)ElementHelper$(oext) : $(baseDir)ElementHelper.cpp   $(baseDir)ElementHelper.h
@@ -108,10 +118,6 @@ $(o)RectPenDraw$(oext) : $(baseDir)RectPenDraw.cpp   $(baseDir)RectPenDraw.h
 $(o)RectPenPlace$(oext) : $(baseDir)RectPenPlace.cpp   $(baseDir)RectPenPlace.h
 
 $(o)ContourOpeningTool$(oext) : $(baseDir)ContourOpeningTool.cpp   $(baseDir)ContourOpeningTool.h
-
-$(o)Opening$(oext) : $(baseDir)Opening.cpp   $(baseDir)Opening.h
-
-$(o)OpeningHelper$(oext) : $(baseDir)OpeningHelper.cpp   $(baseDir)OpeningHelper.h
 
                   
 #----------------------------------------------------------------------

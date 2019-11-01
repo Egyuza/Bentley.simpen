@@ -1,6 +1,5 @@
 #include "OpeningHelper.h"
 #include "ElementHelper.h"
-#include "ContourOpeningTool.h"
 
 #include <interface\ElemHandle.h>
 #include <tfpoly.h>
@@ -25,7 +24,6 @@
 #include <msinput.fdf>
 
 #include  <mdltfframe.fdf>
-
 
 #include <ditemlib.fdf>
 #include <msdialog.fdf>
@@ -57,10 +55,6 @@ StatusInt computeAndDrawTransient(Opening& opening) {
     {
         return ERROR;
     }
-
-    //createPenetrFrame(bodyShape, perfoShape, crossFirst, crossSecond, 
-    //    opening.direction, opening.distance, 0.0, opening.isSweepBi, 
-    //    opening.isThroughHole);
     
     msTransientElmP = mdlTransient_addElemDescr(msTransientElmP,
         bodyShape.GetElemDescrCP(), true, 0xffff, DRAW_MODE_TempDraw, FALSE, FALSE, TRUE);
@@ -68,10 +62,6 @@ StatusInt computeAndDrawTransient(Opening& opening) {
         crossFirst.GetElemDescrCP(), true, 0xffff, DRAW_MODE_TempDraw, FALSE, FALSE, TRUE);
     msTransientElmP = mdlTransient_addElemDescr(msTransientElmP,
         crossSecond.GetElemDescrCP(), true, 0xffff, DRAW_MODE_TempDraw, FALSE, FALSE, TRUE);
-
-    //char msg[50];
-    //sprintf(msg, "Расстояние до противоположной стены = %.3f", distance);
-    //mdlOutput_prompt(msg);
 
     return SUCCESS;
 }
@@ -107,9 +97,6 @@ StatusInt computeAndAddToModel(Opening& opening) {
         return ERROR;
     }
 
-    double distance = opening.isThroughHole ? 
-        opening.distance : convertFromCExprVal(opening.userDistance);
-
     {   // Определение слоёв перекрестий
         LevelID levelId = getLevelIdByName(L"C-OPENING-SYMBOL");
         if (levelId != LEVEL_NULL_ID) {
@@ -123,8 +110,8 @@ StatusInt computeAndAddToModel(Opening& opening) {
     }
 
     TFFrame* frameP = createPenetrFrame(bodyShape, perfoShape, crossFirst, crossSecond,
-        opening.direction, distance, 0.0, true,
-        opening.isThroughHole);
+        opening.direction, opening.getDistance(), 0.0, true,
+        opening.getTask().isThroughHole);
     
     if (frameP == NULL) {
         mdlLevel_setActive(activeLaevelId);
@@ -151,12 +138,11 @@ StatusInt computeAndAddToModel(Opening& opening) {
 
                 char buf[256];
                 sprintf(buf, "mdl keyin simpen.ui simpen.ui setdgdata %u %s", // sprintf(buf, "mdl keyin aepsim aepsim setdgdata %u %s"
-                    fpos, opening.kks);
+                    fpos, opening.getKKS());
                 mdlInput_sendSynchronizedKeyin((MSCharCP)buf, 0, 0, 0);
             }
 
-
-            if (opening.isRequiredRemoveContour) {  
+            if (opening.getTask().isRequiredRemoveContour) {  
                 // Удаляем контур:
                 MSElementDescrP contourEdP = NULL;
                 mdlElmdscr_getByElemRef(&contourEdP, opening.contourRef, ACTIVEMODEL, FALSE, 0);
@@ -197,25 +183,25 @@ StatusInt computeElementsForOpening(EditElemHandleR outBodyShape,
     DPlane3d contourPlane;
     mdlElmdscr_extractNormal(
         &contourPlane.normal, &contourPlane.origin, contourEdP, NULL);
-
-
-    double distanceReal = 0.0;
+    
+    double distance = 0.0;
     {   // обновление и корректировка
         DVec3d directVector;
-        if (SUCCESS != findDirectionVector(directVector, distanceReal, contourPlane, wall)) {
+        if (SUCCESS != findDirectionVector(directVector, distance, contourPlane, wall)) {
             return ERROR;
         }
 
-        if (!opening.isThroughHole) {
-            distanceReal = convertFromCExprVal(opening.userDistance);
+        if (!opening.getTask().isThroughHole) {
+            distance = opening.getDistance();
             // directVector = contourPlane.normal;
         }
         else {
-            opening.distance = distanceReal;
+            opening.setDistance(distance);
         }
         opening.direction = directVector;
-        mdlVec_scaleToLength(&opening.direction, &opening.direction, distanceReal);
-        distanceReal = abs(distanceReal);
+        mdlVec_scaleToLength(&opening.direction, &opening.direction, distance);
+        // если оставить знак, то направление инвертируется, т.к. его уже задаёт вектор
+        distance = abs(distance);
     }
 
     //EditElemHandle shapeEeh;
@@ -229,7 +215,7 @@ StatusInt computeElementsForOpening(EditElemHandleR outBodyShape,
     сreateStringLine(shape, vertices, numVerts);
     createShape(outPerfoShape, vertices, numVerts, true);
 
-    if (!createBody(outBodyShape, shape, opening.direction, distanceReal, 0.0)) {
+    if (!createBody(outBodyShape, shape, opening.direction, distance, 0.0)) {
         return ERROR;
     }
 
@@ -242,16 +228,14 @@ StatusInt computeElementsForOpening(EditElemHandleR outBodyShape,
 
         // 2-ое перекрестие получаем проецируя 1-ое на противоположную грань
         DVec3d projVec = opening.direction;
-        mdlVec_scaleToLength(&projVec, &projVec, distanceReal);
+        mdlVec_scaleToLength(&projVec, &projVec, distance);
         mdlVec_projectPoint(&centroid, &centroid, &projVec, 1.0);
         for (int i = 0; i < numVerts; ++i) {
             mdlVec_projectPoint(&vertices[i], &vertices[i], &projVec, 1.0);
         }
         createCross(outCrossSecond, centroid, vertices, numVerts);
     }
-
-
-
+    
     return SUCCESS;
 }
 

@@ -19,11 +19,8 @@ public:
     RectPenPlace();
 
 private:
-
-// MstnElementSetTool: ---------------------------------------------------------
-private:
     bool WantAccuSnap() override { return true; }
-    // Can check GetHitSource to detect EditAction
+
     bool NeedPointForDynamics() { return SOURCE_Pick == GetElemSource(); }
 
     void OnComplexDynamics(MstnButtonEventCP ev) override;

@@ -45,6 +45,12 @@
     <ClCompile Include="ContourOpeningTool.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="OpeningTask.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CExpression.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="simpencmd.h">
@@ -81,6 +87,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ContourOpeningTool.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OpeningTask.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CExpression.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

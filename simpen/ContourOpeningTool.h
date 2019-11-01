@@ -3,11 +3,12 @@
 #ifndef CONTOUR_OPENING_TOOL_H
 #define CONTOUR_OPENING_TOOL_H
 
+#include "OpeningTask.h"
+
 #include <msinput.fdf>
 
 #include <mdl.h>
 #include <interface/MstnTool.h>
-
 
 namespace Openings
 {
@@ -15,12 +16,13 @@ namespace Openings
 void cmdLocateContour(char *unparsedP);
 void cmdAddToModel(char *unparsedP);
 void cmdUpdatePreview(char *unparsedP);
-    
+
 class ContourOpeningTool : 
-    public Bentley::Ustn::MstnElementSetTool 
+    public Bentley::Ustn::MstnElementSetTool
 {
 public:
     static ContourOpeningTool* instanceP;
+    static OpeningTask cachedTask;
 
 private:
     // unsigned int flagLocateSurfaces;

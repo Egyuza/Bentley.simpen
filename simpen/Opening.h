@@ -4,35 +4,36 @@
 #define OPENING_H
 
 #include <mdl.h>
-#include <cexpr.h>
 #include <string>
+
+#include "OpeningTask.h"
 
 namespace Openings {
 
 struct Opening {
-    DPoint3d origin;
-    DVec3d direction;
-    double userDistance; // todo значение необходимо конвертировать по UOR модели!
-    double distance;
-    // EditElemHandleP contourP;
-    ElementRef contourRef;
-    char kks[50];
-
-    bool isThroughHole;
-    //bool isSweepBi; // - откл. ez 2019-10-23
-    bool isRequiredRemoveContour;
-    bool isReadyToPublish;
-
     static const std::wstring CATALOG_TYPE_NAME;
     static const std::wstring CATALOG_INSTANCE_NAME;
+
+    DPoint3d origin;
+    DVec3d direction;
+    ElementRef contourRef;
         
     const bool isValid();
-
-    static const void publishCExpressions(SymbolSet* symSetP);
 
     static Opening instance;
 
     Opening();
+
+    double getDistance();
+    void setDistance(double value);
+
+    char* getKKS();
+    void setKKS(const char* value);
+
+    OpeningTask& getTask();
+
+    bool operator ==(Opening other);
+    bool operator !=(Opening other);
 };
 
 const bool isZero(DVec3dR vec);

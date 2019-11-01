@@ -163,7 +163,7 @@ EditElemHandleP RectPenLocate::BuildLocateAgenda(HitPathCP path, MstnButtonEvent
 
     if (mdlModelRef_isReference(cellModelP)) {
         // если элемент в рефе, то трансформируем его под активную модель
-        // т.к. его гометрические характеристики возвращаются в 
+        // т.к. его гометрические характеристики возвращаются
         // относительно собственной системы координат
         double scale;
         mdlModelRef_getUorScaleBetweenModels(&scale, cellModelP, ACTIVEMODEL);
@@ -213,8 +213,6 @@ EditElemHandleP RectPenLocate::BuildLocateAgenda(HitPathCP path, MstnButtonEvent
             recEdP = recEdP->h.firstElem;
         }
     }
-
-    //mdlCell_extract(NULL, NULL, NULL, NULL, name, 256, &child->el);
 
     RotMatrix rot;
     DPoint3d scale;
@@ -462,7 +460,7 @@ void RectPenLocate::OnComplexDynamics(MstnButtonEventCP ev) {
 //}
 
 StatusInt RectPenLocate::OnElementModify(EditElemHandleR eeh) {
-    if (Opening::instance.isReadyToPublish) {
+    if (OpeningTask::getInstance().isReadyToPublish) {
         rectPen.addToModel();
         return SUCCESS;
     }

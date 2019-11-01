@@ -18,7 +18,9 @@
 
 namespace Openings
 {
+
 ContourOpeningTool* ContourOpeningTool::instanceP = NULL;
+OpeningTask ContourOpeningTool::cachedTask = OpeningTask();
 
 void cmdLocateContour(char *unparsedP)
 {
@@ -28,6 +30,14 @@ void cmdLocateContour(char *unparsedP)
 
 void cmdUpdatePreview(char *unparsedP)
 {
+    if (ContourOpeningTool::instanceP != NULL && 
+        ContourOpeningTool::cachedTask == OpeningTask::getInstance())
+    {
+        return; //  параметры построения не изменились
+    }
+
+    ContourOpeningTool::cachedTask = OpeningTask::getInstance();
+
     mdlTransient_free(&msTransientElmP, true);
 
     if (ContourOpeningTool::instanceP == NULL) {
@@ -101,7 +111,7 @@ StatusInt ContourOpeningTool::OnElementModify(EditElemHandleR eeh) {
     mdlInput_sendSynchronizedKeyin(
         "mdl keyin simpen.ui simpen.ui sendTaskData", 0, 0, 0);
 
-    if (Opening::instance.isReadyToPublish) {
+    if (Opening::instance.getTask().isReadyToPublish) {
         computeAndAddToModel(Opening::instance);
         return SUCCESS;
     }
@@ -128,11 +138,15 @@ bool ContourOpeningTool::NeedPointForDynamics()
 
 void ContourOpeningTool::OnPostInstall() {
     __super::OnPostInstall();
+
+    instanceP = this;
+
     mdlAccuDraw_setEnabledState(false); // Don't enable AccuDraw w/Dynamics...
     mdlLocate_setCursor();
     mdlLocate_allowLocked();
 
     mdlSelect_freeAll();
+    cachedTask = OpeningTask();
 
     mdlOutput_prompt("Выбирите элемент типа <Shape>, который будет задавать контур проёма");
 }

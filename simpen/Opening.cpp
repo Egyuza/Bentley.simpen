@@ -1,14 +1,11 @@
 #include "Opening.h"
+#include "OpeningTask.h"
+#include "CExpression.h"
 
-#include <cexpr.h>
-#include <interface/ElemHandle.h>
+//#include <interface/ElemHandle.h>
 #include <elementref.h>
 
-#include <ditemlib.fdf>
-#include <mscexpr.fdf>
-#include <mscnv.fdf>
 #include <msvec.fdf>
-#include <string>
 
 using Bentley::Ustn::Element::EditElemHandle;
 
@@ -20,12 +17,39 @@ const std::wstring Opening::CATALOG_TYPE_NAME = L"Opening";
 const std::wstring Opening::CATALOG_INSTANCE_NAME = L"Opening";
 
 Opening::Opening() {
-    userDistance = 0.0;
-    userDistance = 0.0;
-    isReadyToPublish = false;
-    isThroughHole = true;
-    isRequiredRemoveContour = true;
-    strcpy(kks, "");
+    origin =
+    direction = DPoint3d();
+    contourRef = ElementRef();
+}
+
+OpeningTask& Opening::getTask() {
+    return OpeningTask::getInstance();
+}
+
+double Opening::getDistance() {
+    return  CExpr::convertToUOR(OpeningTask::getInstance().depth);
+}
+void Opening::setDistance(double value) {
+    OpeningTask::getInstance().depth = CExpr::convertToMaster(value);
+}
+
+char* Opening::getKKS() {
+    return OpeningTask::getInstance().kks;
+}
+void Opening::setKKS(const char* value) {
+    strcpy(OpeningTask::getInstance().kks, value);
+}
+
+bool Opening::operator ==(Opening other) {
+    return mdlVec_equal(&origin, &other.origin) &&
+        mdlVec_equal(&direction, &other.direction) &&
+        getDistance() == other.getDistance() &&
+        contourRef == other.contourRef &&
+        getTask().isThroughHole == other.getTask().isThroughHole;
+}
+
+bool Opening::operator !=(Opening other) {
+    return !(*this == other);
 }
 
 const bool Opening::isValid()
@@ -36,42 +60,12 @@ const bool Opening::isValid()
         !isZero(direction);
 }
 
-const void Opening::publishCExpressions(SymbolSet* symSetP) {
-    mdlDialog_publishBasicVariable(symSetP, mdlCExpression_getType(TYPECODE_DOUBLE),
-        "openingDistance", &instance.userDistance);
-    
-    mdlDialog_publishBasicArray(symSetP, mdlCExpression_getType(TYPECODE_CHAR),
-        "openingKKS", &instance.kks, sizeof(instance.kks));
-    
-    // - откл. ez 2019-10-23
-    //mdlDialog_publishBasicVariable(symSetP, mdlCExpression_getType(TYPECODE_INT), 
-    //    "openingIsSweepBi", &instance.isSweepBi);
-
-    mdlDialog_publishBasicVariable(symSetP, mdlCExpression_getType(TYPECODE_INT),
-        "openingIsThroughHole", &instance.isThroughHole);
-
-    mdlDialog_publishBasicVariable(symSetP, mdlCExpression_getType(TYPECODE_INT),
-        "openingIsReadyToPublish", &instance.isReadyToPublish);
-
-    mdlDialog_publishBasicVariable(symSetP, mdlCExpression_getType(TYPECODE_INT),
-        "openingIsRequiredRemoveContour", &instance.isRequiredRemoveContour);
-}
-
 const bool isZero(DVec3dR vec)
 {
     DVec3d zero;
     mdlVec_zero(&zero);
 
     return TRUE == mdlVec_equal(&vec, &zero);
-}
-
-double convertFromCExprVal(double cexpr) {
-    double res = 0;
-    mdlCnv_masterToUOR(&res, cexpr, ACTIVEMODEL);
-    return res;
-}
-void convertToCExprVal(double* cexpr, double value) {
-    mdlCnv_UORToMaster(cexpr, value, ACTIVEMODEL);
 }
 
 }

@@ -6,7 +6,7 @@
 #include "RectPenDraw.h"
 #include "RectPenPlace.h"
 
-#include "Opening.h"
+#include "OpeningTask.h"
 #include "OpeningHelper.h"
 #include "ContourOpeningTool.h"
 
@@ -135,7 +135,7 @@ extern "C" DLLEXPORT  int MdlMain (int argc, char *argv[])
     // прямоугольные проходки:
     publishRectVariables(pSet);
 
-    Openings::Opening::publishCExpressions(pSet);
+    Openings::OpeningTask::publishCExpressions(pSet);
 
     // round
     mdlDialog_publishBasicVariable(pSet, mdlCExpression_getType(TYPECODE_DOUBLE), "fdiam", &dFlanDiam);

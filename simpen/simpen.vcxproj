@@ -82,10 +82,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CExpression.cpp" />
     <ClCompile Include="ContourOpeningTool.cpp" />
     <ClCompile Include="ElementHelper.cpp" />
     <ClCompile Include="Opening.cpp" />
     <ClCompile Include="OpeningHelper.cpp" />
+    <ClCompile Include="OpeningTask.cpp" />
     <ClCompile Include="RectPen.cpp" />
     <ClCompile Include="RectPenDraw.cpp" />
     <ClCompile Include="RectPenPlace.cpp" />
@@ -94,11 +96,13 @@
     <ClCompile Include="pipepen.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CExpression.h" />
     <ClInclude Include="ContourOpeningTool.h" />
     <ClInclude Include="ElementHelper.h" />
     <ClInclude Include="english\simpentxt.h" />
     <ClInclude Include="Opening.h" />
     <ClInclude Include="OpeningHelper.h" />
+    <ClInclude Include="OpeningTask.h" />
     <ClInclude Include="pipepen.h" />
     <ClInclude Include="RectPen.h" />
     <ClInclude Include="RectPenDraw.h" />
