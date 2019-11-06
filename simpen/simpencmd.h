@@ -18,6 +18,7 @@
 #define CMD_SIMPEN_LOCATE_PIPE                  0x01090100  /* PLACEMENT */ 
 #define CMD_SIMPEN_LOCATE_RECT                  0x01090200  /* PLACEMENT */ 
 #define CMD_SIMPEN_LOCATE_CONTOUR               0x01090300  /* PLACEMENT */ 
+#define CMD_SIMPEN_LOCATE_TASK                  0x01090400  /* PLACEMENT */ 
 #define CMD_SIMPEN_ELEM                         0x01020000  /* PLACEMENT */ 
 #define CMD_SIMPEN_DRAW                         0x010a0000  /* PLACEMENT */ 
 #define CMD_SIMPEN_DRAW_PIPE                    0x010a0100  /* PLACEMENT */ 

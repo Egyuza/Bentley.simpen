@@ -65,6 +65,7 @@ Table    CT_LOCATE =
     { 1,  CT_NONE,     INHERIT,     DEF,        "PIPE" },
     { 2,  CT_NONE,     INHERIT,     NONE,       "RECT" },
     { 3,  CT_NONE,     INHERIT,     NONE,       "CONTOUR" },
+    { 4,  CT_NONE,     INHERIT,     NONE,       "TASK" },
 };
 
 Table    CT_CONSTRUCT =

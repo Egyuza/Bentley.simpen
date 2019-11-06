@@ -97,7 +97,7 @@ public partial class OpeningForm : Form
         sendTaskData();
 
         if (isTaskMode()) // НВС
-            Addin.Instance.sendCadCommand("locate rect");
+            Addin.Instance.sendCadCommand("locate task"); // rect
         else if (isContourMode())
             Addin.Instance.sendCadCommand("locate contour");
     }

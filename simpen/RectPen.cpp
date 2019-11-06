@@ -463,8 +463,7 @@ bool RectPen::getDataByPointAndVector(DPoint3dR point, DVec3dR vec,
     /*out*/ EditElemHandleR crossFirst, /*out*/ EditElemHandleR crossSecond,
     /*out*/ double* distanceP)
 {
-
-    // в нулевых координатах за ось проходки принимаем ось Y
+    // в нулевых координатах за ось проходки принимаем ось 
 
     RotMatrix rot;
     DVec3d yVec;
@@ -482,6 +481,9 @@ bool RectPen::getDataByPointAndVector(DPoint3dR point, DVec3dR vec,
     double depth = getCExprVal(task_.depth);
 
     // todo считать от медианы:
+
+
+    
 
     points[0].x = points[3].x = - width/2;
     points[1].x = points[2].x = width/2;

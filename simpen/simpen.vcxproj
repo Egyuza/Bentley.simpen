@@ -83,10 +83,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CExpression.cpp" />
-    <ClCompile Include="ContourOpeningTool.cpp" />
+    <ClCompile Include="OpeningByContourTool.cpp" />
     <ClCompile Include="ElementHelper.cpp" />
     <ClCompile Include="Opening.cpp" />
     <ClCompile Include="OpeningHelper.cpp" />
+    <ClCompile Include="OpeningRect.cpp" />
     <ClCompile Include="OpeningTask.cpp" />
     <ClCompile Include="RectPen.cpp" />
     <ClCompile Include="RectPenDraw.cpp" />
@@ -94,14 +95,17 @@
     <ClCompile Include="simpen.cpp" />
     <ClCompile Include="RectPenLocate.cpp" />
     <ClCompile Include="pipepen.cpp" />
+    <ClCompile Include="OpeningByTaskTool.cpp" />
+    <ClCompile Include="XmlAttributeHelper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CExpression.h" />
-    <ClInclude Include="ContourOpeningTool.h" />
+    <ClInclude Include="OpeningByContourTool.h" />
     <ClInclude Include="ElementHelper.h" />
     <ClInclude Include="english\simpentxt.h" />
     <ClInclude Include="Opening.h" />
     <ClInclude Include="OpeningHelper.h" />
+    <ClInclude Include="OpeningRect.h" />
     <ClInclude Include="OpeningTask.h" />
     <ClInclude Include="pipepen.h" />
     <ClInclude Include="RectPen.h" />
@@ -111,6 +115,8 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="simpen.h" />
     <ClInclude Include="simpencmd.h" />
+    <ClInclude Include="OpeningByTaskTool.h" />
+    <ClInclude Include="XmlAttributeHelper.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="english\simpenstr.r" />

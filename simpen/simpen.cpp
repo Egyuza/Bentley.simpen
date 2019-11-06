@@ -8,7 +8,8 @@
 
 #include "OpeningTask.h"
 #include "OpeningHelper.h"
-#include "ContourOpeningTool.h"
+#include "OpeningByContourTool.h"
+#include "OpeningByTaskTool.h"
 
 #include <msdialog.fdf>
 
@@ -74,14 +75,16 @@ Private MdlCommandNumber commandNumber[] =
     { (Command_Handler)cmdTaskPen,              CMD_SIMPEN_TASK },
     { (Command_Handler)PartsReport,             CMD_SIMPEN_REPORT },
     { (Command_Handler)cmdMakeOpening,          CMD_SIMPEN_PLACEOP },
-    
+
     { (Command_Handler)cmdLocateRect,           CMD_SIMPEN_LOCATE_RECT },
     { (Command_Handler)cmdConstructRect,        CMD_SIMPEN_CONSTRUCT_RECT },
     { (Command_Handler)cmdPlaceRect,            CMD_SIMPEN_PLACE_RECT },
     { (Command_Handler)cmdDrawRect,             CMD_SIMPEN_DRAW_RECT },
-    
+       
     { (Command_Handler)
         Openings::cmdLocateContour,             CMD_SIMPEN_LOCATE_CONTOUR },
+    { (Command_Handler)
+        Openings::OpeningByTaskTool::runTool,   CMD_SIMPEN_LOCATE_TASK },
     { (Command_Handler)
         Openings::cmdAddToModel,                CMD_SIMPEN_CONSTRUCT_OPENING },
     { (Command_Handler)

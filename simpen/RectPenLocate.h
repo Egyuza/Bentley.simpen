@@ -20,13 +20,6 @@ extern RectPen rectPen;
 void cmdLocateRect(char *unparsedP); 
 void constructByTask();
 
-int testInstance(Bentley::WString strInst);
-
-bool findNodeFromInstance(XmlNodeRef* node, Bentley::WString strInst, const MSWChar* nodeName);
-bool findChildNode(XmlNodeRef* child, XmlNodeRef node, const MSWChar* childName);
-bool getNodeValue(MSWChar* value, int* pMaxChars, XmlNodeRef node);
-
-
 class RectPenLocate : public Bentley::Ustn::MstnElementSetTool {
 public:
     RectPenLocate::RectPenLocate();

@@ -142,9 +142,12 @@ StatusInt computeAndAddToModel(Opening& opening) {
                 mdlInput_sendSynchronizedKeyin((MSCharCP)buf, 0, 0, 0);
             }
 
+
             if (opening.getTask().isRequiredRemoveContour && 
                 !elementRef_isEOF(opening.contourRef)) 
             {  
+                // todo проверить на контур из референса
+
                 // Удаляем контур:
                 MSElementDescrP contourEdP = NULL;
                 mdlElmdscr_getByElemRef(

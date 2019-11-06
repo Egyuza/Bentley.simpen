@@ -47,9 +47,12 @@ $(reqdObjs)$(tstdir)        : $(reqdObjs)$(tstdir)
 # Define macros for files included in our link and resource merge
 #------------------------------------------------------------------------
 dlmObjs = \
+    $(o)XmlAttributeHelper$(oext)  \
+    $(o)OpeningRect$(oext)  \
     $(o)CExpression$(oext)  \
     $(o)OpeningTask$(oext)  \
-    $(o)ContourOpeningTool$(oext)  \
+    $(o)OpeningByTaskTool$(oext)  \
+    $(o)OpeningByContourTool$(oext)  \
     $(o)OpeningHelper$(oext)  \
     $(o)Opening$(oext)  \
     $(o)ElementHelper$(oext)  \
@@ -97,6 +100,10 @@ $(o)$(sAppName)typ.rsc        : $(o)$(sAppName)typ.r
 #------------------------------------------------------------------------
 $(o)$(appName)$(oext) : $(baseDir)$(appName).cpp   $(baseDir)$(appName).h
 
+$(o)XmlAttributeHelper$(oext) : $(baseDir)XmlAttributeHelper.cpp   $(baseDir)XmlAttributeHelper.h
+
+$(o)OpeningRect$(oext) : $(baseDir)OpeningRect.cpp   $(baseDir)OpeningRect.h
+
 $(o)CExpression$(oext) : $(baseDir)CExpression.cpp   $(baseDir)CExpression.h
 
 $(o)OpeningTask$(oext) : $(baseDir)OpeningTask.cpp   $(baseDir)OpeningTask.h
@@ -117,7 +124,9 @@ $(o)RectPenDraw$(oext) : $(baseDir)RectPenDraw.cpp   $(baseDir)RectPenDraw.h
 
 $(o)RectPenPlace$(oext) : $(baseDir)RectPenPlace.cpp   $(baseDir)RectPenPlace.h
 
-$(o)ContourOpeningTool$(oext) : $(baseDir)ContourOpeningTool.cpp   $(baseDir)ContourOpeningTool.h
+$(o)OpeningByContourTool$(oext) : $(baseDir)OpeningByContourTool.cpp   $(baseDir)OpeningByContourTool.h
+
+$(o)OpeningByTaskTool$(oext) : $(baseDir)OpeningByTaskTool.cpp   $(baseDir)OpeningByTaskTool.h
 
                   
 #----------------------------------------------------------------------
