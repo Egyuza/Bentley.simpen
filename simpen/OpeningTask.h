@@ -4,6 +4,7 @@
 #define OPENING_TASK_H
 
 //#include <mdl.h>
+#include <elementref.h>
 #include <cexpr.h>
 
 namespace Openings {
@@ -11,7 +12,7 @@ namespace Openings {
 struct OpeningTask {
     // геометрические значения необходимо конвертировать по UOR модели!
     // -----------
-    double height; 
+    double height;
     double width;
     double depth;
     // -----------
@@ -21,11 +22,15 @@ struct OpeningTask {
     bool isRequiredRemoveContour;
     bool isReadyToPublish;
 
+    ElementRef tfFormRef;
+    bool isContourSelected;
+    bool isTFFormSelected;
+
     OpeningTask();
     
     static OpeningTask& getInstance();
     static const void publishCExpressions(SymbolSet* symSetP);
-
+    
     bool operator ==(OpeningTask other);
     bool operator !=(OpeningTask other);
 

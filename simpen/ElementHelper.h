@@ -79,7 +79,7 @@ bool AddChildToCell(EditElemHandleR cell, EditElemHandleR child);
 bool ToEditHandle(EditElemHandleR eehOut, MSElement element);
 bool ToEditHandle(EditElemHandleR eehOut, MSElementDescrP elemDescrP);
 
-TFFormRecipeList* findIntersectedTfFormWithElement(
+TFFormRecipeList* findIntersectedTFFormWithElement(
     const MSElementP elementP, int* tfTypes, int tfTypeNum);
 
 bool planesAreMatch(const DPlane3d& first, const DPlane3d& second);

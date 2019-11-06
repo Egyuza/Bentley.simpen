@@ -14,13 +14,17 @@
 #include <mstrnsnt.fdf>
 #include <msdialog.fdf>
 #include <msselect.fdf>
+#include <msmisc.fdf>
+#include <mdltfelmdscr.fdf>
+#include <msview.fdf>
+#include <mswindow.fdf>
 
 
 namespace Openings
 {
 
 ContourOpeningTool* ContourOpeningTool::instanceP = NULL;
-OpeningTask ContourOpeningTool::cachedTask = OpeningTask();
+OpeningTask ContourOpeningTool::userTask = OpeningTask();
 
 void cmdLocateContour(char *unparsedP)
 {
@@ -31,12 +35,12 @@ void cmdLocateContour(char *unparsedP)
 void cmdUpdatePreview(char *unparsedP)
 {
     if (ContourOpeningTool::instanceP != NULL && 
-        ContourOpeningTool::cachedTask == OpeningTask::getInstance())
+        ContourOpeningTool::userTask == OpeningTask::getInstance())
     {
         return; //  параметры построения не изменились
     }
 
-    ContourOpeningTool::cachedTask = OpeningTask::getInstance();
+    ContourOpeningTool::userTask = OpeningTask::getInstance();
 
     mdlTransient_free(&msTransientElmP, true);
 
@@ -44,27 +48,32 @@ void cmdUpdatePreview(char *unparsedP)
         return;
     }
 
-    if (elementRef_isEOF(Opening::instance.contourRef)) {
+    if (!Opening::instance.isValid()) { // elementRef_isEOF(Opening::instance.contourRef)) {
         mdlOutput_prompt("Элемент типа <Shape> (контур построения) не определён");
         return;
     }
 
-    MSElementDescrP edP = NULL;
-    mdlElmdscr_getByElemRef(&edP,
-        Opening::instance.contourRef, ACTIVEMODEL, FALSE, 0);
+    //MSElementDescrP edP = NULL;
+    //mdlElmdscr_getByElemRef(&edP,
+    //    Opening::instance.contourRef, ACTIVEMODEL, FALSE, 0);
 
-    if (edP == NULL || edP->el.ehdr.type != SHAPE_ELM) {
-        mdlOutput_prompt("Элемент типа <Shape> (контур построения) не определён");
-        return;
-    }
+    //if (edP == NULL || edP->el.ehdr.type != SHAPE_ELM) {
+    //    mdlOutput_prompt("Элемент типа <Shape> (контур построения) не определён");
+    //    return;
+    //}
 
     //mdlOutput_prompt("Выделен контур для создания проёма");
 
     if (SUCCESS != computeAndDrawTransient(Opening::instance)) {
         // todo сообщение об ошибке
         mdlOutput_prompt(
-            "Указанный контур не лежит в плоскости какой-либо стены или плиты");
+            "Указанный контур должен быть параллелен плоскости указанной стены/плиты");
         return;
+    }
+
+    if (Opening::instance.isValid()) {
+        mdlInput_sendKeyin(
+            "mdl keyin simpen.ui simpen.ui enableAddToModel", 0, 0, 0);
     }
 }
 
@@ -79,27 +88,55 @@ void cmdAddToModel(char *unparsedP)
 
 // Фильтр элементов, которые будут доступны пользователю для выбора
 bool ContourOpeningTool::OnPostLocate(HitPathCP path, char *cantAcceptReason) {
-    if (!__super::OnPostLocate(path, cantAcceptReason))
+    if (!__super::OnPostLocate(path, cantAcceptReason)) {
         return false;
+    }
 
-    ElementRef elRef = mdlDisplayPath_getElem((DisplayPathP)path, 0);
-    return elementRef_getElemType(elRef) == SHAPE_ELM;
+    ElementRef elRef = mdlDisplayPath_getElem((DisplayPathP)path, 0);    
+    EditElemHandle eeh = EditElemHandle(elRef, ACTIVEMODEL);
+    
+    if (!OpeningTask::getInstance().isContourSelected &&
+        eeh.GetElementType() == SHAPE_ELM) 
+    {
+        return true;
+    }
+    else if (OpeningTask::getInstance().isContourSelected &&
+        eeh.GetElementType() == CELL_HEADER_ELM) 
+    {
+        // должна быть стена или плита
+        int tfType = mdlTFElmdscr_getApplicationType(eeh.GetElemDescrP());
+
+        if (tfType == TF_LINEAR_FORM_ELM || tfType == TF_SLAB_FORM_ELM) {
+            return true;
+        }
+    }
+    return false;
 }
 
 EditElemHandleP
     ContourOpeningTool::BuildLocateAgenda(HitPathCP path, MstnButtonEventCP ev)
 {
     // Here we have both the new agenda entry and the current hit path if needed...
-    Opening::instance.contourRef = mdlDisplayPath_getElem((DisplayPathP)path, 0);
+    EditElemHandleP eehP = __super::BuildLocateAgenda(path, ev);
+    
+    if (eehP->GetElementType() == SHAPE_ELM) {
+        Opening::instance = Opening(eehP->GetElemDescrP());
+        OpeningTask::getInstance().isContourSelected = true;       
+    }
+    else if (eehP->GetElementType() == CELL_HEADER_ELM) {
+        // должна быть стена или плита
 
-    // todo setDataGroupInstanceValue(Opening::instance.contourRef, L"kksValue");
+        int tfType = mdlTFElmdscr_getApplicationType(eehP->GetElemDescrP());
 
-    if (FALSE == elementRef_isEOF(Opening::instance.contourRef)) {
-        mdlInput_sendKeyin(
-            "mdl keyin simpen.ui simpen.ui enableAddToModel", 0, 0, 0);
+        if (tfType == TF_LINEAR_FORM_ELM || tfType == TF_SLAB_FORM_ELM) {
+            OpeningTask::getInstance().tfFormRef = eehP->GetElemRef();
+            OpeningTask::getInstance().isTFFormSelected = true;
+        }        
     }
 
-    return __super::BuildLocateAgenda(path, ev);
+    //if (FALSE == elementRef_isEOF(Opening::instance.contourRef)) {
+
+    return eehP;
 }
 
 void ContourOpeningTool::OnComplexDynamics(MstnButtonEventCP ev) {
@@ -108,6 +145,11 @@ void ContourOpeningTool::OnComplexDynamics(MstnButtonEventCP ev) {
 }
 
 StatusInt ContourOpeningTool::OnElementModify(EditElemHandleR eeh) {
+    
+    if (eeh.GetElementType() != SHAPE_ELM) {
+        return ERROR;
+    }
+    
     mdlInput_sendSynchronizedKeyin(
         "mdl keyin simpen.ui simpen.ui sendTaskData", 0, 0, 0);
 
@@ -116,6 +158,26 @@ StatusInt ContourOpeningTool::OnElementModify(EditElemHandleR eeh) {
         return SUCCESS;
     }
     return ERROR;
+}
+
+
+bool ContourOpeningTool::WantAdditionalLocate(MstnButtonEventCP ev) {
+
+    if (!OpeningTask::getInstance().isContourSelected) {
+        mdlOutput_promptU("Выбирите элемент типа <Shape>, который будет задавать контур проёма");
+        return true;
+    }
+    else if (!OpeningTask::getInstance().isTFFormSelected) {
+        mdlOutput_promptU("Выбирите элемент типа <Wall> или <Slab>");
+        return true;
+    }
+    
+    BeginComplexDynamics();
+    return false;
+}
+
+bool ContourOpeningTool::WantDynamics() {
+    return false; // управляем вручную через BeginComplexDynamics();
 }
 
 void ContourOpeningTool::OnRestartCommand() {
@@ -131,24 +193,27 @@ bool ContourOpeningTool::WantAccuSnap()
     return false;
 }
 
-bool ContourOpeningTool::NeedPointForDynamics()
-{
-    return false;
-}
+//bool ContourOpeningTool::NeedPointForDynamics()
+//{
+//    return true;
+//}
 
 void ContourOpeningTool::OnPostInstall() {
     __super::OnPostInstall();
 
     instanceP = this;
+    Opening::instance = Opening();
+    OpeningTask::getInstance().isContourSelected =
+    OpeningTask::getInstance().isTFFormSelected = false;
 
     mdlAccuDraw_setEnabledState(false); // Don't enable AccuDraw w/Dynamics...
     mdlLocate_setCursor();
-    mdlLocate_allowLocked();
+    // mdlLocate_allowLocked();
 
     mdlSelect_freeAll();
-    cachedTask = OpeningTask();
+    userTask = OpeningTask();
 
-    mdlOutput_prompt("Выбирите элемент типа <Shape>, который будет задавать контур проёма");
+    mdlOutput_promptU("Выбирите элемент типа <Shape>, который будет задавать контур проёма");
 }
 
 bool ContourOpeningTool::OnInstall() {
@@ -166,5 +231,6 @@ void ContourOpeningTool::OnCleanup() {
     instanceP = NULL;
     mdlInput_sendKeyin("mdl keyin simpen.ui simpen.ui reload", 0, 0, 0);
 }
+
 
 }

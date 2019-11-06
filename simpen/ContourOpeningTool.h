@@ -22,7 +22,7 @@ class ContourOpeningTool :
 {
 public:
     static ContourOpeningTool* instanceP;
-    static OpeningTask cachedTask;
+    static OpeningTask userTask;
 
 private:
     // unsigned int flagLocateSurfaces;
@@ -32,14 +32,20 @@ private:
     void OnComplexDynamics(MstnButtonEventCP ev) override;
     StatusInt OnElementModify(EditElemHandleR elHandle) override;
     
+    //bool NeedPointForSelection() override;
+    bool WantAdditionalLocate(MstnButtonEventCP ev) override;
+    bool WantDynamics() override;
     bool WantAccuSnap() override;
-    bool NeedPointForDynamics() override; // Can check GetHitSource to detect EditAction
+    
+    //bool NeedPointForDynamics() override; // Can check GetHitSource to detect EditAction
     bool NeedAcceptPoint() override;
 
+    //bool OnResetButton(MstnButtonEventCP ev) override;
     void OnRestartCommand() override;
     void OnPostInstall() override;
     bool OnInstall() override;
-    void OnCleanup() override;    
+    void OnCleanup() override;
+    
 };
 
 }

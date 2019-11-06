@@ -157,7 +157,7 @@ bool AddChildToCell(EditElemHandleR cell, EditElemHandleR child) {
 }
 
 
-TFFormRecipeList* findIntersectedTfFormWithElement(
+TFFormRecipeList* findIntersectedTFFormWithElement(
     const MSElementP elementP, int* tfTypes, int tfTypesNum)
 {
     TFFormRecipeList* wallP = NULL;

@@ -28,7 +28,7 @@ struct RectPenTask {
     double flanHeight;
     double flanWidth;
 
-    bool isWallMounted;
+    BoolInt isWallMounted;
     bool isEmpty;
 
     /*
@@ -40,10 +40,7 @@ struct RectPenTask {
         | 3 - - - - - -|-2
         |/             |/
         0______________1
-
     */
-
-    // todo перенести реализацию в cpp
 
     StatusInt updateByCell(MSElementCP elP);
     void update(RectPenTask& other);
@@ -68,7 +65,6 @@ public:
         EditElemHandleR  crossSecond = Bentley::Ustn::Element::EditElemHandle());
 
     MSElementDescr* penEdP;
-    
 
     bool getDataByPointAndVector(DPoint3dR point, DVec3dR vec,
         /*out*/ EditElemHandleR shapeBody, /*out*/ EditElemHandleR shapePerf,
@@ -85,10 +81,8 @@ private:
     // массивы точек трёх граней задания: front, left, top
     DPoint3d facetsPoints[3][4];
     DVec3d vectors[3];
-    double distances[3];    
-
-
-    
+    double distances[3];
+      
     // Получение одного из 3-х возможных вариантов параметров Проходки,
     // в случае когда не определена ориентация относительно стены
     bool getDataByIndex(/*in*/int index /*от 0 до 2*/, /*in*/ double shell,
@@ -96,9 +90,7 @@ private:
         /*out*/ EditElemHandleR crossFirst, /*out*/ EditElemHandleR crossSecond,
         /*out*/ DVec3dR vec,
         /*out*/ double* distanceP);
-
-
-
+    
     // Поиск объекта 'Стена' - FreeForm, 
     // в которой расположено графическое задание на проходку
     TFFormRecipeList* findWallByTask();
@@ -107,8 +99,6 @@ private:
     bool getWallNormals(TFFormRecipeList* wall/*in*/,
         DVec3d* nrm1/*out*/, DVec3d* nrm2/*out*/,
         MSElementDescr* face1, MSElementDescr* face2);
-
-
 
     //bool createPenetrFrame(EditElemHandleR eeh,
     //    EditElemHandleR shapeBody, EditElemHandleR shapePerf, 

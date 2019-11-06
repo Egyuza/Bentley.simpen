@@ -74,7 +74,7 @@ dlmObjs = \
 
 bclassRscs = \
    $(o)$(appName)cmd.rsc \
-   $(o)$(appName)typ.rsc
+   $(o)$(appName)typ.rsc \
 
 #------------------------------------------------------------------------
 # Generate command table include & resource file using rcomp

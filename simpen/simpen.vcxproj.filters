@@ -95,6 +95,9 @@
     <ClInclude Include="CExpression.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="simpen.r" />
@@ -103,5 +106,10 @@
     <None Include="english\simpenstr.r" />
     <None Include="simpenrsc.mki" />
     <None Include="simpentyp.mt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="simpen.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

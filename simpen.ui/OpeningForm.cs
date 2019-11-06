@@ -2,6 +2,7 @@
 using System.Windows.Forms;
 using System.Text.RegularExpressions;
 using System.Diagnostics;
+using System.Reflection;
 
 namespace simpen.ui
 {
@@ -20,12 +21,10 @@ enum FieldType
     KKS
 }
 
-
 public partial class OpeningForm : Form
 {
-
     static Properties.Settings Sets {
-        get 
+        get
         {
             return   Properties.Settings.Default;
         }
@@ -60,6 +59,11 @@ public partial class OpeningForm : Form
     public OpeningForm()
     {
         InitializeComponent();
+
+        Version version = Assembly.GetExecutingAssembly().GetName().Version;
+
+        this.Text = string.Format("Проёмы v{0}.{1}.{2}",
+            version.Major, version.Build, version.Minor);
 
         foreach (FieldType fieldType in Enum.GetValues(typeof(FieldType)))
         { 
@@ -414,7 +418,7 @@ public partial class OpeningForm : Form
 
         bool isWallMounted = Convert.ToBoolean(
             Addin.Instance.getCExpressionValue(CExpr.WALL_MOUNTED));
-        
+
         rbtnWallMounted.Checked = isWallMounted;
         rbtnFloorMounted.Checked = !isWallMounted;
 

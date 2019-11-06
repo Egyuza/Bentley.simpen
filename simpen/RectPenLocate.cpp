@@ -141,6 +141,7 @@ EditElemHandleP RectPenLocate::BuildLocateAgenda(HitPathCP path, MstnButtonEvent
     // Here we have both the new agenda entry and the current hit path if needed...
     EditElemHandleP elHandle = __super::BuildLocateAgenda(path, ev);
 
+    rectPen = RectPen();
 
     if (elHandle != NULL) {
         TFFormRecipeList* flP = NULL;

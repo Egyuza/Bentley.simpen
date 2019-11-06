@@ -3,9 +3,10 @@
 #ifndef OPENING_H
 #define OPENING_H
 
-#include <mdl.h>
 #include <string>
+#include <vector>
 
+#include <mdl.h>
 #include "OpeningTask.h"
 
 namespace Openings {
@@ -16,13 +17,14 @@ struct Opening {
 
     DPoint3d origin;
     DVec3d direction;
+
     ElementRef contourRef;
-        
-    const bool isValid();
+    std::vector<DPoint3d> contourPoints;
 
     static Opening instance;
 
     Opening();
+    Opening(MSElementDescrP shapeEdP);
 
     double getDistance();
     void setDistance(double value);
@@ -31,6 +33,7 @@ struct Opening {
     void setKKS(const char* value);
 
     OpeningTask& getTask();
+    const bool isValid();
 
     bool operator ==(Opening other);
     bool operator !=(Opening other);

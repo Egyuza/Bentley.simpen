@@ -51,11 +51,11 @@ StatusInt computeAndDrawTransient(Opening& opening) {
     EditElemHandle bodyShape, perfoShape, crossFirst, crossSecond;
     
     if (SUCCESS != computeElementsForOpening(
-        bodyShape, perfoShape, crossFirst, crossSecond, opening)) 
+        bodyShape, perfoShape, crossFirst, crossSecond, opening))
     {
         return ERROR;
     }
-    
+
     msTransientElmP = mdlTransient_addElemDescr(msTransientElmP,
         bodyShape.GetElemDescrCP(), true, 0xffff, DRAW_MODE_TempDraw, FALSE, FALSE, TRUE);
     msTransientElmP = mdlTransient_addElemDescr(msTransientElmP,
@@ -128,9 +128,9 @@ StatusInt computeAndAddToModel(Opening& opening) {
         
         if (SUCCESS == mdlTFModelRef_addFrame(ACTIVEMODEL, frameP))
         {
-
             if (fpos) {
-                // todo научиться это делать в mdl:
+                // TODO научиться это делать в mdl:
+
                 //ElementRef elemRef = mdlModelRef_getElementRef(ACTIVEMODEL, fpos);
                 //std::wstring kksValue(&opening.kks[0], &opening.kks[50]);
                 //setDataGroupInstanceValue(elemRef, kksValue);
@@ -142,10 +142,13 @@ StatusInt computeAndAddToModel(Opening& opening) {
                 mdlInput_sendSynchronizedKeyin((MSCharCP)buf, 0, 0, 0);
             }
 
-            if (opening.getTask().isRequiredRemoveContour) {  
+            if (opening.getTask().isRequiredRemoveContour && 
+                !elementRef_isEOF(opening.contourRef)) 
+            {  
                 // Удаляем контур:
                 MSElementDescrP contourEdP = NULL;
-                mdlElmdscr_getByElemRef(&contourEdP, opening.contourRef, ACTIVEMODEL, FALSE, 0);
+                mdlElmdscr_getByElemRef(
+                    &contourEdP, opening.contourRef, ACTIVEMODEL, FALSE, 0);
 
                 fpos = mdlElmdscr_getFilePos(contourEdP);
                 mdlElmdscr_deleteByModelRef(contourEdP, fpos, ACTIVEMODEL, TRUE);
@@ -169,20 +172,28 @@ StatusInt computeElementsForOpening(EditElemHandleR outBodyShape,
     EditElemHandleR outCrossSecond, Opening& opening) 
 {
     int tfTypes[2] = { TF_LINEAR_FORM_ELM, TF_SLAB_FORM_ELM };
+    
 
-    MSElementDescrP contourEdP = NULL;
-    mdlElmdscr_getByElemRef(&contourEdP, opening.contourRef, ACTIVEMODEL, FALSE, 0);
+    EditElemHandle contour;
+    createShape(contour, &opening.contourPoints[0], opening.contourPoints.size(), false);
 
-    TFFormRecipeList* wall =
-        findIntersectedTfFormWithElement(&contourEdP->el, tfTypes, 2);
+    TFFormRecipeList* wall = NULL;
+        // findIntersectedTFFormWithElement(contour.GetElementP(), tfTypes, 2);
 
     if (!wall) {
-        return ERROR;
+        EditElemHandle eeh = 
+            EditElemHandle(OpeningTask::getInstance().tfFormRef, ACTIVEMODEL);
+
+        if (BSISUCCESS != mdlTFFormRecipeList_constructFromElmdscr(
+            &wall, eeh.GetElemDescrP())) 
+        {
+            return ERROR;
+        }
     }
 
     DPlane3d contourPlane;
     mdlElmdscr_extractNormal(
-        &contourPlane.normal, &contourPlane.origin, contourEdP, NULL);
+        &contourPlane.normal, &contourPlane.origin, contour.GetElemDescrP(), NULL);
     
     double distance = 0.0;
     {   // обновление и корректировка
@@ -204,12 +215,15 @@ StatusInt computeElementsForOpening(EditElemHandleR outBodyShape,
         distance = abs(distance);
     }
 
-    //EditElemHandle shapeEeh;
-    //ToEditHandle(shapeEeh, contourEdP);
+    createShape(contour, &opening.contourPoints[0], opening.contourPoints.size(), false);
+
+
+
 
     DPoint3d vertices[256];
     int numVerts;
-    mdlLinear_extract(vertices, &numVerts, &contourEdP->el, ACTIVEMODEL);
+    mdlLinear_extract(vertices, &numVerts, contour.GetElementP(), ACTIVEMODEL);
+    //mdlLinear_extract(vertices, &numVerts, &contourEdP->el, ACTIVEMODEL);
 
     EditElemHandle shape;
     сreateStringLine(shape, vertices, numVerts);
@@ -222,7 +236,8 @@ StatusInt computeElementsForOpening(EditElemHandleR outBodyShape,
     {   // Перекрестия:
         DPoint3d centroid;
         mdlMeasure_linearProperties(NULL, &centroid, NULL, NULL, NULL, NULL,
-            NULL, NULL, contourEdP, fc_epsilon);
+            NULL, NULL, contour.GetElemDescrP(), fc_epsilon);
+        //NULL, NULL, contourEdP, fc_epsilon);
 
         createCross(outCrossFirst, centroid, vertices, numVerts);        
 
@@ -256,50 +271,33 @@ StatusInt findDirectionVector(DVec3d& outDirectionVec, double& distance,
         }
     }
 
-
-    //TFBrepFaceList*       mdlTFBrepFaceList_getNext
-    //(
-    //    TFBrepFaceList const*       pThis
-    //);
-
-    //const int size = 4;
-    //std::pair<FaceLabelEnum, FaceLabelEnum> faceLabels[size] =
-    //{
-    //    std::pair<FaceLabelEnum, FaceLabelEnum>(FaceLabelEnum_Left, FaceLabelEnum_Right),
-    //    std::pair<FaceLabelEnum, FaceLabelEnum>(FaceLabelEnum_Right, FaceLabelEnum_Left),
-    //    std::pair<FaceLabelEnum, FaceLabelEnum>(FaceLabelEnum_Top, FaceLabelEnum_Base),
-    //    std::pair<FaceLabelEnum, FaceLabelEnum>(FaceLabelEnum_Base, FaceLabelEnum_Top),
-    //};
-
+    // пробегаемся по всем граням:
     for (int i = FaceLabelEnum_None; i < FaceLabelEnum_Hidden; ++i)
     {
-        TFBrepFaceList* faceListP =
-            mdlTFBrepList_getFacesByLabel(brepListP, static_cast<FaceLabelEnum>(i));
-        
-        MSElementDescr* faceP = NULL;
-        mdlTFBrepFaceList_getElmdscr(&faceP, faceListP, 0);
-                
-    //}
-
-    //// Ищем поверхность стены, в плоскости которой лежит указанный контур
-    //for (int i = 0; i < size; ++i) {
-    //    std::pair<FaceLabelEnum, FaceLabelEnum> faces = faceLabels[i];
-
-    //    TFBrepFaceList* brepFace = 
-    //        mdlTFBrepList_getFacesByLabel(brepListP, faces.first);        
-    //   
-    //    MSElementDescr* faceP = NULL;
-    //    mdlTFBrepFaceList_getElmdscr(&faceP, brepFace, 0);
-
-
-        DPlane3d facePlane;
-        if (SUCCESS != mdlElmdscr_extractNormal(&facePlane.normal, 
-            &facePlane.origin, faceP, NULL))
+        DPlane3d facePlane; // плоскость грани
         {
+            TFBrepFaceList* faceListP = mdlTFBrepList_getFacesByLabel(
+                brepListP, static_cast<FaceLabelEnum>(i));
+
+            MSElementDescr* faceP = NULL;
+            mdlTFBrepFaceList_getElmdscr(&faceP, faceListP, 0);
+        
+            if (SUCCESS != mdlElmdscr_extractNormal(&facePlane.normal,
+                &facePlane.origin, faceP, NULL))
+            {
+                continue;
+            }
+        }
+
+        if (!planesAreParallel(facePlane, contourPlane)) {
             continue;
         }
 
-        if (planesAreMatch(contourPlane, facePlane)) {
+    //// Ищем поверхность стены, в плоскости которой лежит указанный контур
+        
+        // TODO !!!!!!!!!! mdlVec_linePlaneIntersectParameter
+
+        if (planesAreParallel(contourPlane, facePlane)) {
 
             bool isForwardFound = false;
            
@@ -327,8 +325,46 @@ StatusInt findDirectionVector(DVec3d& outDirectionVec, double& distance,
                         // считаем, что противоположная стена должна быть параллельна
                         // плоскости контура:
                         if (planesAreParallel(contourPlane, forwardPlane)) {
-                            distance = distanceToPlane(contourPlane.origin, forwardPlane);
-                            outDirectionVec = computeVectorToPlane(contourPlane.origin, forwardPlane);
+                            
+                            double dist1 = distanceToPlane(contourPlane.origin, facePlane);
+                            double dist2 = distanceToPlane(contourPlane.origin, forwardPlane);
+
+                            std::vector<DPoint3d>& contourPointsRef =
+                                Opening::instance.contourPoints;
+
+                            if (dist2 > dist1) {
+                                distance = dist2;
+                                outDirectionVec = computeVectorToPlane(contourPlane.origin, forwardPlane);
+                            
+                                std::vector<DPoint3d> copy = 
+                                    std::vector<DPoint3d>(contourPointsRef);
+                                contourPointsRef.clear();
+
+                                for (size_t k = 0; k < copy.size(); ++k) {
+                                    DPoint3d& pt = copy[k];
+                                    mdlVec_projectPointToPlane(
+                                        &pt, &pt, &facePlane.origin, &facePlane.normal);
+
+                                    contourPointsRef.push_back(pt);
+                                }
+                            }
+                            else {
+                                distance = dist1;
+                                outDirectionVec = computeVectorToPlane(contourPlane.origin, facePlane);
+                            
+                                std::vector<DPoint3d> copy =
+                                    std::vector<DPoint3d>(contourPointsRef);
+                                contourPointsRef.clear();
+
+                                for (size_t k = 0; k < copy.size(); ++k) {
+                                    DPoint3d& pt = copy[k];
+                                    mdlVec_projectPointToPlane(
+                                        &pt, &pt, &forwardPlane.origin, &forwardPlane.normal);
+
+                                    contourPointsRef.push_back(pt);
+                                }
+                            }
+
                             isForwardFound = true;
                             break;
                         }

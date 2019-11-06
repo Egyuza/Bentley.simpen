@@ -101,10 +101,6 @@ StatusInt RectPenTask::updateByCell(MSElementCP elP) {
     {        
         prevDescrP = currDescrP->h.previous;
     }
-    
-    if (count > 0) {
-        ;
-    }
 
     int res = mdlCell_extract(&origin, bounds, NULL, NULL, NULL, 0, elP);
     return res;
@@ -218,6 +214,14 @@ RectPen::RectPen(RectPenTask& task)
         // отсутствии графического задания на проходку
         TFFormRecipeList* wallP = findWallByTask();
         if (wallP != NULL) {
+
+            TFFormRecipe* fP = mdlTFFormRecipeList_getFormRecipe(wallP);
+            int type = mdlTFFormRecipe_getType(fP);
+
+            if (task.isEmpty) {
+                task.isWallMounted = (type != TF_SLAB_FORM_ELM);
+            }
+
             if (getWallNormals(wallP, &wallNrms_[0], &wallNrms_[1], face1, face2)) {
                 isWallFound_ = true;
             }
@@ -250,8 +254,7 @@ RectPen::RectPen(RectPenTask& task)
                 
                 task.origin.x = (pts[0].x + pts[2].x) / 2;
                 task.origin.y = (pts[0].y + pts[2].y) / 2;
-                task.origin.z = (pts[0].z + pts[2].z) / 2;
-                               
+                task.origin.z = (pts[0].z + pts[2].z) / 2;                               
 
                 if (mdlVec_angleBetweenVectors(&normal, &wallNrms_[0]) < 1) // НВС погрешность 1 град.
                     task.direction = wallNrms_[0];
@@ -261,10 +264,17 @@ RectPen::RectPen(RectPenTask& task)
                 mdlVec_negate(&task.direction, &task.direction);
 
                 if (task.isEmpty) {
+
+                    
+
                     setCExprVal(&task.width, mdlVec_distance(&pts[0], &pts[1]));
                     setCExprVal(&task.height, mdlVec_distance(&pts[0], &pts[3]));
+
                     setCExprVal(&task.depth, distances[i]);
                     task.isEmpty = false;
+
+                    mdlInput_sendSynchronizedKeyin("mdl keyin simpen.ui simpen.ui readData", 0, 0, 0);
+                    mdlInput_sendSynchronizedKeyin("mdl keyin simpen.ui simpen.ui enableAddToModel", 0, 0, 0);                    
                 }
 
                 break;
@@ -460,6 +470,7 @@ bool RectPen::getDataByPointAndVector(DPoint3dR point, DVec3dR vec,
     DVec3d yVec;
     yVec.y = 1;
     yVec.x = yVec.z = 0;
+    // mdlVec_subtractDPoint3dDPoint3d(&yVec, &task_.bounds[0], &task_.bounds[3]);
 
     mdlRMatrix_fromVectorToVector(&rot, &yVec, &vec);
 
@@ -469,6 +480,8 @@ bool RectPen::getDataByPointAndVector(DPoint3dR point, DVec3dR vec,
     double height = getCExprVal(task_.height);
     double width = getCExprVal(task_.width);
     double depth = getCExprVal(task_.depth);
+
+    // todo считать от медианы:
 
     points[0].x = points[3].x = - width/2;
     points[1].x = points[2].x = width/2;
@@ -693,11 +706,12 @@ bool RectPen::getWallNormals(TFFormRecipeList* wallP, DVec3d* nrm1, DVec3d* nrm2
         //FaceLabelEnum faceFirstLabel = task_.isWallMounted ? FaceLabelEnum_Left : FaceLabelEnum_Top;
         //FaceLabelEnum faceSecondLabel = task_.isWallMounted ? FaceLabelEnum_Right : FaceLabelEnum_Base;
         
+
         if (false) // TODO механизм автоориентирования ещё сырой
         {
             //Корректируем вычисляем грани, кот. образуют толщину стены или плиты:
 
-            TFBrepFaceList* faceLeftP = mdlTFBrepList_getFacesByLabel(blP, FaceLabelEnum_Left);
+          /*  TFBrepFaceList* faceLeftP = mdlTFBrepList_getFacesByLabel(blP, FaceLabelEnum_Left);
             TFBrepFaceList* faceRightP = mdlTFBrepList_getFacesByLabel(blP, FaceLabelEnum_Right);
             TFBrepFaceList* faceTopP = mdlTFBrepList_getFacesByLabel(blP, FaceLabelEnum_Top);
             TFBrepFaceList* faceBaseP = mdlTFBrepList_getFacesByLabel(blP, FaceLabelEnum_Base);
@@ -725,7 +739,7 @@ bool RectPen::getWallNormals(TFFormRecipeList* wallP, DVec3d* nrm1, DVec3d* nrm2
             else {
                 faceFirstLabel = task_.isWallMounted ? FaceLabelEnum_Left : FaceLabelEnum_Top;
                 faceSecondLabel = task_.isWallMounted ? FaceLabelEnum_Right : FaceLabelEnum_Base;
-            }
+            }*/
         }
 
         TFBrepFaceList* faceFirstP = mdlTFBrepList_getFacesByLabel(blP, faceFirstLabel);
