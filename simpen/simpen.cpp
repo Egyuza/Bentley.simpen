@@ -76,7 +76,6 @@ Private MdlCommandNumber commandNumber[] =
     { (Command_Handler)PartsReport,             CMD_SIMPEN_REPORT },
     { (Command_Handler)cmdMakeOpening,          CMD_SIMPEN_PLACEOP },
 
-    { (Command_Handler)cmdLocateRect,           CMD_SIMPEN_LOCATE_RECT },
     { (Command_Handler)cmdConstructRect,        CMD_SIMPEN_CONSTRUCT_RECT },
     { (Command_Handler)cmdPlaceRect,            CMD_SIMPEN_PLACE_RECT },
     { (Command_Handler)cmdDrawRect,             CMD_SIMPEN_DRAW_RECT },
@@ -93,6 +92,7 @@ Private MdlCommandNumber commandNumber[] =
     Openings::cmdUpdateAll,                 CMD_SIMPEN_UPDATE_ALL_OPENINGS },
     0
 };
+
 
 //{(Command_Handler) cmdMakePenetrPX,            CMD_SIMPEN_PLACE_PX},
 //{(Command_Handler) cmdMakePenetrPY,             CMD_SIMPEN_PLACE_PY},

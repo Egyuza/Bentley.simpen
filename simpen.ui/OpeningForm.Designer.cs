@@ -28,9 +28,9 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle8 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle9 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle7 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             this.tlpSets = new System.Windows.Forms.TableLayoutPanel();
             this.dgvFields = new System.Windows.Forms.DataGridView();
             this.Label = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -45,8 +45,6 @@
             this.textBox3 = new System.Windows.Forms.TextBox();
             this.chbxRemoveContour = new System.Windows.Forms.CheckBox();
             this.chbxPolicyThrough = new System.Windows.Forms.CheckBox();
-            this.rbtnFloorMounted = new System.Windows.Forms.RadioButton();
-            this.rbtnWallMounted = new System.Windows.Forms.RadioButton();
             this.btnDraw = new System.Windows.Forms.Button();
             this.tlpMain = new System.Windows.Forms.TableLayoutPanel();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
@@ -99,32 +97,32 @@
             this.dgvFields.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.Label,
             this.Value});
-            dataGridViewCellStyle8.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle8.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle8.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            dataGridViewCellStyle8.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
-            dataGridViewCellStyle8.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle8.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle8.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.dgvFields.DefaultCellStyle = dataGridViewCellStyle8;
+            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
+            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.dgvFields.DefaultCellStyle = dataGridViewCellStyle2;
             this.dgvFields.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgvFields.EditMode = System.Windows.Forms.DataGridViewEditMode.EditOnEnter;
             this.dgvFields.Location = new System.Drawing.Point(0, 1);
             this.dgvFields.Margin = new System.Windows.Forms.Padding(0, 1, 0, 0);
             this.dgvFields.MultiSelect = false;
             this.dgvFields.Name = "dgvFields";
-            dataGridViewCellStyle9.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle9.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle9.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            dataGridViewCellStyle9.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle9.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle9.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dgvFields.RowHeadersDefaultCellStyle = dataGridViewCellStyle9;
+            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle3.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dgvFields.RowHeadersDefaultCellStyle = dataGridViewCellStyle3;
             this.dgvFields.RowHeadersVisible = false;
             this.dgvFields.RowTemplate.DefaultCellStyle.ForeColor = System.Drawing.Color.Black;
             this.dgvFields.RowTemplate.Height = 20;
             this.dgvFields.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvFields.Size = new System.Drawing.Size(273, 100);
+            this.dgvFields.Size = new System.Drawing.Size(273, 123);
             this.dgvFields.TabIndex = 2;
             this.dgvFields.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvFields_CellValueChanged);
             this.dgvFields.EnabledChanged += new System.EventHandler(this.dgvFields_EnabledChanged);
@@ -132,8 +130,8 @@
             // Label
             // 
             this.Label.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.AllCells;
-            dataGridViewCellStyle7.BackColor = System.Drawing.SystemColors.Control;
-            this.Label.DefaultCellStyle = dataGridViewCellStyle7;
+            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control;
+            this.Label.DefaultCellStyle = dataGridViewCellStyle1;
             this.Label.HeaderText = "Метка";
             this.Label.Name = "Label";
             this.Label.ReadOnly = true;
@@ -156,19 +154,17 @@
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel1.Controls.Add(this.tlpRefPoint, 0, 0);
-            this.tableLayoutPanel1.Controls.Add(this.chbxRemoveContour, 1, 2);
-            this.tableLayoutPanel1.Controls.Add(this.chbxPolicyThrough, 0, 2);
-            this.tableLayoutPanel1.Controls.Add(this.rbtnFloorMounted, 1, 1);
-            this.tableLayoutPanel1.Controls.Add(this.rbtnWallMounted, 0, 1);
+            this.tableLayoutPanel1.Controls.Add(this.chbxRemoveContour, 1, 1);
+            this.tableLayoutPanel1.Controls.Add(this.chbxPolicyThrough, 0, 1);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 101);
+            this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 124);
             this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(0);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-            this.tableLayoutPanel1.RowCount = 3;
+            this.tableLayoutPanel1.RowCount = 2;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(273, 72);
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(273, 49);
             this.tableLayoutPanel1.TabIndex = 5;
             // 
             // tlpRefPoint
@@ -261,7 +257,7 @@
             this.chbxRemoveContour.AutoSize = true;
             this.chbxRemoveContour.Checked = true;
             this.chbxRemoveContour.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chbxRemoveContour.Location = new System.Drawing.Point(89, 52);
+            this.chbxRemoveContour.Location = new System.Drawing.Point(83, 29);
             this.chbxRemoveContour.Name = "chbxRemoveContour";
             this.chbxRemoveContour.Size = new System.Drawing.Size(103, 17);
             this.chbxRemoveContour.TabIndex = 3;
@@ -273,37 +269,13 @@
             this.chbxPolicyThrough.AutoSize = true;
             this.chbxPolicyThrough.Checked = true;
             this.chbxPolicyThrough.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chbxPolicyThrough.Location = new System.Drawing.Point(3, 52);
+            this.chbxPolicyThrough.Location = new System.Drawing.Point(3, 29);
             this.chbxPolicyThrough.Name = "chbxPolicyThrough";
             this.chbxPolicyThrough.Size = new System.Drawing.Size(74, 17);
             this.chbxPolicyThrough.TabIndex = 2;
             this.chbxPolicyThrough.Text = "насквозь";
             this.chbxPolicyThrough.UseVisualStyleBackColor = true;
             this.chbxPolicyThrough.CheckedChanged += new System.EventHandler(this.chbxThrough_CheckedChanged);
-            // 
-            // rbtnFloorMounted
-            // 
-            this.rbtnFloorMounted.AutoSize = true;
-            this.rbtnFloorMounted.Location = new System.Drawing.Point(89, 29);
-            this.rbtnFloorMounted.Name = "rbtnFloorMounted";
-            this.rbtnFloorMounted.Size = new System.Drawing.Size(81, 17);
-            this.rbtnFloorMounted.TabIndex = 1;
-            this.rbtnFloorMounted.Text = "напольный";
-            this.rbtnFloorMounted.UseVisualStyleBackColor = true;
-            this.rbtnFloorMounted.CheckedChanged += new System.EventHandler(this.rbtnMounted_CheckedChanged);
-            // 
-            // rbtnWallMounted
-            // 
-            this.rbtnWallMounted.AutoSize = true;
-            this.rbtnWallMounted.Checked = true;
-            this.rbtnWallMounted.Location = new System.Drawing.Point(3, 29);
-            this.rbtnWallMounted.Name = "rbtnWallMounted";
-            this.rbtnWallMounted.Size = new System.Drawing.Size(80, 17);
-            this.rbtnWallMounted.TabIndex = 0;
-            this.rbtnWallMounted.TabStop = true;
-            this.rbtnWallMounted.Text = "настенный";
-            this.rbtnWallMounted.UseVisualStyleBackColor = true;
-            this.rbtnWallMounted.CheckedChanged += new System.EventHandler(this.rbtnMounted_CheckedChanged);
             // 
             // btnDraw
             // 
@@ -499,8 +471,6 @@
         #endregion
         private System.Windows.Forms.TableLayoutPanel tlpSets;
         private System.Windows.Forms.CheckBox chbxPolicyThrough;
-        private System.Windows.Forms.RadioButton rbtnFloorMounted;
-        private System.Windows.Forms.RadioButton rbtnWallMounted;
         private System.Windows.Forms.Button btnDraw;
         private System.Windows.Forms.TableLayoutPanel tlpMain;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;

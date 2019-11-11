@@ -1,5 +1,6 @@
 #include "RectPen.h"
 #include "ElementHelper.h"
+#include "Opening.h"
 
 #include <tfform.h>
 #include <mdltfform.fdf>
@@ -30,6 +31,7 @@
 #include <msundo.fdf>
 #include <leveltable.fdf>
 #include <msvar.fdf>
+#include <msoutput.fdf>
 
 using Bentley::Ustn::Element::EditElemHandle;
 
@@ -341,11 +343,13 @@ bool RectPen::addToModel() {
 
     const int COLOR_CURRENT = tcb->symbology.color;
 
-    LevelID openingLevelId = getLevelIdByName(L"C-OPENING-BOUNDARY");
-    if (openingLevelId != LEVEL_NULL_ID) {
-        mdlLevel_setActive(openingLevelId);
+    using namespace Openings;
+
+    if (SUCCESS ==
+        mdlLevel_setActiveByName(LEVEL_NULL_ID, Opening::LEVEL_SYMBOL_NAME))
+    {
         tcb->symbology.color = COLOR_BYLEVEL;
-    }    
+    }
 
     bool res = 
         rectPen.getDataByPointAndVector(task_.origin, task_.direction,
@@ -355,10 +359,23 @@ bool RectPen::addToModel() {
         task_.direction, getCExprVal(task_.depth), getCExprVal(task_.thickness), isSweepBi, isPolicyThrough);
 
     {   // Определение слоёв перекрестий
-        LevelID levelId = getLevelIdByName(L"C-OPENING-SYMBOL");
-        if (levelId != LEVEL_NULL_ID) {
+
+        if (SUCCESS ==
+            mdlLevel_setActiveByName(LEVEL_NULL_ID, Opening::LEVEL_SYMBOL_NAME))
+        {
+            LevelID levelId;
+            mdlLevel_getIdFromName(&levelId,
+                ACTIVEMODEL, LEVEL_NULL_ID, Opening::LEVEL_SYMBOL_NAME);
             crossFirst.GetElementP()->ehdr.level = levelId;
             crossSecond.GetElementP()->ehdr.level = levelId;
+        }
+        else {
+            char msg[256];
+            _snprintf(msg, sizeof(msg),
+                "Не найден слой требуемый для перекрестий проёма - <%s>",
+                Opening::LEVEL_SYMBOL_NAME);
+            
+            mdlOutput_messageCenter(MESSAGE_WARNING, msg, msg, FALSE);
         }
     }
 
@@ -599,7 +616,6 @@ TFFormRecipeList* RectPen::findWallByTask()
 
             status = mdlScanCriteria_scan(scP, elemAddr, &scanWords, &filePos);
 
-
             for (int i = 0; i < scanWords && elemAddr[i] < eofPos; ++i) {
                 MSElementDescr* edP = NULL;
                 if (mdlElmdscr_read(&edP, elemAddr[i], 0, FALSE, &realPos) != 0) {
@@ -689,7 +705,7 @@ bool RectPen::getWallNormals(TFFormRecipeList* wallP, DVec3d* nrm1, DVec3d* nrm2
     TFFormRecipe* fP = mdlTFFormRecipeList_getFormRecipe(wallP);
 
     TFBrepList* blP = NULL;
-    TFFormRecipeLinear* linP = (TFFormRecipeLinear*)fP;
+    //TFFormRecipeLinear* linP = (TFFormRecipeLinear*)fP;
 
     //TFFormRecipeList* pCurrFormRecipeNode = wallP;
     if (mdlTFFormRecipe_getBrepList(fP, &blP, 0, 0, 0) == BSISUCCESS) {

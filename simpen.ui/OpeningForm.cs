@@ -33,15 +33,14 @@ public partial class OpeningForm : Form
     static class CExpr
     {
         public const string 
-            HEIGHT = "rectHeight",
-            WIDTH = "rectWidth",
-            DEPTH = "rectDepth",
-            KKS = "rectKKS",
-            DESCRIPTION = "rectDescription",
-            //IS_SWEEP_BI = "isSweepBi",
-            IS_POLICY_THROUGH = "isPolicyThrough",
-            WALL_MOUNTED = "wallMounted";
-    }
+            HEIGHT = "openingHeight", // "rectHeight",
+            WIDTH = "openingWidth", // "rectWidth",
+            DEPTH = "openingDistance", // "rectDepth",
+            KKS = "openingKKS", // "rectKKS",
+            IS_POLICY_THROUGH = "openingIsThroughHole",
+            IS_READY_TO_PUBLISH = "openingIsReadyToPublish",
+            IS_REQUIRED_REMOVE_CONTOUR = "openingIsRequiredRemoveContour";
+        }
 
     static class CExprContour
     {
@@ -63,7 +62,7 @@ public partial class OpeningForm : Form
         Version version = Assembly.GetExecutingAssembly().GetName().Version;
 
         this.Text = string.Format("Проёмы v{0}.{1}.{2}",
-            version.Major, version.Build, version.Minor);
+            version.Major, version.Minor, version.Build);
 
         foreach (FieldType fieldType in Enum.GetValues(typeof(FieldType)))
         { 
@@ -82,8 +81,6 @@ public partial class OpeningForm : Form
 
         { // сохранённые настройки:
             setMode((Mode)Sets.mode);
-            rbtnWallMounted.Checked = Sets.isWallMounted;
-            rbtnFloorMounted.Checked = !Sets.isWallMounted;
             chbxPolicyThrough.Checked = Sets.isPolicyThrough;
             chbxRemoveContour.Checked = Sets.isRequiredRemoveConture;
         }
@@ -97,9 +94,14 @@ public partial class OpeningForm : Form
         sendTaskData();
 
         if (isTaskMode()) // НВС
-            Addin.Instance.sendCadCommand("locate task"); // rect
+        {
+            //Addin.Instance.sendCadCommand("locate rect");
+            Addin.Instance.sendCadCommand("locate task");
+        }    
         else if (isContourMode())
+        {
             Addin.Instance.sendCadCommand("locate contour");
+        }
     }
 
     private Mode getMode()
@@ -311,8 +313,6 @@ public partial class OpeningForm : Form
         chbxRemoveContour.Visible = isContourMode();
 
         btnDraw.Visible = isPointsMode();
-
-        rbtnWallMounted.Visible = rbtnFloorMounted.Visible = isTaskMode();
         
         btnAddToModel.Visible = true;
         btnAddToModel.Enabled = false;
@@ -416,12 +416,6 @@ public partial class OpeningForm : Form
         readGeometryProperty(FieldType.LENGTH);
         readProperty(FieldType.KKS);
 
-        bool isWallMounted = Convert.ToBoolean(
-            Addin.Instance.getCExpressionValue(CExpr.WALL_MOUNTED));
-
-        rbtnWallMounted.Checked = isWallMounted;
-        rbtnFloorMounted.Checked = !isWallMounted;
-
         checkValidationState();
     }
 
@@ -450,9 +444,6 @@ public partial class OpeningForm : Form
         sendProperty(FieldType.WIDTH);
         sendProperty(FieldType.LENGTH);
         sendProperty(FieldType.KKS);
-
-        Addin.Instance.setCExpressionValue(
-            CExpr.WALL_MOUNTED, rbtnWallMounted.Checked);
 
         Addin.Instance.setCExpressionValue(isContourMode() ? 
             CExprContour.IS_POLICY_THROUGH : CExpr.IS_POLICY_THROUGH,
@@ -531,14 +522,11 @@ public partial class OpeningForm : Form
             isContourMode() ? 
                 CExprContour.IS_POLICY_THROUGH : CExpr.IS_POLICY_THROUGH, 
             chbxPolicyThrough.Checked);
-    }
 
-    private void rbtnMounted_CheckedChanged(object sender, EventArgs e)
-    {
-        Addin.Instance.setCExpressionValue(
-            CExpr.WALL_MOUNTED, rbtnWallMounted.Checked);
+        sendTaskData();
+        Addin.Instance.sendCadCommand("update_preview opening");
     }
-
+    
     private void btnLocate_Click(object sender, EventArgs e)
     {
         runLocatingTool();
@@ -547,7 +535,6 @@ public partial class OpeningForm : Form
     private void OpeningForm_FormClosed(object sender, FormClosedEventArgs e)
     {
         Sets.mode = (int)getMode();
-        Sets.isWallMounted = rbtnWallMounted.Checked;
         Sets.isPolicyThrough = chbxPolicyThrough.Checked;
         Sets.isRequiredRemoveConture = chbxRemoveContour.Checked;
     }

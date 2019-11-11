@@ -43,12 +43,13 @@ Opening Opening::instance = Opening();
 
 const std::wstring Opening::CATALOG_TYPE_NAME = L"Opening";
 const std::wstring Opening::CATALOG_INSTANCE_NAME = L"Opening";
+MSWCharCP Opening::LEVEL_NAME = L"C-OPENING-BOUNDARY";
+MSWCharCP Opening::LEVEL_SYMBOL_NAME = L"C-OPENING-SYMBOL";
 
 Opening::Opening() {
     origin =
     direction = DVec3d();
-    //contourRef = ElementRef();
-
+    contourRef = NULL;
     contourPoints = std::vector<DPoint3d>();
     contourPoints.reserve(5);
 }

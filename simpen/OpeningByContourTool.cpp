@@ -81,7 +81,6 @@ void cmdAddToModel(char *unparsedP)
 {
     if (Opening::instance.isValid() && OpeningByContourTool::instanceP) {
         computeAndAddToModel(Opening::instance);
-
         cmdLocateContour(NULL);
     }
 }

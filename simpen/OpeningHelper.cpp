@@ -1,42 +1,37 @@
-#include "OpeningHelper.h"
 #include "ElementHelper.h"
-
-#include <interface\ElemHandle.h>
-#include <tfpoly.h>
-#include <elementref.h>
+#include "OpeningHelper.h"
 
 #include <buildingeditelemhandle.h>
 #include <CatalogCollection.h>
+#include <elementref.h>
+#include <interface\ElemHandle.h>
 #include <ListModelHelper.h>
 
-#include <mdltfform.fdf>
+#include <ditemlib.fdf>
+#include <leveltable.fdf>
+
 #include <mdltfbrep.fdf>
 #include <mdltfbrepf.fdf>
-#include <msoutput.fdf>
-
-#include <mstrnsnt.fdf>
-#include <msvar.fdf>
-#include <msmisc.fdf>
-#include <msvec.fdf>
+#include <mdltfform.fdf>
+#include <mdltfframe.fdf>
+#include <mdltfmodelref.fdf>
 
 #include <msdgnmodelref.fdf>
-#include <mdltfmodelref.fdf>
-#include <msinput.fdf>
-
-#include  <mdltfframe.fdf>
-
-#include <ditemlib.fdf>
 #include <msdialog.fdf>
-#include <mssystem.fdf>
-#include <msparse.fdf>
-#include <mslocate.fdf>
-#include <msstate.fdf>
-
 #include <mselemen.fdf>
-#include <msundo.fdf>
-#include <leveltable.fdf>
+#include <mselmdsc.fdf>
+#include <msinput.fdf>
+#include <mslocate.fdf>
+#include <msmisc.fdf>
+#include <msoutput.fdf>
+#include <msparse.fdf>
 #include <msscancrit.fdf>
-
+#include <msstate.fdf>
+#include <mssystem.fdf>
+#include <mstrnsnt.fdf>
+#include <msundo.fdf>
+#include <msvar.fdf>
+#include <msvec.fdf>
 
 using Bentley::Ustn::Element::EditElemHandle;
 
@@ -78,9 +73,9 @@ StatusInt computeAndAddToModel(Opening& opening) {
     mdlLevel_getActive(&activeLaevelId);    
     const int COLOR_CURRENT = tcb->symbology.color;
 
-    LevelID openingLevelId = getLevelIdByName(L"C-OPENING-BOUNDARY");
-    if (openingLevelId != LEVEL_NULL_ID) {
-        mdlLevel_setActive(openingLevelId);
+    if (SUCCESS == mdlLevel_setActiveByName(LEVEL_NULL_ID, Opening::LEVEL_NAME))
+    {   // mdlLevel_setActiveByName - позволяет принудительно добавить 
+        // библиотечный Level-стиль в модель
         tcb->symbology.color = COLOR_BYLEVEL;
     }
     else {
@@ -98,8 +93,12 @@ StatusInt computeAndAddToModel(Opening& opening) {
     }
 
     {   // Определение слоёв перекрестий
-        LevelID levelId = getLevelIdByName(L"C-OPENING-SYMBOL");
-        if (levelId != LEVEL_NULL_ID) {
+        if (SUCCESS == 
+            mdlLevel_setActiveByName(LEVEL_NULL_ID, Opening::LEVEL_SYMBOL_NAME))
+        {
+            LevelID levelId;
+            mdlLevel_getIdFromName(&levelId, 
+                ACTIVEMODEL, LEVEL_NULL_ID, Opening::LEVEL_SYMBOL_NAME);
             crossFirst.GetElementP()->ehdr.level = levelId;
             crossSecond.GetElementP()->ehdr.level = levelId;
         }
@@ -174,12 +173,11 @@ StatusInt computeElementsForOpening(EditElemHandleR outBodyShape,
     EditElemHandleR outPerfoShape, EditElemHandleR outCrossFirst,
     EditElemHandleR outCrossSecond, Opening& opening) 
 {
-    int tfTypes[2] = { TF_LINEAR_FORM_ELM, TF_SLAB_FORM_ELM };
     
-
     EditElemHandle contour;
     createShape(contour, &opening.contourPoints[0], opening.contourPoints.size(), false);
 
+   // int tfTypes[2] = { TF_LINEAR_FORM_ELM, TF_SLAB_FORM_ELM };
     TFFormRecipeList* wall = NULL;
         // findIntersectedTFFormWithElement(contour.GetElementP(), tfTypes, 2);
 
@@ -213,15 +211,13 @@ StatusInt computeElementsForOpening(EditElemHandleR outBodyShape,
             opening.setDistance(distance);
         }
         opening.direction = directVector;
-        mdlVec_scaleToLength(&opening.direction, &opening.direction, distance);
+        mdlVec_scaleToLength(&opening.direction, &opening.direction, 
+            distance != 0.0 ? distance : 1.0);
         // если оставить знак, то направление инвертируется, т.к. его уже задаёт вектор
         distance = abs(distance);
     }
 
     createShape(contour, &opening.contourPoints[0], opening.contourPoints.size(), false);
-
-
-
 
     DPoint3d vertices[256];
     int numVerts;
@@ -499,6 +495,8 @@ void cmdUpdateAll(char *unparsedP)
     status = mdlScanCriteria_scan(scP, NULL, NULL, NULL);
     status = mdlScanCriteria_free(scP);
 }
+
+
 
 
 }

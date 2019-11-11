@@ -1,27 +1,31 @@
 #include "ElementHelper.h"
 #include "FontManager.h"
 
-#include <mselementtemplate.fdf>
-#include <mskisolid.fdf>
-#include <mdltfform.fdf>
+#include <math.h>
 
-#include <mdltfframe.fdf>
-#include <mdltfprojection.fdf>
-#include <mdltfperfo.fdf>
-#include <mdltfwstring.fdf>
-
+#include <mselmdsc.fdf>
 #include <mselemen.fdf>
+#include <mselementtemplate.fdf>
+#include <leveltable.fdf>
+#include <mskisolid.fdf>
 #include <mscurrtr.fdf>
 #include <mscell.fdf>
 #include <mstmatrx.fdf>
 #include <msscancrit.fdf>
 #include <msvec.fdf>
-#include <leveltable.fdf>
-#include <msvec.fdf>
+#include <msinput.fdf>
+#include <mscnv.fdf>
+
+#include <mdltfform.fdf>
+#include <mdltfframe.fdf>
+#include <mdltfprojection.fdf>
+#include <mdltfperfo.fdf>
+#include <mdltfwstring.fdf>
 #include <mdltfmodelref.fdf>
+#include <mdltfelmdscr.fdf>
+#include <mdltfbrep.fdf>
+#include <mdltfbrepf.fdf>
 
-
-#include <math.h>
 
 using Bentley::Ustn::Element::EditElemHandle;
 
@@ -156,11 +160,10 @@ bool AddChildToCell(EditElemHandleR cell, EditElemHandleR child) {
     return SUCCESS == mdlElmdscr_appendDscr(cell.GetElemDescrP(), el_descrP);
 }
 
-
-TFFormRecipeList* findIntersectedTFFormWithElement(
-    const MSElementP elementP, int* tfTypes, int tfTypesNum)
+ElementRef findIntersectedTFFormWithElement(
+    const MSElementP elementP, int typesNum, int tfType, ...)
 {
-    TFFormRecipeList* wallP = NULL;
+    ElementRef result = NULL;
 
     ScanCriteria    *scP = NULL;
     UShort          typeMask[6];
@@ -184,7 +187,6 @@ TFFormRecipeList* findIntersectedTFFormWithElement(
 
         UInt32 elemAddr[10];
         UInt32 eofPos = mdlElement_getFilePos(FILEPOS_EOF, NULL);
-
         UInt32 filePos = 0;
         UInt32 realPos = 0;
         status = ERROR;
@@ -193,31 +195,38 @@ TFFormRecipeList* findIntersectedTFFormWithElement(
 
             status = mdlScanCriteria_scan(scP, elemAddr, &scanWords, &filePos);
             
-            for (int i = 0; i < scanWords && elemAddr[i] < eofPos; ++i) {
+            for (int i = 0; i < scanWords && elemAddr[i] < eofPos; ++i)
+            {
                 MSElementDescr* edP = NULL;
-                if (mdlElmdscr_read(&edP, elemAddr[i], 0, FALSE, &realPos) != 0) {
+                if (FILEPOS_EOF != 
+                    mdlElmdscr_read(&edP, elemAddr[i], 0, FALSE, &realPos))
+                {
+                    bool isTypeMatched = false;
 
-                    TFFormRecipeList* flP = NULL;
-                    if (mdlTFFormRecipeList_constructFromElmdscr(&flP, edP) == BSISUCCESS) {
-                        TFFormRecipe* fP = mdlTFFormRecipeList_getFormRecipe(flP);
-                        int type = mdlTFFormRecipe_getType(fP);
+                    int elemTfType = mdlTFElmdscr_getApplicationType(edP);
+                             
+                    int* typeP = &tfType;
+                    while (typesNum--) {
+                        if (elemTfType == *typeP) {
+                            result = edP->h.elementRef;
+                            isTypeMatched = true;
+                            break;
+                        }                        
+                        ++typeP;
+                    }
 
-                        //TF_LINEAR_FORM_ELM || type == TF_SLAB_FORM_ELM
-                        for (int i = 0; i < tfTypesNum; ++i) {
-                            if (type == tfTypes[i]) {
-                                wallP = flP;
-                                break;
-                            }
-                        }
+                    mdlElmdscr_freeAll(&edP);
+
+                    if (isTypeMatched) {
+                        break;
                     }
                 }
             }
         } while (status == BUFF_FULL);
     }
+    mdlScanCriteria_free(scP);
 
-    status = mdlScanCriteria_free(scP);
-
-    return wallP;
+    return result;
 }
 
 bool planesAreMatch(const DPlane3d& first, const DPlane3d& second) {
@@ -274,24 +283,24 @@ DVec3d computeVectorToPlane(const DPoint3d& point, const DPlane3d& plane) {
     return res;
 }
 
-LevelID getLevelIdByName(MSWCharCP name)
-{
-    LevelID activeLevelId, levelId;
-    mdlLevel_getActive(&activeLevelId);
-
-    if (SUCCESS != mdlLevel_getIdFromName(&levelId, 
-        ACTIVEMODEL, LEVEL_NULL_ID, name))
-    {
-        mdlLevel_setActiveByName(LEVEL_NULL_ID, name);
-        if (SUCCESS != mdlLevel_getIdFromName(&levelId,
-            ACTIVEMODEL, LEVEL_NULL_ID, name)) {
-            return LEVEL_NULL_ID;
-        }
-        // âîçâðàùàåì
-        mdlLevel_setActive(activeLevelId);
-    }
-    return levelId;
-}
+//LevelID getLevelIdByName(MSWCharCP name)
+//{
+//    LevelID activeLevelId, levelId;
+//    mdlLevel_getActive(&activeLevelId);
+//
+//    if (SUCCESS != mdlLevel_getIdFromName(&levelId, 
+//        ACTIVEMODEL, LEVEL_NULL_ID, name))
+//    {
+//        mdlLevel_setActiveByName(LEVEL_NULL_ID, name);
+//        if (SUCCESS != mdlLevel_getIdFromName(&levelId,
+//            ACTIVEMODEL, LEVEL_NULL_ID, name)) {
+//            return LEVEL_NULL_ID;
+//        }
+//        // âîçâðàùàåì
+//        mdlLevel_setActive(activeLevelId);
+//    }
+//    return levelId;
+//}
 
 TFFrame* createPenetrFrame(
     EditElemHandleR shapeBody, EditElemHandleR shapePerf,
@@ -408,4 +417,41 @@ void createCross(EditElemHandleR outCross,
 
     UInt32 weight = 0;
     ñreateStringLine(outCross, crossPnts, j + 1, &weight);
+}
+
+StatusInt getFacePlaneByLabel(DPlane3dR outPlane, 
+    MSElementDescrCP tfformEdP, FaceLabelEnum label)
+{
+    StatusInt status = ERROR;
+
+    MSElementDescrP edP = NULL;
+    mdlElmdscr_duplicate(&edP, tfformEdP);
+    
+    TFFormRecipeList* frListP = NULL;
+    if (BSISUCCESS == mdlTFFormRecipeList_constructFromElmdscr(&frListP, edP)) {
+        TFFormRecipe* frP = mdlTFFormRecipeList_getFormRecipe(frListP);
+
+        TFBrepList* blistP = NULL;
+        if (BSISUCCESS == mdlTFFormRecipe_getBrepList(frP, &blistP, 0, 0, 0)) {
+
+            TFBrepFaceList* faceListP = mdlTFBrepList_getFacesByLabel(blistP, label);
+            if (faceListP) {
+                MSElementDescr* faceP;
+                mdlTFBrepFaceList_getElmdscr(&faceP, faceListP, 0);
+
+                if (faceP) {
+                    status = mdlElmdscr_extractNormal(&outPlane.normal, 
+                        &outPlane.origin, faceP, NULL);
+                    mdlElmdscr_freeAll(&faceP);
+                }
+
+                mdlTFBrepFaceList_free(&faceListP);
+            }
+        }
+        if (frListP) mdlTFFormRecipeList_free(&frListP);        
+    }
+
+    if (edP) mdlElmdscr_freeAll(&edP);    
+
+    return status;
 }

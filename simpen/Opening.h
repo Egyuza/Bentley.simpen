@@ -14,6 +14,8 @@ namespace Openings {
 struct Opening {
     static const std::wstring CATALOG_TYPE_NAME;
     static const std::wstring CATALOG_INSTANCE_NAME;
+    static MSWCharCP LEVEL_NAME;
+    static MSWCharCP LEVEL_SYMBOL_NAME;
 
     DPoint3d origin;
     DVec3d direction;

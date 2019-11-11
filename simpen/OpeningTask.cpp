@@ -19,9 +19,10 @@ OpeningTask::OpeningTask()
     depth = 0.0;
     strcpy(kks, "");
 
-    tfFormRef = ElementRef();
+    tfFormRef = NULL;
     isContourSelected =
-    isTFFormSelected = false;
+    isTFFormSelected =
+    isTaskSelected = false;
     
     isThroughHole = true;
     isRequiredRemoveContour = true;
@@ -37,11 +38,11 @@ bool OpeningTask::operator ==(OpeningTask other) {
         height == other.height &&
         width == other.width &&
         depth == other.depth &&
-        strcmp(kks, other.kks) &&
+        strcmp(kks, other.kks) == 0 &&
         isThroughHole == other.isThroughHole &&
         isRequiredRemoveContour == other.isRequiredRemoveContour &&
         isReadyToPublish == other.isReadyToPublish &&
-        elementRef_getElemID(tfFormRef) == elementRef_getElemID(other.tfFormRef);
+        tfFormRef == other.tfFormRef;
 }
 
 bool OpeningTask::operator !=(OpeningTask other) {

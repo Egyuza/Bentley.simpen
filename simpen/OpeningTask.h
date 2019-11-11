@@ -25,6 +25,7 @@ struct OpeningTask {
     ElementRef tfFormRef;
     bool isContourSelected;
     bool isTFFormSelected;
+    bool isTaskSelected;
 
     OpeningTask();
     
@@ -34,12 +35,15 @@ struct OpeningTask {
     bool operator ==(OpeningTask other);
     bool operator !=(OpeningTask other);
 
+    
+
 private:
     static OpeningTask instance_;
 };
 
-    double convertFromCExprVal(double cexpr);
-    void convertToCExprVal(double* cexpr, double value);
+double convertFromCExprVal(double cexpr);
+void convertToCExprVal(double* cexpr, double value);
+
 }
 
 #endif // !OPENING_TASK_H
