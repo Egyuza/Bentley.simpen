@@ -13,18 +13,23 @@
 namespace Openings
 {
 
-void cmdLocateContour(char *unparsedP);
-void cmdAddToModel(char *unparsedP);
-void cmdUpdatePreview(char *unparsedP);
-
 class OpeningByContourTool : 
     public Bentley::Ustn::MstnElementSetTool
 {
 public:
     static OpeningByContourTool* instanceP;
-    static OpeningTask userTask;
+    static OpeningTask prevTask;
+
+	// Keyin ----------------------------------
+	static void run(char *unparsedP);
+	static void updatePreview(char *unparsedP);
+	static void addToModel(char *unparsedP);
+	//-----------------------------------------
 
 private:
+
+	bool isAddToModelProcessActive;
+	void clear();
 
     bool OnPostLocate(HitPathCP path, char *cantAcceptReason) override;
     EditElemHandleP BuildLocateAgenda(HitPathCP path, MstnButtonEventCP ev) override;

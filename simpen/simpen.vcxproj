@@ -5,6 +5,10 @@
       <Configuration>Debug</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Release_Debug|Win32">
+      <Configuration>Release_Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Release|Win32">
       <Configuration>Release</Configuration>
       <Platform>Win32</Platform>
@@ -26,6 +30,12 @@
     <CharacterSet>MultiByte</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Makefile</ConfigurationType>
     <PlatformToolset>v140</PlatformToolset>
@@ -35,6 +45,9 @@
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release_Debug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
@@ -51,6 +64,10 @@
     <LibraryPath>c:\aecosim_ss6\AECOsimBuildingDesigner\mdl\library;C:\Program Files %28x86%29\Bentley\MicroStation V8i %28SELECTseries%29\MicroStation\mdl\library;c:\Program Files (x86)\Bentley\MicroStation V8i (SELECTseries)\MicroStation\;C:\Program Files %28x86%29\Microsoft Visual Studio 8\VC\lib;C:\Program Files %28x86%29\Microsoft Visual Studio 8\VC\atlmfc\lib</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_Debug|Win32'">
     <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
     <IntDir>$(Configuration)\</IntDir>
   </PropertyGroup>
@@ -81,21 +98,31 @@
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_Debug|Win32'">
+    <ClCompile>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);MY_DEBUG</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CExpression.cpp" />
     <ClCompile Include="OpeningByContourTool.cpp" />
     <ClCompile Include="ElementHelper.cpp" />
     <ClCompile Include="Opening.cpp" />
     <ClCompile Include="OpeningHelper.cpp" />
-    <ClCompile Include="OpeningRect.cpp" />
     <ClCompile Include="OpeningTask.cpp" />
-    <ClCompile Include="RectPen.cpp" />
-    <ClCompile Include="RectPenDraw.cpp" />
-    <ClCompile Include="RectPenPlace.cpp" />
     <ClCompile Include="simpen.cpp" />
-    <ClCompile Include="RectPenLocate.cpp" />
     <ClCompile Include="pipepen.cpp" />
     <ClCompile Include="OpeningByTaskTool.cpp" />
+    <ClCompile Include="ui.cpp" />
     <ClCompile Include="XmlAttributeHelper.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -105,17 +132,13 @@
     <ClInclude Include="english\simpentxt.h" />
     <ClInclude Include="Opening.h" />
     <ClInclude Include="OpeningHelper.h" />
-    <ClInclude Include="OpeningRect.h" />
     <ClInclude Include="OpeningTask.h" />
     <ClInclude Include="pipepen.h" />
-    <ClInclude Include="RectPen.h" />
-    <ClInclude Include="RectPenDraw.h" />
-    <ClInclude Include="RectPenLocate.h" />
-    <ClInclude Include="RectPenPlace.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="simpen.h" />
     <ClInclude Include="simpencmd.h" />
     <ClInclude Include="OpeningByTaskTool.h" />
+    <ClInclude Include="ui.h" />
     <ClInclude Include="XmlAttributeHelper.h" />
   </ItemGroup>
   <ItemGroup>

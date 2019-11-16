@@ -37,7 +37,7 @@ bool ToEditHandle(EditElemHandleR eehOut, MSElement element);
 bool ToEditHandle(EditElemHandleR eehOut, MSElementDescrP elemDescrP);
 
 ElementRef findIntersectedTFFormWithElement(
-    const MSElementP elementP, int typesNum, int tfType, ...);
+    const MSElementP elementP, const int typesNum, int tfType, ...);
 
 bool planesAreMatch(const DPlane3d& first, const DPlane3d& second);
 bool planesAreParallel(const DPlane3d& first, const DPlane3d& second);
@@ -50,9 +50,11 @@ DVec3d computeVectorToPlane(const DPoint3d& point, const DPlane3d& plane);
 // Создание объекта прямоугольной проходки
 TFFrame* createPenetrFrame(
     EditElemHandleR shapeBody, EditElemHandleR shapePerf,
-    EditElemHandleR crossFirst, EditElemHandleR crossSecond,
     DVec3dR vec, double distance, double shell,
     bool isSweepBi, bool isPolicyThrough);
+
+// Добавление геометрии, которая должна проецироваться на плоскость чертёжа
+StatusInt appendToProjection(TFFrame* frameP, MSElementDescrCP edCP);
 
 void createCross(EditElemHandleR outCross,
     const DPoint3d& centroid, const DPoint3d* vertices, int numVerts);

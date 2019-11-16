@@ -11,6 +11,8 @@ Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|Win32 = Debug|Win32
+		Release_Debug|Any CPU = Release_Debug|Any CPU
+		Release_Debug|Win32 = Release_Debug|Win32
 		Release|Any CPU = Release|Any CPU
 		Release|Win32 = Release|Win32
 	EndGlobalSection
@@ -18,6 +20,9 @@ Global
 		{1C1C8D19-F586-4ED7-839F-41745AF16DAF}.Debug|Any CPU.ActiveCfg = Debug|Win32
 		{1C1C8D19-F586-4ED7-839F-41745AF16DAF}.Debug|Win32.ActiveCfg = Debug|Win32
 		{1C1C8D19-F586-4ED7-839F-41745AF16DAF}.Debug|Win32.Build.0 = Debug|Win32
+		{1C1C8D19-F586-4ED7-839F-41745AF16DAF}.Release_Debug|Any CPU.ActiveCfg = Release_Debug|Win32
+		{1C1C8D19-F586-4ED7-839F-41745AF16DAF}.Release_Debug|Win32.ActiveCfg = Release_Debug|Win32
+		{1C1C8D19-F586-4ED7-839F-41745AF16DAF}.Release_Debug|Win32.Build.0 = Release_Debug|Win32
 		{1C1C8D19-F586-4ED7-839F-41745AF16DAF}.Release|Any CPU.ActiveCfg = Release|Win32
 		{1C1C8D19-F586-4ED7-839F-41745AF16DAF}.Release|Win32.ActiveCfg = Release|Win32
 		{1C1C8D19-F586-4ED7-839F-41745AF16DAF}.Release|Win32.Build.0 = Release|Win32
@@ -25,6 +30,10 @@ Global
 		{5EA97BCE-858D-498F-ADCF-372A9FC8DE99}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5EA97BCE-858D-498F-ADCF-372A9FC8DE99}.Debug|Win32.ActiveCfg = Debug|Any CPU
 		{5EA97BCE-858D-498F-ADCF-372A9FC8DE99}.Debug|Win32.Build.0 = Debug|Any CPU
+		{5EA97BCE-858D-498F-ADCF-372A9FC8DE99}.Release_Debug|Any CPU.ActiveCfg = Release|Any CPU
+		{5EA97BCE-858D-498F-ADCF-372A9FC8DE99}.Release_Debug|Any CPU.Build.0 = Release|Any CPU
+		{5EA97BCE-858D-498F-ADCF-372A9FC8DE99}.Release_Debug|Win32.ActiveCfg = Release|Any CPU
+		{5EA97BCE-858D-498F-ADCF-372A9FC8DE99}.Release_Debug|Win32.Build.0 = Release|Any CPU
 		{5EA97BCE-858D-498F-ADCF-372A9FC8DE99}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5EA97BCE-858D-498F-ADCF-372A9FC8DE99}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5EA97BCE-858D-498F-ADCF-372A9FC8DE99}.Release|Win32.ActiveCfg = Release|Any CPU
@@ -32,12 +41,5 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 2
-		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}		
-		SccLocalPath0 = .
-		SccProjectUniqueName1 = simpen.vcxproj
-		SccLocalPath1 = .
 	EndGlobalSection
 EndGlobal

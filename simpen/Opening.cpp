@@ -5,12 +5,11 @@
 #include <set>
 #include <algorithm>
 
-//#include <interface/ElemHandle.h>
 #include <elementref.h>
 
-#include <msvec.fdf>
-#include <msmisc.fdf>
 #include <mselmdsc.fdf>
+#include <msmisc.fdf>
+#include <msvec.fdf>
 
 
 using Bentley::Ustn::Element::EditElemHandle;

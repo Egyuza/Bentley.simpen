@@ -32,7 +32,8 @@ StatusInt findDirectionVector(DVec3d& outDirectionVec, double& distance,
 
 StatusInt computeElementsForOpening(EditElemHandleR outBodyShape,
     EditElemHandleR outPerfoShape, EditElemHandleR outCrossFirst,
-    EditElemHandleR outCrossSecond, Opening& opening);
+    EditElemHandleR outCrossSecond, Opening& opening,
+	MSWCharCP boundaryLevel, MSWCharCP symbolLevel);
 
 }
 

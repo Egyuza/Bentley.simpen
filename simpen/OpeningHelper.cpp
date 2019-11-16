@@ -32,6 +32,7 @@
 #include <msundo.fdf>
 #include <msvar.fdf>
 #include <msvec.fdf>
+#include <mdltfprojection.fdf>
 
 using Bentley::Ustn::Element::EditElemHandle;
 
@@ -39,14 +40,16 @@ namespace Openings {
 
 StatusInt computeAndDrawTransient(Opening& opening) {
 
-    //if (!opening.isValid()) {
-    //    return ERROR;
-    //}
-
     EditElemHandle bodyShape, perfoShape, crossFirst, crossSecond;
     
+	LevelID activeLevelId;
+	mdlLevel_getActive(&activeLevelId);
+	MSWChar activeLevelName[MAX_LEVEL_NAME_LENGTH];
+	mdlLevel_getName(activeLevelName, MAX_LEVEL_NAME_LENGTH, ACTIVEMODEL, activeLevelId);
+	
     if (SUCCESS != computeElementsForOpening(
-        bodyShape, perfoShape, crossFirst, crossSecond, opening))
+        bodyShape, perfoShape, crossFirst, crossSecond, opening, 
+		activeLevelName, activeLevelName))
     {
         return ERROR;
     }
@@ -63,64 +66,48 @@ StatusInt computeAndDrawTransient(Opening& opening) {
 
 StatusInt computeAndAddToModel(Opening& opening) {
 
-    //if (opening.isValid()) {
-    //    return ERROR;
-    //}
-   
     EditElemHandle bodyShape, perfoShape, crossFirst, crossSecond;
-
-    LevelID activeLaevelId;
-    mdlLevel_getActive(&activeLaevelId);    
-    const int COLOR_CURRENT = tcb->symbology.color;
-
-    if (SUCCESS == mdlLevel_setActiveByName(LEVEL_NULL_ID, Opening::LEVEL_NAME))
-    {   // mdlLevel_setActiveByName - позволяет принудительно добавить 
-        // библиотечный Level-стиль в модель
-        tcb->symbology.color = COLOR_BYLEVEL;
-    }
-    else {
-        char* msg = "Не найден слой требуемый для создания проёма - <C-OPENING-BOUNDARY>";
-        mdlOutput_messageCenter(MESSAGE_WARNING, msg, msg, FALSE);
-    }
-
-    if (SUCCESS != computeElementsForOpening(
-        bodyShape, perfoShape, crossFirst, crossSecond, opening))
+		
+	if (SUCCESS != computeElementsForOpening(
+        bodyShape, perfoShape, crossFirst, crossSecond, opening,
+		Opening::LEVEL_NAME, Opening::LEVEL_SYMBOL_NAME))
     {
-        // todo избавиться от дублирования
-        mdlLevel_setActive(activeLaevelId);
-        tcb->symbology.color = COLOR_CURRENT;
         return ERROR;
     }
 
-    {   // Определение слоёв перекрестий
-        if (SUCCESS == 
-            mdlLevel_setActiveByName(LEVEL_NULL_ID, Opening::LEVEL_SYMBOL_NAME))
-        {
-            LevelID levelId;
-            mdlLevel_getIdFromName(&levelId, 
-                ACTIVEMODEL, LEVEL_NULL_ID, Opening::LEVEL_SYMBOL_NAME);
-            crossFirst.GetElementP()->ehdr.level = levelId;
-            crossSecond.GetElementP()->ehdr.level = levelId;
-        }
-        else {
-            char* msg = "Не найден слой требуемый для перекрестий проёма - <C-OPENING-SYMBOL>";
-            mdlOutput_messageCenter(MESSAGE_WARNING, msg, msg, FALSE);            
-        }
-    }
+	LevelID lvlId;
+    mdlLevel_getActive(&lvlId);
+	const LevelID activeLevelId = lvlId;
+    const int COLOR_ACTIVE = tcb->symbology.color;
 
-    TFFrame* frameP = createPenetrFrame(bodyShape, perfoShape, crossFirst, crossSecond,
-        opening.direction, opening.getDistance(), 0.0, true,
+	tcb->symbology.color = COLOR_BYLEVEL;
+	if (SUCCESS != mdlLevel_setActiveByName(LEVEL_NULL_ID, Opening::LEVEL_NAME))
+	{
+		const char* msg = "Не найден слой - <C-OPENING-BOUNDARY>";
+		mdlOutput_messageCenter(MESSAGE_WARNING, msg, msg, FALSE);        
+	}
+
+	// СОЗДАНИЕ:
+    TFFrame* frameP = createPenetrFrame(bodyShape, perfoShape, 
+		opening.direction, opening.getDistance(), 0.0, true,
         opening.getTask().isThroughHole);
     
-    if (frameP == NULL) {
-        mdlLevel_setActive(activeLaevelId);
-        tcb->symbology.color = COLOR_CURRENT;
-        return ERROR;
-    }
+	if (frameP == NULL) {
+		mdlLevel_setActive(activeLevelId);
+		tcb->symbology.color = COLOR_ACTIVE;
+		return ERROR;
+	}
+
+	{ // ПРОЕКЦИЯ:
+		StatusInt status;
+		status = appendToProjection(frameP, crossFirst.GetElemDescrCP());
+		status = appendToProjection(frameP, crossSecond.GetElemDescrCP());
+
+		mdlTFFrame_synchronize(frameP);
+	}
 
     StatusInt resStatus = ERROR;
-
-    mdlUndo_startGroup(); 
+    // ДОБАВЛЕНИЕ В МОДЕЛЬ:
     {
         DgnModelRefP modelRefP = ACTIVEMODEL;
         UInt32 fpos = mdlElement_getFilePos(FILEPOS_NEXT_NEW_ELEMENT, &modelRefP);
@@ -141,7 +128,6 @@ StatusInt computeAndAddToModel(Opening& opening) {
                 mdlInput_sendSynchronizedKeyin((MSCharCP)buf, 0, 0, 0);
             }
 
-
             if (opening.getTask().isRequiredRemoveContour && 
                 !elementRef_isEOF(opening.contourRef)) 
             {  
@@ -160,10 +146,9 @@ StatusInt computeAndAddToModel(Opening& opening) {
             resStatus = SUCCESS;
         }
     }
-    mdlUndo_endGroup();
-    
-    tcb->symbology.color = COLOR_CURRENT;  // 1. ! до активации слоя
-    mdlLevel_setActive(activeLaevelId); // 2.
+        
+    tcb->symbology.color = COLOR_ACTIVE;  // 1. ! до активации слоя
+    mdlLevel_setActive(activeLevelId); // 2.
 
     return resStatus;
 }
@@ -171,9 +156,22 @@ StatusInt computeAndAddToModel(Opening& opening) {
 
 StatusInt computeElementsForOpening(EditElemHandleR outBodyShape,
     EditElemHandleR outPerfoShape, EditElemHandleR outCrossFirst,
-    EditElemHandleR outCrossSecond, Opening& opening) 
+    EditElemHandleR outCrossSecond, Opening& opening, 
+	MSWCharCP boundaryLevel, MSWCharCP symbolLevel)
 {
-    
+	LevelID lvlId;
+	mdlLevel_getActive(&lvlId);
+	const LevelID activeLevelId = lvlId;
+	const int COLOR_ACTIVE = tcb->symbology.color;
+
+	tcb->symbology.color = COLOR_BYLEVEL;
+	if (SUCCESS != mdlLevel_setActiveByName(LEVEL_NULL_ID, boundaryLevel))
+	{   // mdlLevel_setActiveByName - позволяет принудительно добавить 
+		// библиотечный Level-стиль в модель
+		//char* msg = "Не найден слой требуемый для создания проёма - <C-OPENING-BOUNDARY>";
+		//mdlOutput_messageCenter(MESSAGE_WARNING, msg, msg, FALSE);
+	}
+
     EditElemHandle contour;
     createShape(contour, &opening.contourPoints[0], opening.contourPoints.size(), false);
 
@@ -188,6 +186,8 @@ StatusInt computeElementsForOpening(EditElemHandleR outBodyShape,
         if (BSISUCCESS != mdlTFFormRecipeList_constructFromElmdscr(
             &wall, eeh.GetElemDescrP())) 
         {
+			tcb->symbology.color = COLOR_ACTIVE;  // 1. ! до активации слоя
+			mdlLevel_setActive(activeLevelId); // 2.
             return ERROR;
         }
     }
@@ -199,8 +199,12 @@ StatusInt computeElementsForOpening(EditElemHandleR outBodyShape,
     double distance = 0.0;
     {   // обновление и корректировка
         DVec3d directVector;
-        if (SUCCESS != findDirectionVector(directVector, distance, contourPlane, wall)) {
-            return ERROR;
+        if (SUCCESS != 
+			findDirectionVector(directVector, distance, contourPlane, wall))
+		{
+			tcb->symbology.color = COLOR_ACTIVE;  // 1. ! до активации слоя
+			mdlLevel_setActive(activeLevelId); // 2.
+			return ERROR;
         }
 
         if (!opening.getTask().isThroughHole) {
@@ -228,9 +232,18 @@ StatusInt computeElementsForOpening(EditElemHandleR outBodyShape,
     сreateStringLine(shape, vertices, numVerts);
     createShape(outPerfoShape, vertices, numVerts, true);
 
-    if (!createBody(outBodyShape, shape, opening.direction, distance, 0.0)) {
+    if (!createBody(outBodyShape, shape, opening.direction, distance, 0.0)) 
+	{
+		tcb->symbology.color = COLOR_ACTIVE;  // 1. ! до активации слоя
+		mdlLevel_setActive(activeLevelId); // 2.
         return ERROR;
     }
+
+	if (SUCCESS != mdlLevel_setActiveByName(LEVEL_NULL_ID, symbolLevel))
+	{  
+		//char* msg = "Не найден слой требуемый для создания проёма - <C-OPENING-BOUNDARY>";
+		//mdlOutput_messageCenter(MESSAGE_WARNING, msg, msg, FALSE);
+	}
 
     {   // Перекрестия:
         DPoint3d centroid;
@@ -250,6 +263,9 @@ StatusInt computeElementsForOpening(EditElemHandleR outBodyShape,
         createCross(outCrossSecond, centroid, vertices, numVerts);
     }
     
+	tcb->symbology.color = COLOR_ACTIVE;  // 1. ! до активации слоя
+	mdlLevel_setActive(activeLevelId); // 2.
+
     return SUCCESS;
 }
 
@@ -474,11 +490,9 @@ int scanOpenings(
     return 0;
 }
 
-// Обновление всех проёмов модели
+// todo Обновление всех проёмов модели
 void cmdUpdateAll(char *unparsedP)
 {
-    // return;
-
     ScanCriteria    *scP = NULL;
     UShort          typeMask[6];
     int status;
@@ -495,8 +509,5 @@ void cmdUpdateAll(char *unparsedP)
     status = mdlScanCriteria_scan(scP, NULL, NULL, NULL);
     status = mdlScanCriteria_free(scP);
 }
-
-
-
 
 }

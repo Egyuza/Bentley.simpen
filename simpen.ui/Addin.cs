@@ -14,9 +14,10 @@ internal sealed class Addin : Bentley.MicroStation.AddIn
 
     private const string mdlAppName = "simpen";
 
-    /// <summary> Private constructor required for all AddIn classes derived from 
-    /// Bentley.MicroStation.AddIn. </summary>
-    private Addin( IntPtr mdlDesc ) : base(mdlDesc)
+
+        /// <summary> Private constructor required for all AddIn classes derived from 
+        /// Bentley.MicroStation.AddIn. </summary>
+        private Addin( IntPtr mdlDesc ) : base(mdlDesc)
     {
         instance_ = this;        
     }
@@ -38,7 +39,7 @@ internal sealed class Addin : Bentley.MicroStation.AddIn
         return 0;
     }
     
-    public void sendCadCommand(string command, bool likeKeyboardCommand = false)
+    public void sendKeyin(string command, bool likeKeyboardCommand = false)
     {
         App.CadInputQueue.SendCommand(string.Format("mdl keyin {0} {0} {1}", 
         mdlAppName, command), likeKeyboardCommand);

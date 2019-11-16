@@ -161,7 +161,7 @@ bool AddChildToCell(EditElemHandleR cell, EditElemHandleR child) {
 }
 
 ElementRef findIntersectedTFFormWithElement(
-    const MSElementP elementP, int typesNum, int tfType, ...)
+    const MSElementP elementP, const int typesNum, int tfType, ...)
 {
     ElementRef result = NULL;
 
@@ -206,7 +206,8 @@ ElementRef findIntersectedTFFormWithElement(
                     int elemTfType = mdlTFElmdscr_getApplicationType(edP);
                              
                     int* typeP = &tfType;
-                    while (typesNum--) {
+					int count = typesNum;
+                    while (count--) {
                         if (elemTfType == *typeP) {
                             result = edP->h.elementRef;
                             isTypeMatched = true;
@@ -304,7 +305,6 @@ DVec3d computeVectorToPlane(const DPoint3d& point, const DPlane3d& plane) {
 
 TFFrame* createPenetrFrame(
     EditElemHandleR shapeBody, EditElemHandleR shapePerf,
-    EditElemHandleR crossFirst, EditElemHandleR crossSecond,
     DVec3dR vec, double distance, double shell, 
     bool isSweepBi, bool isPolicyThrough)
 {
@@ -316,16 +316,13 @@ TFFrame* createPenetrFrame(
     }
 
     MSElementDescr *penToAdd = NULL;
-    // MSElementDescr *penProjToAdd[2] = { NULL,NULL };
 
     mdlElmdscr_duplicate(&penToAdd, body.GetElemDescrCP());
 
-    UInt32 weight = 2;
+    //UInt32 weight = 2;
     //mdlElmdscr_setSymbology(penToAdd, 0, 0, &weight, 0);
 
     TFFrameList*      pFrameNode = NULL;
-    //TFFormRecipeList* pFormNode       = NULL;
-    //TFProjectionList* pProjectionNode = NULL;
     TFPerforatorList* perfoListP = NULL;
 
     Transform tm;
@@ -335,25 +332,6 @@ TFFrame* createPenetrFrame(
     frameP = mdlTFFrameList_getFrame(pFrameNode);
 
     mdlTFFrame_add3DElmdscr(frameP, penToAdd); // p3DEd is consumed, no need to free it
-
-    { // ѕ–ќ≈ ÷»я:
-        TFProjectionList* pProjectionNode = NULL;
-        TFProjectionList* pProjectionNode2 = NULL;
-
-        if ((pProjectionNode = mdlTFProjectionList_construct()) &&
-            (pProjectionNode2 = mdlTFProjectionList_construct()))
-        {
-            mdlTFProjectionList_append(&pProjectionNode, pProjectionNode2);
-            TFProjection* pProjection = mdlTFProjectionList_getProjection(pProjectionNode);
-            mdlTFProjection_setEmbeddedElmdscr(pProjection, crossFirst.GetElemDescrP(), TRUE); /// ===== изм 17/06/2019 ====
-
-            pProjectionNode2 = mdlTFProjectionList_getNext(pProjectionNode);
-            TFProjection* pProjection2 = mdlTFProjectionList_getProjection(pProjectionNode2);
-            mdlTFProjection_setEmbeddedElmdscr(pProjection2, crossSecond.GetElemDescrP(), TRUE); /// ===== изм 17/06/2019 ====
-
-            mdlTFFrame_setProjectionList(frameP, pProjectionNode);    // pProjectionNode is consumed, no need to frre it
-        }
-    }
 
     mdlTFFrame_setSenseDistance2(frameP, distance);
     
@@ -376,7 +354,6 @@ TFFrame* createPenetrFrame(
       
         mdlTFFrame_setPerforatorList(frameP, &perfoListP); // pPerforatorList is consumed, no need to free it
         mdlTFPerforatorList_setIsActive(perfoListP, TRUE);
-        //mdlTFFrame_setPerforatorsAreActive(frameP, TRUE);
     }
 
     TFWStringList* pNameNodeW =
@@ -384,14 +361,7 @@ TFFrame* createPenetrFrame(
     mdlTFFrame_setName(frameP, mdlTFWStringList_getWString(pNameNodeW));
     mdlTFWStringList_free(&pNameNodeW);
 
-    // mdlTFFrame_transform(frameP, &tmForPen, TRUE);
-    //mdlTFFrame_transform(frameP, &tm, TRUE);
-    // mdlTFFrameList_free(&pFrameNode);
-
     mdlTFFrame_synchronize(frameP);
-
-    //mdlTFModelRef_updateAutoOpeningsByFrame(
-    //    ACTIVEMODEL, frameP, 1, 0, FramePerforationPolicyEnum_None);
 
     { // !!! без этого не работает:
       // create openings in form that are found within the sense distance 
@@ -401,6 +371,37 @@ TFFrame* createPenetrFrame(
     }
 
     return frameP; // todo
+}
+
+StatusInt appendToProjection(TFFrame* frameP, MSElementDescrCP edCP) {
+	TFProjectionList* projListP = NULL;
+	TFProjectionList* projNodeP = NULL;
+
+	StatusInt res = ERROR;
+
+	if (!(projListP = mdlTFFrame_getProjectionList(frameP))) {
+		projListP = mdlTFProjectionList_construct();
+		projNodeP = projListP;
+	}
+	else if (SUCCESS == 
+		mdlTFProjectionList_append(&projListP, mdlTFProjectionList_construct())) 
+	{
+		projNodeP = mdlTFProjectionList_getNext(projListP);
+	}
+
+	if (projNodeP) {
+		TFProjection* projP = mdlTFProjectionList_getProjection(projNodeP);
+
+		MSElementDescrP edP = NULL;
+		mdlElmdscr_duplicate(&edP, edCP);
+
+		res = mdlTFProjection_setEmbeddedElmdscr(projP, edP, TRUE);
+		if (res == SUCCESS) {
+			res = mdlTFFrame_setProjectionList(frameP, projListP); 
+			// projListP is consumed, no need to free it
+		}
+	}
+	return res;
 }
 
 void createCross(EditElemHandleR outCross, 

@@ -96,11 +96,11 @@ public partial class OpeningForm : Form
         if (isTaskMode()) // НВС
         {
             //Addin.Instance.sendCadCommand("locate rect");
-            Addin.Instance.sendCadCommand("locate task");
+            sendKeyin("locate task");
         }    
         else if (isContourMode())
         {
-            Addin.Instance.sendCadCommand("locate contour");
+            sendKeyin("locate contour");
         }
     }
 
@@ -311,9 +311,7 @@ public partial class OpeningForm : Form
 
         chbxEdit.Checked = isContourMode();
         chbxRemoveContour.Visible = isContourMode();
-
-        btnDraw.Visible = isPointsMode();
-        
+       
         btnAddToModel.Visible = true;
         btnAddToModel.Enabled = false;
     }
@@ -347,21 +345,11 @@ public partial class OpeningForm : Form
         control.Enabled = state;
     }
 
-    // ПОСТРОИТЬ
-    private void btnDraw_Click(object sender, EventArgs e)
-    {
-        if (isContourMode()) // НВС
-        {
-            Addin.Instance.sendCadCommand("draw rect");
-        }
-    }
     // СОЗДАТЬ ОБЪЕКТ
     private void btnAddToModel_Click(object sender, EventArgs e)
     {
         sendTaskData();
-
-        Addin.Instance.sendCadCommand(
-            "construct " + (isContourMode() ? "opening" : "rect"));
+        sendKeyin("add");
 
     // todo наверно есть ключ на запуск с ожиданием возврата от mdl
     // ! нельзя reload, т.к. не завершена работа mdl
@@ -484,7 +472,7 @@ public partial class OpeningForm : Form
         if (cell.ErrorText.Length == 0 && cell.Value != null)
         {
             Addin.Instance.setCExpressionValue(cexpr, cell.Value);
-            Addin.Instance.sendCadCommand("update_preview opening");
+            sendKeyin("update preview");
         }
         else
         {
@@ -524,7 +512,7 @@ public partial class OpeningForm : Form
             chbxPolicyThrough.Checked);
 
         sendTaskData();
-        Addin.Instance.sendCadCommand("update_preview opening");
+        sendKeyin("update preview");
     }
     
     private void btnLocate_Click(object sender, EventArgs e)
@@ -537,6 +525,11 @@ public partial class OpeningForm : Form
         Sets.mode = (int)getMode();
         Sets.isPolicyThrough = chbxPolicyThrough.Checked;
         Sets.isRequiredRemoveConture = chbxRemoveContour.Checked;
+    }
+
+    private void sendKeyin(string smallCmdName)
+    {
+        Addin.Instance.sendKeyin("openings " + smallCmdName);
     }
 }
 }

@@ -1,11 +1,13 @@
 #include "OpeningTask.h"
 #include "CExpression.h"
+#include "ui.h"
 
 #include <string.h>
-#include <mscexpr.fdf>
 
 #include <ditemlib.fdf>
+#include <mscexpr.fdf>
 #include <mscnv.fdf>
+#include <msinput.fdf>
 
 namespace Openings {
 
@@ -13,20 +15,28 @@ OpeningTask OpeningTask::instance_ = OpeningTask();
 
 OpeningTask::OpeningTask() 
 {
-    // Значения по умолчанию:
-    height =
-    width =
-    depth = 0.0;
-    strcpy(kks, "");
+	// Значения по умолчанию:
+	clear();
+}
 
-    tfFormRef = NULL;
-    isContourSelected =
-    isTFFormSelected =
-    isTaskSelected = false;
-    
-    isThroughHole = true;
-    isRequiredRemoveContour = true;
-    isReadyToPublish = false;
+void OpeningTask::clear()
+{
+	// параметры пользовательской формы:------
+	height =
+		width =
+		depth = 0.0;
+	strcpy(kks, "");
+
+	// не сбрасываем:
+	// isThroughHole = true;
+	// isRequiredRemoveContour = true;
+	//----------------------------------------
+
+	tfFormRef = NULL;
+	isContourSelected =
+	isTFFormSelected =
+	isTaskSelected = false;
+	isReadyToPublish = false;	
 }
 
 OpeningTask& OpeningTask::getInstance() {
@@ -79,6 +89,7 @@ double convertFromCExprVal(double cexpr) {
     mdlCnv_masterToUOR(&res, cexpr, ACTIVEMODEL);
     return res;
 }
+
 void convertToCExprVal(double* cexpr, double value) {
     mdlCnv_UORToMaster(cexpr, value, ACTIVEMODEL);
 }

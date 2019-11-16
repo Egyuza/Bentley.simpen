@@ -21,19 +21,7 @@
     <ClCompile Include="pipepen.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="RectPenLocate.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ElementHelper.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="RectPen.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="RectPenPlace.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="RectPenDraw.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Opening.cpp">
@@ -48,9 +36,6 @@
     <ClCompile Include="CExpression.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="OpeningRect.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="OpeningByContourTool.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -58,6 +43,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="XmlAttributeHelper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ui.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -74,19 +62,7 @@
     <ClInclude Include="english\simpentxt.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="RectPenLocate.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ElementHelper.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="RectPen.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="RectPenPlace.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="RectPenDraw.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Opening.h">
@@ -104,9 +80,6 @@
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="OpeningRect.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="OpeningByContourTool.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -114,6 +87,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="XmlAttributeHelper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ui.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

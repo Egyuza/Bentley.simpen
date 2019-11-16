@@ -21,7 +21,7 @@ public:
     static OpeningTask prevTask;
 
     // Keyin ----------------------------------
-    static void runTool(char *unparsedP);
+    static void run(char *unparsedP);
     static void updatePreview(char *unparsedP);
     static void addToModel(char *unparsedP);
     //-----------------------------------------
@@ -40,6 +40,7 @@ private:
     */
 
     bool isValid;
+	ElementRef smartSolidTask;
 
     DPlane3d planeFirst;
     DPlane3d planeSecond;
@@ -48,6 +49,10 @@ private:
     DVec3d heightVec;
     DVec3d widthVec;
     DVec3d depthVec;
+
+	bool isAddToModelProcessActive;
+
+	void clear();
 
     bool OnPostLocate(HitPathCP path, char *cantAcceptReason) override;
     EditElemHandleP BuildLocateAgenda(HitPathCP path, MstnButtonEventCP ev) override;

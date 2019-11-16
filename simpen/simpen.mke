@@ -47,8 +47,8 @@ $(reqdObjs)$(tstdir)        : $(reqdObjs)$(tstdir)
 # Define macros for files included in our link and resource merge
 #------------------------------------------------------------------------
 dlmObjs = \
+	$(o)ui$(oext)  \
     $(o)XmlAttributeHelper$(oext)  \
-    $(o)OpeningRect$(oext)  \
     $(o)CExpression$(oext)  \
     $(o)OpeningTask$(oext)  \
     $(o)OpeningByTaskTool$(oext)  \
@@ -57,10 +57,6 @@ dlmObjs = \
     $(o)Opening$(oext)  \
     $(o)ElementHelper$(oext)  \
     $(o)pipepen$(oext)  \
-    $(o)RectPen$(oext)  \
-    $(o)RectPenLocate$(oext)  \
-    $(o)RectPenDraw$(oext)  \
-    $(o)RectPenPlace$(oext)  \
     $(o)$(appName)$(oext)  \
     $(mdlLibs)BentleyDgn.lib \
     $(mdlLibs)toolsubs.lib \
@@ -100,9 +96,9 @@ $(o)$(sAppName)typ.rsc        : $(o)$(sAppName)typ.r
 #------------------------------------------------------------------------
 $(o)$(appName)$(oext) : $(baseDir)$(appName).cpp   $(baseDir)$(appName).h
 
-$(o)XmlAttributeHelper$(oext) : $(baseDir)XmlAttributeHelper.cpp   $(baseDir)XmlAttributeHelper.h
+$(o)ui$(oext) : $(baseDir)ui.cpp   $(baseDir)ui.h
 
-$(o)OpeningRect$(oext) : $(baseDir)OpeningRect.cpp   $(baseDir)OpeningRect.h
+$(o)XmlAttributeHelper$(oext) : $(baseDir)XmlAttributeHelper.cpp   $(baseDir)XmlAttributeHelper.h
 
 $(o)CExpression$(oext) : $(baseDir)CExpression.cpp   $(baseDir)CExpression.h
 
@@ -115,14 +111,6 @@ $(o)OpeningHelper$(oext) : $(baseDir)OpeningHelper.cpp   $(baseDir)OpeningHelper
 $(o)pipepen$(oext) : $(baseDir)pipepen.cpp   $(baseDir)pipepen.h
                  
 $(o)ElementHelper$(oext) : $(baseDir)ElementHelper.cpp   $(baseDir)ElementHelper.h
-
-$(o)RectPen$(oext) : $(baseDir)RectPen.cpp   $(baseDir)RectPen.h
-
-$(o)RectPenLocate$(oext) : $(baseDir)RectPenLocate.cpp   $(baseDir)RectPenLocate.h
-
-$(o)RectPenDraw$(oext) : $(baseDir)RectPenDraw.cpp   $(baseDir)RectPenDraw.h
-
-$(o)RectPenPlace$(oext) : $(baseDir)RectPenPlace.cpp   $(baseDir)RectPenPlace.h
 
 $(o)OpeningByContourTool$(oext) : $(baseDir)OpeningByContourTool.cpp   $(baseDir)OpeningByContourTool.h
 

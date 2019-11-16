@@ -5,6 +5,7 @@
 #include "ElementHelper.h"
 #include "XmlAttributeHelper.h"
 #include "CExpression.h"
+#include "ui.h"
 
 #include <elementref.h>
 #include <IModel\xmlinstanceapi.h>
@@ -30,11 +31,11 @@
 #include <msstate.fdf>
 #include <mstmatrx.fdf>
 #include <mstrnsnt.fdf>
+#include <msundo.fdf>
 #include <msvar.fdf>
 #include <msvec.fdf>
 #include <msview.fdf>
 #include <mswindow.fdf>
-
 
 namespace Openings
 {
@@ -44,7 +45,7 @@ USING_NAMESPACE_BENTLEY_XMLINSTANCEAPI_NATIVE;
 OpeningByTaskTool* OpeningByTaskTool::instanceP = NULL;
 OpeningTask OpeningByTaskTool::prevTask = OpeningTask();
 
-void OpeningByTaskTool::runTool(char *unparsedP)
+void OpeningByTaskTool::run(char *unparsedP)
 {
     mdlSelect_freeAll();
     OpeningByTaskTool::instanceP = new OpeningByTaskTool();
@@ -53,32 +54,30 @@ void OpeningByTaskTool::runTool(char *unparsedP)
 
 void OpeningByTaskTool::updatePreview(char *unparsedP)
 {
-    OpeningByTaskTool* tool = OpeningByTaskTool::instanceP;
-
-    if (tool != NULL &&
-        OpeningByTaskTool::prevTask == OpeningTask::getInstance())
-    {
+    if (prevTask == OpeningTask::getInstance()) {
         return; // параметры построения не изменились
     }
+	
+	mdlTransient_free(&msTransientElmP, true);
+
+    OpeningByTaskTool* toolP = OpeningByTaskTool::instanceP;
+	if (!toolP || toolP->isAddToModelProcessActive) {
+		return;
+	}
+
     OpeningByTaskTool::prevTask = OpeningTask::getInstance();
 
-    mdlTransient_free(&msTransientElmP, true);
-
-    if (tool == NULL) {
-        return; // НВС
-    }
-
-    if (!tool->isValid) {
+	
+    if (!toolP->isValid) {
         // параметры проёма не определены
         return;
     }
 
-
     DPoint3d contourPts[4];
     { // восстановление контура, т.к. пользователь мог изменить его параметры
-        mdlVec_normalize(&tool->heightVec);
-        mdlVec_normalize(&tool->widthVec);
-        mdlVec_normalize(&tool->depthVec);
+        mdlVec_normalize(&toolP->heightVec);
+        mdlVec_normalize(&toolP->widthVec);
+        mdlVec_normalize(&toolP->depthVec);
 
         double height = CExpr::convertToUOR(OpeningTask::getInstance().height);
         double width = CExpr::convertToUOR(OpeningTask::getInstance().width);
@@ -87,18 +86,14 @@ void OpeningByTaskTool::updatePreview(char *unparsedP)
         double halfHeight = height / 2;
         double halfWidth = width / 2;
 
-        //DVec3d heightVecNeg, widthVecNeg;
-        //mdlVec_negate(&heightVecNeg, &tool->heightVec);
-        //mdlVec_negate(&heightVecNeg, &tool->widthVec);
-
         DPoint3d lhs, rhs;
-        mdlVec_projectPoint(&lhs, &tool->contourOrigin, &tool->heightVec, halfHeight);
-        mdlVec_projectPoint(&rhs, &tool->contourOrigin, &tool->heightVec, -halfHeight);
+        mdlVec_projectPoint(&lhs, &toolP->contourOrigin, &toolP->heightVec, halfHeight);
+        mdlVec_projectPoint(&rhs, &toolP->contourOrigin, &toolP->heightVec, -halfHeight);
 
-        mdlVec_projectPoint(&contourPts[0], &lhs, &tool->widthVec, halfWidth);
-        mdlVec_projectPoint(&contourPts[1], &rhs, &tool->widthVec, halfWidth);
-        mdlVec_projectPoint(&contourPts[2], &rhs, &tool->widthVec, -halfWidth);
-        mdlVec_projectPoint(&contourPts[3], &lhs, &tool->widthVec, -halfWidth);
+        mdlVec_projectPoint(&contourPts[0], &lhs, &toolP->widthVec, halfWidth);
+        mdlVec_projectPoint(&contourPts[1], &rhs, &toolP->widthVec, halfWidth);
+        mdlVec_projectPoint(&contourPts[2], &rhs, &toolP->widthVec, -halfWidth);
+        mdlVec_projectPoint(&contourPts[3], &lhs, &toolP->widthVec, -halfWidth);
     }
 
     EditElemHandle contour;
@@ -108,46 +103,51 @@ void OpeningByTaskTool::updatePreview(char *unparsedP)
     }
     
     Opening::instance = Opening(contour.GetElemDescrP());
-    // Opening::instance.setDistance(OpeningTask::getInstance().depth);
-
-
-    //if (!Opening::instance.isValid()) {
-    //    mdlOutput_prompt("Элемент типа <Shape> (контур построения) не определён");
-    //    return;
-    //}
-
-    //MSElementDescrP edP = NULL;
-    //mdlElmdscr_getByElemRef(&edP,
-    //    Opening::instance.contourRef, ACTIVEMODEL, FALSE, 0);
-
-    //if (edP == NULL || edP->el.ehdr.type != SHAPE_ELM) {
-    //    mdlOutput_prompt("Элемент типа <Shape> (контур построения) не определён");
-    //    return;
-    //}
-
-    //mdlOutput_prompt("Выделен контур для создания проёма");
 
     if (SUCCESS != computeAndDrawTransient(Opening::instance)) {
         // todo сообщение об ошибке
-        mdlOutput_prompt(
-            "Указанный контур должен быть параллелен плоскости указанной стены/плиты");
+        UI::prompt("Указанный контур должен быть параллелен плоскости указанной стены/плиты");
         return;
     }
 
     if (Opening::instance.isValid()) {
-        mdlInput_sendKeyin(
-            "mdl keyin simpen.ui simpen.ui enableAddToModel", 0, 0, 0);
+		UI::setEnableAddToModel();
     }
 }
 
 void OpeningByTaskTool::addToModel(char *unparsedP)
 {
-    if (Opening::instance.isValid() && OpeningByTaskTool::instanceP && 
+	OpeningByTaskTool* toolP = OpeningByTaskTool::instanceP;
+	toolP->isAddToModelProcessActive = true;
+
+	UI::sendTaskDataSynch();
+
+    if (Opening::instance.isValid() && toolP &&
         Opening::instance.getTask().isReadyToPublish) 
     {
-        computeAndAddToModel(Opening::instance);
-        runTool(NULL);
+		mdlUndo_startGroup();
+		{
+			computeAndAddToModel(Opening::instance);
+		
+			{ // удаление smartSolid
+				if (toolP->smartSolidTask != NULL && 
+					!elementRef_isEOF(toolP->smartSolidTask))
+				{
+					// todo проверить на контур из референса
+					MSElementDescrP contourEdP = NULL;
+					mdlElmdscr_getByElemRef(
+						&contourEdP, toolP->smartSolidTask, ACTIVEMODEL, FALSE, 0);
+				
+					int fpos = mdlElmdscr_getFilePos(contourEdP);
+					mdlElmdscr_deleteByModelRef(contourEdP, fpos, ACTIVEMODEL, TRUE);
+				}
+			}
+		}
+		mdlUndo_endGroup();
     }
+
+	toolP->isAddToModelProcessActive = false;
+	run(NULL);
 }
 
 // Фильтр элементов, которые будут доступны пользователю для выбора
@@ -165,7 +165,12 @@ bool OpeningByTaskTool::OnPostLocate(HitPathCP path, char *cantAcceptReason) {
         return false;
     }
     
-    { // 2-ая проверка по атрибуту <P3DEquipment>
+	// 2-ая для бывших дверных проёмов - <SmartSolid>
+	if (TF_EBREP_ELM == mdlTFElmdscr_getApplicationType(eeh.GetElemDescrP())) {
+		return true;
+	}
+
+    { // 3-я проверка по атрибуту <P3DEquipment>
         bool status;
         XmlInstanceSchemaManager mgrR(eeh.GetModelRef());
         mgrR.ReadSchemas(status);
@@ -250,8 +255,7 @@ bool OpeningByTaskTool::OnPostLocate(HitPathCP path, char *cantAcceptReason) {
 EditElemHandleP
 OpeningByTaskTool::BuildLocateAgenda(HitPathCP path, MstnButtonEventCP ev)
 {
-    isValid = false;
-    OpeningTask::getInstance().tfFormRef = NULL;
+	clear();
 
     EditElemHandleP eehP = __super::BuildLocateAgenda(path, ev);
 
@@ -261,7 +265,47 @@ OpeningByTaskTool::BuildLocateAgenda(HitPathCP path, MstnButtonEventCP ev)
 
     OpeningTask::getInstance().isTaskSelected = true;
 
-    { // Считывание параметров задания:
+	// 2-ая для бывших дверных проёмов - <SmartSolid>
+	if (TF_EBREP_ELM == mdlTFElmdscr_getApplicationType(eehP->GetElemDescrP())) {
+		smartSolidTask = eehP->GetElemRef();
+	}
+
+	MSElementDescrP boundsEdP = eehP->GetElemDescrP();
+
+	{	// ОБРАБОТКА/КОРРЕКТИРОВКА объекта-задания из SPF:
+		MSElementDescrP recEdP = eehP->GetElemDescrP();
+		
+		while (recEdP->el.ehdr.type == CELL_HEADER_ELM) {
+			if (recEdP->h.firstElem->el.ehdr.type != CELL_HEADER_ELM) {
+				// если первый дочерний уже не цел, то начинаем проверку
+
+				// бывают задания, в которых присутствует лишняя 
+				// сфера-поверхность, малая в сравнении с заданием, 
+				// за счёт которой переопределяется интересующий проектировнщика
+				// диапазон задания
+				
+				double diagonal = 0;
+
+				MSElementDescrP curEdP = recEdP;
+				while (curEdP != NULL && curEdP->el.ehdr.type == CELL_HEADER_ELM) {
+					DPoint3d bnds[8];
+					mdlCell_extract(NULL, bnds, NULL, NULL, NULL, 0, &curEdP->el);
+					
+					double subDiag = mdlVec_distance(&bnds[0], &bnds[6]);
+
+					if (subDiag > diagonal) {
+						diagonal = subDiag;
+						boundsEdP = curEdP;
+					}
+
+					curEdP = curEdP->h.next;
+				}
+			}
+			recEdP = recEdP->h.firstElem;
+		}
+	}
+
+    { // Считывание геометрич. параметров задания:
         DgnModelRefP cellModelP = eehP->GetModelRef();
         if (mdlModelRef_isReference(cellModelP)) {
             // если элемент в рефе, то трансформируем его под активную модель
@@ -273,15 +317,51 @@ OpeningByTaskTool::BuildLocateAgenda(HitPathCP path, MstnButtonEventCP ev)
 
             Transform tran;
             mdlTMatrix_referenceToMaster(&tran, cellModelP);
-            mdlElmdscr_transform(eehP->GetElemDescrP(), &tran);
+            mdlElmdscr_transform(boundsEdP, &tran);
         }
-        mdlCell_extract(&taskOrigin, taskBounds, NULL, NULL, NULL, 0, eehP->GetElementP());
+        mdlCell_extract(&taskOrigin, taskBounds, NULL, NULL, NULL, 0, &boundsEdP->el);
     }
+
+	{ // Считывание KKS задания
+		bool status;
+		XmlInstanceSchemaManager mgrR(eehP->GetModelRef());
+		mgrR.ReadSchemas(status);
+		if (status) {
+			XmlInstanceStatus stt;
+			stt.status = LICENSE_FAILED;
+			XmlInstanceApi xapiR = XmlInstanceApi::CreateApi(stt, mgrR);
+			StringListHandle slhR = xapiR.ReadInstances(stt, eehP->GetElemRef());
+
+			int res = 0;
+			for (int i = 0; i < slhR.GetCount(); i++)
+			{
+				Bentley::WString strInst = slhR.GetString(i);
+
+				XmlNodeRef node = NULL;
+				if (XmlAttributeHelper::findNodeFromInstance(
+					&node, strInst, L"P3DEquipment"))
+				{
+					MSWChar value[50];
+					int maxchars = 50;
+					XmlNodeRef child = NULL;
+
+					if (XmlAttributeHelper::findChildNode(&child, node, L"Name") &&
+						XmlAttributeHelper::getNodeValue(value, &maxchars, child))
+					{
+						mdlCnv_convertUnicodeToMultibyte(value, -1,
+							OpeningTask::getInstance().kks, 200);
+					}
+					mdlXMLDomNode_free(node);
+
+				}
+			}
+		}		
+	}
 
     ElementRef& formRef = OpeningTask::getInstance().tfFormRef;
 
-    formRef = findIntersectedTFFormWithElement(eehP->GetElementP(),
-        2, TF_LINEAR_FORM_ELM, TF_SLAB_FORM_ELM);
+    formRef = findIntersectedTFFormWithElement(&boundsEdP->el,
+        3, TF_LINEAR_FORM_ELM, TF_SLAB_FORM_ELM, TF_FREE_FORM_ELM);
 
     if (formRef == NULL) {
         mdlOutput_messageCenter(MESSAGE_WARNING, 
@@ -300,7 +380,7 @@ OpeningByTaskTool::BuildLocateAgenda(HitPathCP path, MstnButtonEventCP ev)
             status += getFacePlaneByLabel(planeSecond,
                 formEeh.GetElemDescrP(), FaceLabelEnum_Right);
         }
-        else if (formType == TF_SLAB_FORM_ELM) {
+        else if (formType == TF_SLAB_FORM_ELM || formType == TF_FREE_FORM_ELM) {
             status = getFacePlaneByLabel(planeFirst,
                 formEeh.GetElemDescrP(), FaceLabelEnum_Top);
             status += getFacePlaneByLabel(planeSecond,
@@ -325,7 +405,7 @@ OpeningByTaskTool::BuildLocateAgenda(HitPathCP path, MstnButtonEventCP ev)
                     planeSecond = buff;
                 }
             }
-            else if (formType == TF_SLAB_FORM_ELM) {
+            else if (formType == TF_SLAB_FORM_ELM || formType == TF_FREE_FORM_ELM) {
                 if ((int)projOrigin.z > (int)planeFirst.origin.z) {
                     buff = planeFirst;
                     planeFirst = planeSecond;
@@ -335,9 +415,15 @@ OpeningByTaskTool::BuildLocateAgenda(HitPathCP path, MstnButtonEventCP ev)
         }
 
         if (status != SUCCESS) {
-            mdlOutput_messageCenter(MESSAGE_WARNING,
-                "Не удаётся получить проекцию тех. задания на найденный объект Wall/Slab", "", FALSE);
-            formRef = NULL; // сброс
+			if (formType == TF_SLAB_FORM_ELM || formType == TF_FREE_FORM_ELM) {
+				UI::warning("Не удаётся получить проекцию тех. задания на найденный объект <Slab>");
+			}
+			else if (formType == TF_LINEAR_FORM_ELM) {
+				UI::warning("Не удаётся получить проекцию тех. задания на найденный объект <Wall>");
+			}
+			else {
+				UI::warning("Не удаётся получить проекцию тех. задания на найденный объект"); // НВС
+			}
             return eehP;
         }
     }        
@@ -392,48 +478,10 @@ OpeningByTaskTool::BuildLocateAgenda(HitPathCP path, MstnButtonEventCP ev)
                         &projPoint, &contourOrigin);
                 }
 
-                { // Считывание KKS
-                    bool status;
-                    XmlInstanceSchemaManager mgrR(eehP->GetModelRef());
-                    mgrR.ReadSchemas(status);
-                    if (!status) {
-                        return false;
-                    }
-
-                    XmlInstanceStatus stt;
-                    stt.status = LICENSE_FAILED;
-                    XmlInstanceApi xapiR = XmlInstanceApi::CreateApi(stt, mgrR);
-                    StringListHandle slhR = xapiR.ReadInstances(stt, eehP->GetElemRef());
-
-                    int res = 0;
-                    for (int i = 0; i < slhR.GetCount(); i++)
-                    {
-                        Bentley::WString strInst = slhR.GetString(i);
-
-                        XmlNodeRef node = NULL;
-                        if (XmlAttributeHelper::findNodeFromInstance(
-                            &node, strInst, L"P3DEquipment"))
-                        {
-                            MSWChar value[50];
-                            int maxchars = 50;
-                            XmlNodeRef child = NULL;
-
-                            if (XmlAttributeHelper::findChildNode(&child, node, L"Name") &&
-                                XmlAttributeHelper::getNodeValue(value, &maxchars, child))
-                            {
-                                mdlCnv_convertUnicodeToMultibyte(value, -1, 
-                                    OpeningTask::getInstance().kks, 200);
-                            }
-                            mdlXMLDomNode_free(node);
-                           
-                        }
-                    }
-                }
-
-                mdlInput_sendSynchronizedKeyin("mdl keyin simpen.ui simpen.ui readData", 0, 0, 0);
-                mdlInput_sendSynchronizedKeyin("mdl keyin simpen.ui simpen.ui enableAddToModel", 0, 0, 0);
-
                 isValid = true;
+				UI::readDataSynch();
+				UI::setEnableAddToModel();
+
                 break;
             }
         }
@@ -451,19 +499,18 @@ bool OpeningByTaskTool::OnDataButton(MstnButtonEventCP ev) {
         return __super::OnDataButton(ev); // -> вызов BuildLocateAgenda
     }
 
-    mdlInput_sendSynchronizedKeyin(
-        "mdl keyin simpen.ui simpen.ui sendTaskData", 0, 0, 0);
+	addToModel(NULL);
 
     if (Opening::instance.getTask().isReadyToPublish) {
         computeAndAddToModel(Opening::instance);
-        runTool(NULL);
+        run(NULL);
     }
 
     return true;
 }
 
 void OpeningByTaskTool::OnRestartCommand() {
-    runTool(NULL);
+    run(NULL);
 }
 
 bool OpeningByTaskTool::OnResetButton(MstnButtonEventCP ev) {
@@ -476,19 +523,29 @@ bool OpeningByTaskTool::NeedAcceptPoint() {
     return true;
 }
 
-bool OpeningByTaskTool::WantAccuSnap()
-{
+bool OpeningByTaskTool::WantAccuSnap() {
     return false;
 }
+
+void OpeningByTaskTool::clear() {
+	instanceP = this; // НВС
+
+	instanceP = this;
+	Opening::instance = Opening();
+	OpeningTask::getInstance().clear();
+
+	isValid = false;
+	smartSolidTask = NULL;
+	isAddToModelProcessActive = false;
+
+	// todo ? сброс занчений в форме пользователя ?
+}
+
 
 void OpeningByTaskTool::OnPostInstall() {
     __super::OnPostInstall();
 
-    instanceP = this;
-    Opening::instance = Opening();
-    OpeningTask::getInstance().isTaskSelected = false;
-
-    isValid = false;
+	clear();
 
     mdlAccuDraw_setEnabledState(false); // Don't enable AccuDraw w/Dynamics...
     mdlLocate_setCursor();
@@ -497,7 +554,7 @@ void OpeningByTaskTool::OnPostInstall() {
     mdlSelect_freeAll();
     prevTask = OpeningTask();
 
-    mdlOutput_promptU("Выбирите объект технологического задания для проёма");
+    UI::promptU("Выберите объект технологического задания для проёма");
 }
 
 bool OpeningByTaskTool::OnInstall() {
@@ -516,7 +573,7 @@ StatusInt OpeningByTaskTool::OnElementModify(EditElemHandleR eeh) {
 
 void OpeningByTaskTool::OnCleanup() {
     instanceP = NULL;
-    mdlInput_sendKeyin("mdl keyin simpen.ui simpen.ui reload", 0, 0, 0);
+	UI::reload();
 }
 
 }

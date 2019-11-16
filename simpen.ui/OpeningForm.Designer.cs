@@ -45,14 +45,10 @@
             this.textBox3 = new System.Windows.Forms.TextBox();
             this.chbxRemoveContour = new System.Windows.Forms.CheckBox();
             this.chbxPolicyThrough = new System.Windows.Forms.CheckBox();
-            this.btnDraw = new System.Windows.Forms.Button();
             this.tlpMain = new System.Windows.Forms.TableLayoutPanel();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.chbxEdit = new System.Windows.Forms.CheckBox();
             this.btnLocate = new System.Windows.Forms.Button();
-            this.label4 = new System.Windows.Forms.Label();
-            this.label6 = new System.Windows.Forms.Label();
-            this.label5 = new System.Windows.Forms.Label();
             this.btnAddToModel = new System.Windows.Forms.Button();
             this.flpMode = new System.Windows.Forms.FlowLayoutPanel();
             this.rbtnModeTask = new System.Windows.Forms.RadioButton();
@@ -81,7 +77,7 @@
             this.tlpSets.RowCount = 2;
             this.tlpSets.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tlpSets.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tlpSets.Size = new System.Drawing.Size(273, 173);
+            this.tlpSets.Size = new System.Drawing.Size(273, 159);
             this.tlpSets.TabIndex = 1;
             // 
             // dgvFields
@@ -122,7 +118,7 @@
             this.dgvFields.RowTemplate.DefaultCellStyle.ForeColor = System.Drawing.Color.Black;
             this.dgvFields.RowTemplate.Height = 20;
             this.dgvFields.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvFields.Size = new System.Drawing.Size(273, 123);
+            this.dgvFields.Size = new System.Drawing.Size(273, 109);
             this.dgvFields.TabIndex = 2;
             this.dgvFields.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvFields_CellValueChanged);
             this.dgvFields.EnabledChanged += new System.EventHandler(this.dgvFields_EnabledChanged);
@@ -157,7 +153,7 @@
             this.tableLayoutPanel1.Controls.Add(this.chbxRemoveContour, 1, 1);
             this.tableLayoutPanel1.Controls.Add(this.chbxPolicyThrough, 0, 1);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 124);
+            this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 110);
             this.tableLayoutPanel1.Margin = new System.Windows.Forms.Padding(0);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 2;
@@ -277,18 +273,6 @@
             this.chbxPolicyThrough.UseVisualStyleBackColor = true;
             this.chbxPolicyThrough.CheckedChanged += new System.EventHandler(this.chbxThrough_CheckedChanged);
             // 
-            // btnDraw
-            // 
-            this.btnDraw.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnDraw.Location = new System.Drawing.Point(3, 61);
-            this.btnDraw.Name = "btnDraw";
-            this.btnDraw.Size = new System.Drawing.Size(75, 23);
-            this.btnDraw.TabIndex = 5;
-            this.btnDraw.Text = "Построить";
-            this.btnDraw.UseVisualStyleBackColor = true;
-            this.btnDraw.Visible = false;
-            this.btnDraw.Click += new System.EventHandler(this.btnDraw_Click);
-            // 
             // tlpMain
             // 
             this.tlpMain.ColumnCount = 1;
@@ -303,7 +287,7 @@
             this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tlpMain.Size = new System.Drawing.Size(285, 314);
+            this.tlpMain.Size = new System.Drawing.Size(285, 271);
             this.tlpMain.TabIndex = 1;
             // 
             // flowLayoutPanel1
@@ -312,15 +296,11 @@
             this.flowLayoutPanel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.flowLayoutPanel1.Controls.Add(this.chbxEdit);
             this.flowLayoutPanel1.Controls.Add(this.btnLocate);
-            this.flowLayoutPanel1.Controls.Add(this.label4);
-            this.flowLayoutPanel1.Controls.Add(this.label6);
-            this.flowLayoutPanel1.Controls.Add(this.label5);
-            this.flowLayoutPanel1.Controls.Add(this.btnDraw);
             this.flowLayoutPanel1.Controls.Add(this.btnAddToModel);
             this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.flowLayoutPanel1.Location = new System.Drawing.Point(3, 224);
+            this.flowLayoutPanel1.Location = new System.Drawing.Point(3, 210);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(279, 87);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(279, 58);
             this.flowLayoutPanel1.TabIndex = 5;
             // 
             // chbxEdit
@@ -342,49 +322,15 @@
             this.btnLocate.Name = "btnLocate";
             this.btnLocate.Size = new System.Drawing.Size(75, 23);
             this.btnLocate.TabIndex = 7;
-            this.btnLocate.Text = "Выбрать:";
+            this.btnLocate.Text = "Выбрать";
             this.btnLocate.UseVisualStyleBackColor = true;
             this.btnLocate.Click += new System.EventHandler(this.btnLocate_Click);
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(81, 35);
-            this.label4.Margin = new System.Windows.Forms.Padding(0, 6, 0, 3);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(41, 13);
-            this.label4.TabIndex = 8;
-            this.label4.Text = "контур";
-            this.label4.Visible = false;
-            // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(122, 35);
-            this.label6.Margin = new System.Windows.Forms.Padding(0, 6, 3, 3);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(16, 13);
-            this.label6.TabIndex = 10;
-            this.label6.Text = "->";
-            this.label6.Visible = false;
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.flowLayoutPanel1.SetFlowBreak(this.label5, true);
-            this.label5.Location = new System.Drawing.Point(141, 35);
-            this.label5.Margin = new System.Windows.Forms.Padding(0, 6, 0, 3);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(43, 13);
-            this.label5.TabIndex = 9;
-            this.label5.Text = "объект";
-            this.label5.Visible = false;
             // 
             // btnAddToModel
             // 
             this.btnAddToModel.AutoSize = true;
             this.btnAddToModel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.btnAddToModel.Location = new System.Drawing.Point(84, 61);
+            this.btnAddToModel.Location = new System.Drawing.Point(84, 32);
             this.btnAddToModel.Name = "btnAddToModel";
             this.btnAddToModel.Size = new System.Drawing.Size(94, 23);
             this.btnAddToModel.TabIndex = 6;
@@ -436,7 +382,7 @@
             this.grbxParameters.Dock = System.Windows.Forms.DockStyle.Fill;
             this.grbxParameters.Location = new System.Drawing.Point(3, 26);
             this.grbxParameters.Name = "grbxParameters";
-            this.grbxParameters.Size = new System.Drawing.Size(279, 192);
+            this.grbxParameters.Size = new System.Drawing.Size(279, 178);
             this.grbxParameters.TabIndex = 7;
             this.grbxParameters.TabStop = false;
             this.grbxParameters.Text = "Параметры:";
@@ -445,7 +391,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(285, 314);
+            this.ClientSize = new System.Drawing.Size(285, 271);
             this.Controls.Add(this.tlpMain);
             this.Name = "OpeningForm";
             this.Text = "Проёмы";
@@ -471,7 +417,6 @@
         #endregion
         private System.Windows.Forms.TableLayoutPanel tlpSets;
         private System.Windows.Forms.CheckBox chbxPolicyThrough;
-        private System.Windows.Forms.Button btnDraw;
         private System.Windows.Forms.TableLayoutPanel tlpMain;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
         private System.Windows.Forms.CheckBox chbxEdit;
@@ -493,8 +438,5 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.TextBox textBox2;
         private System.Windows.Forms.TextBox textBox3;
-        private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.Label label5;
     }
 }

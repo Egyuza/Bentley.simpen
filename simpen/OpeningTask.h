@@ -28,14 +28,15 @@ struct OpeningTask {
     bool isTaskSelected;
 
     OpeningTask();
+
+	void clear();
     
     static OpeningTask& getInstance();
     static const void publishCExpressions(SymbolSet* symSetP);
     
     bool operator ==(OpeningTask other);
     bool operator !=(OpeningTask other);
-
-    
+	    
 
 private:
     static OpeningTask instance_;

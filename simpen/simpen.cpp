@@ -1,17 +1,21 @@
 #include "simpen.h"
 #include "simpencmd.h"
 
-#include "pipepen.h"
-#include "RectPenLocate.h"
-#include "RectPenDraw.h"
-#include "RectPenPlace.h"
+#include "pipepen.h" // старый код
 
-#include "OpeningTask.h"
 #include "OpeningHelper.h"
 #include "OpeningByContourTool.h"
 #include "OpeningByTaskTool.h"
 
+#include <msrmgr.h>
+
 #include <msdialog.fdf>
+#include <ditemlib.fdf>
+#include <mscexpr.fdf>
+#include <msparse.fdf>
+#include <msstate.fdf>
+#include <msvec.fdf>
+
 
 USING_NAMESPACE_BENTLEY_USTN;
 USING_NAMESPACE_BENTLEY_USTN_ELEMENT;
@@ -56,43 +60,52 @@ Private DialogHookInfo uHooks[] =
     { HOOKID_txCellName, (PFDialogHook)hook_txCellName },
 };
 
+namespace Openings
+{
+	void cmdAddToModel(char *unparsedP)
+	{
+		if (OpeningByContourTool::instanceP) {
+			OpeningByContourTool::addToModel(unparsedP);
+		}
+		else if (OpeningByTaskTool::instanceP) {
+			OpeningByTaskTool::addToModel(unparsedP);
+		}
+	}
 
-void cmdConstructRect(char *unparsedP) {
-
-    constructByTask();
+	void cmdUpdatePreview(char *unparsedP)
+	{
+		if (OpeningByContourTool::instanceP) {
+			OpeningByContourTool::updatePreview(unparsedP);
+		}
+		else if (OpeningByTaskTool::instanceP) {
+			OpeningByTaskTool::updatePreview(unparsedP);
+		}
+	}
 }
 
 typedef void(*Command_Handler) (char*);
 
+using namespace Openings;
+
 Private MdlCommandNumber commandNumber[] =
 {
-    { (Command_Handler)placeFrameLibrary_start, CMD_SIMPEN_PLACE_LIBRARY },
-    { (Command_Handler)placeFrameOrphan_start,  CMD_SIMPEN_PLACE_ORPHAN },
-    { (Command_Handler)cmdMakePenetr,           CMD_SIMPEN_PLACEPEN },
-    { (Command_Handler)cmdScanPenPrimary,       CMD_SIMPEN_PENPRIM },
-    { (Command_Handler)cmdMakeEmbPlate,         CMD_SIMPEN_PLACEEMB },
-    { (Command_Handler)cmdElem,                 CMD_SIMPEN_ELEM },
-    { (Command_Handler)cmdTaskPen,              CMD_SIMPEN_TASK },
-    { (Command_Handler)PartsReport,             CMD_SIMPEN_REPORT },
-    { (Command_Handler)cmdMakeOpening,          CMD_SIMPEN_PLACEOP },
+	{ (Command_Handler)placeFrameLibrary_start,		CMD_SIMPEN_PLACE_LIBRARY },
+	{ (Command_Handler)placeFrameOrphan_start,		CMD_SIMPEN_PLACE_ORPHAN },
+	{ (Command_Handler)cmdMakePenetr,				CMD_SIMPEN_PLACEPEN },
+	{ (Command_Handler)cmdScanPenPrimary,			CMD_SIMPEN_PENPRIM },
+	{ (Command_Handler)cmdMakeEmbPlate,				CMD_SIMPEN_PLACEEMB },
+	{ (Command_Handler)cmdElem,						CMD_SIMPEN_ELEM },
+	{ (Command_Handler)cmdTaskPen,					CMD_SIMPEN_TASK },
+	{ (Command_Handler)PartsReport,					CMD_SIMPEN_REPORT },
+	{ (Command_Handler)cmdMakeOpening,				CMD_SIMPEN_PLACEOP },
 
-    { (Command_Handler)cmdConstructRect,        CMD_SIMPEN_CONSTRUCT_RECT },
-    { (Command_Handler)cmdPlaceRect,            CMD_SIMPEN_PLACE_RECT },
-    { (Command_Handler)cmdDrawRect,             CMD_SIMPEN_DRAW_RECT },
-       
-    { (Command_Handler)
-        Openings::cmdLocateContour,             CMD_SIMPEN_LOCATE_CONTOUR },
-    { (Command_Handler)
-        Openings::OpeningByTaskTool::runTool,   CMD_SIMPEN_LOCATE_TASK },
-    { (Command_Handler)
-        Openings::cmdAddToModel,                CMD_SIMPEN_CONSTRUCT_OPENING },
-    { (Command_Handler)
-        Openings::cmdUpdatePreview,             CMD_SIMPEN_UPDATE_PREVIEW_OPENING },
-    { (Command_Handler)
-    Openings::cmdUpdateAll,                 CMD_SIMPEN_UPDATE_ALL_OPENINGS },
+    { (Command_Handler)OpeningByContourTool::run,	CMD_SIMPEN_OPENINGS_LOCATE_CONTOUR },
+    { (Command_Handler)OpeningByTaskTool::run,		CMD_SIMPEN_OPENINGS_LOCATE_TASK },
+    { (Command_Handler)cmdAddToModel,               CMD_SIMPEN_OPENINGS_ADD },
+    { (Command_Handler)cmdUpdatePreview,            CMD_SIMPEN_OPENINGS_UPDATE_PREVIEW },
+    { (Command_Handler)cmdUpdateAll,				CMD_SIMPEN_OPENINGS_UPDATE_ALL },
     0
 };
-
 
 //{(Command_Handler) cmdMakePenetrPX,            CMD_SIMPEN_PLACE_PX},
 //{(Command_Handler) cmdMakePenetrPY,             CMD_SIMPEN_PLACE_PY},
@@ -100,6 +113,11 @@ Private MdlCommandNumber commandNumber[] =
 //{(Command_Handler) cmdMakePenetrNX,             CMD_SIMPEN_PLACE_NX},
 //{(Command_Handler) cmdMakePenetrNY,            CMD_SIMPEN_PLACE_NY},
 //{(Command_Handler) cmdMakePenetrNZ,             CMD_SIMPEN_PLACE_NZ},
+
+void publishVarBase(void* setP, MdlTypecodes typeCode, char* varName, void* varP) // todo использовать
+{
+	mdlDialog_publishBasicVariable(setP, mdlCExpression_getType(typeCode), varName, varP);
+}
 
 extern "C" DLLEXPORT  int MdlMain (int argc, char *argv[]) 
 {
@@ -110,8 +128,7 @@ extern "C" DLLEXPORT  int MdlMain (int argc, char *argv[])
 
     SymbolSet*    pSet = NULL;
     RscFileHandle rscFileH = 0;
-
-
+	
     initGlobals();
 
     if (SUCCESS != mdlResource_openFile(&rscFileH, NULL, RSC_READ)) {
@@ -129,15 +146,12 @@ extern "C" DLLEXPORT  int MdlMain (int argc, char *argv[])
     pSet = mdlCExpression_initializeSet(VISIBILITY_DIALOG_BOX | VISIBILITY_CALCULATOR, 0, TRUE);
 
     mdlDialog_publishComplexVariable(pSet, "framedatagui", "g_frameDataGUI", &g_frameDataGUI);
-
-
+	
     mdlVec_fromXYZ(&pZ, 0., 0., 1.);
     mdlVec_fromXYZ(&pZero, 0., 0., 0.);
     mdlVec_fromXYZ(&pZneg, 0., 0., -1.);
 
     // прямоугольные проходки:
-    publishRectVariables(pSet);
-
     Openings::OpeningTask::publishCExpressions(pSet);
 
     // round
@@ -180,22 +194,10 @@ extern "C" DLLEXPORT  int MdlMain (int argc, char *argv[])
     mdlDialog_publishBasicVariable(pSet, mdlCExpression_getType(TYPECODE_LONG), "icoordy", &icoord[1]);
     mdlDialog_publishBasicVariable(pSet, mdlCExpression_getType(TYPECODE_LONG), "icoordz", &icoord[2]);
 
-
     //mdlSystem_setFunction(SYSTEM_ELMDSCR_TO_FILE, callbackElmdDscrToFile);
-
     //mdlChangeTrack_setFunction (CHANGE_TRACK_FUNC_Changed, callbackDgnFileChanged);
-
-
 
     mdlLocate_setFunction(LOCATE_GLOBAL_PRELOCATE, callbackLocateFilter);
 
     return SUCCESS;
-
-
-}
-
-
-void publishVarBase(void* setP, MdlTypecodes typeCode, char* varName, void* varP) // todo использовать
-{
-    mdlDialog_publishBasicVariable(setP, mdlCExpression_getType(typeCode), varName, varP);
 }
