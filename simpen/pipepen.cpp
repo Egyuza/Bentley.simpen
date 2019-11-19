@@ -7,6 +7,7 @@
 
 #include "pipepen.h"
 #include "simpencmd.h"
+#include "ElementHelper.h"
 
 /*----------------------------------------------------------------------+
 |                                                                       |
@@ -2556,14 +2557,32 @@ void placePenetr(
 
                 //bSetProp = true;
 
-                UInt32 fpos = mdlModelRef_getEof(ACTIVEMODEL);
+				// ez 2019-11-19 доб.
+				DgnModelRefP modelRefP = ACTIVEMODEL;
+                UInt32 fpos = mdlElement_getFilePos(FILEPOS_NEXT_NEW_ELEMENT, &modelRefP);
 
                 if (mdlTFModelRef_addFrame(ACTIVEMODEL, pFrame) == SUCCESS) {
                     mdlTFModelRef_updateAutoOpeningsByFrame(ACTIVEMODEL, pFrame, 1, 0, FramePerforationPolicyEnum_None);
-                }
+                
+					// TODO
+					//if (fpos) {
+					//	ElementRef elemRef = mdlModelRef_getElementRef(ACTIVEMODEL, fpos);
+					//	std::wstring name(&pp.sName[0], &pp.sName[500]);
+					//	std::wstring kks(&pp.sCode[0], &pp.sCode[500]);
+
+					//	bool res;
+					//	res = setDataGroupInstanceValue(elemRef, ACTIVEMODEL,
+					//		L"EmbeddedPart", L"Embedded Part",
+					//		L"EmbPart/@CatalogName", name);
+					//	res = setDataGroupInstanceValue(elemRef, ACTIVEMODEL,
+					//		L"EmbeddedPart", L"Embedded Part",
+					//		L"EmbPart/@PartCode", kks);
+					//}
+				}
 
                 mdlTFFrameList_free(&pFrameNode);
 
+				// ez 2019-11-19 удалил:
                 if (fpos && strlen(pp.sName) > 0 && strlen(pp.sCode) > 0) {
                     char buf[1000];
                     sprintf(buf, "mdl keyin aepsim aepsim setdgdata %u %s %s", fpos, pp.sName, pp.sCode);

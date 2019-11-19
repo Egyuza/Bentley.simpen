@@ -3,6 +3,9 @@
 
 #include <math.h>
 
+#include <buildingeditelemhandle.h>
+#include <CatalogCollection.h>
+
 #include <mselmdsc.fdf>
 #include <mselemen.fdf>
 #include <mselementtemplate.fdf>
@@ -160,7 +163,7 @@ bool AddChildToCell(EditElemHandleR cell, EditElemHandleR child) {
     return SUCCESS == mdlElmdscr_appendDscr(cell.GetElemDescrP(), el_descrP);
 }
 
-ElementRef findIntersectedTFFormWithElement(
+ElementRef tfFindIntersectedByTfType(
     const MSElementP elementP, const int typesNum, int tfType, ...)
 {
     ElementRef result = NULL;
@@ -230,6 +233,86 @@ ElementRef findIntersectedTFFormWithElement(
     return result;
 }
 
+ElementRef tfFindIntersectedByDGInstance(
+	const MSElementP elementP, const int typesCount, std::wstring dgInstName, ...)
+{
+	ElementRef result = NULL;
+
+	ScanCriteria    *scP = NULL;
+	UShort          typeMask[6];
+	int status;
+
+	memset(typeMask, 0, sizeof(typeMask));
+	typeMask[0] = TMSK0_CELL_HEADER;
+
+	scP = mdlScanCriteria_create();
+
+	status = mdlScanCriteria_setElementTypeTest(scP, typeMask, sizeof(typeMask));
+	status = mdlScanCriteria_setModel(scP, ACTIVEMODEL);
+
+	{ // ограничение по диапазоную точек:
+		ScanRange scanRng = elementP->hdr.dhdr.range;
+		mdlScanCriteria_setRangeTest(scP, &scanRng);
+	}
+
+	{ // todo от этого кода можно избавится, перенеся нагрузку на callback function
+		mdlScanCriteria_setReturnType(scP, MSSCANCRIT_RETURN_FILEPOS, FALSE, TRUE);
+
+		UInt32 elemAddr[10];
+		UInt32 eofPos = mdlElement_getFilePos(FILEPOS_EOF, NULL);
+		UInt32 filePos = 0;
+		UInt32 realPos = 0;
+		status = ERROR;
+		do {
+			int scanWords = sizeof(elemAddr) / sizeof(short);
+
+			status = mdlScanCriteria_scan(scP, elemAddr, &scanWords, &filePos);
+
+			for (int i = 0; i < scanWords && elemAddr[i] < eofPos; ++i)
+			{
+				MSElementDescr* edP = NULL;
+				if (FILEPOS_EOF !=
+					mdlElmdscr_read(&edP, elemAddr[i], 0, FALSE, &realPos))
+				{
+					bool isTypeMatched = false;
+
+
+					Bentley::Building::Elements::
+						BuildingEditElemHandle beeh(edP->h.elementRef, ACTIVEMODEL);
+					beeh.LoadDataGroupData();
+
+					CCatalogCollection::CCollectionConst_iterator itr;
+					for (itr = beeh.GetCatalogCollection().Begin(); itr != beeh.GetCatalogCollection().End(); itr++)
+					{
+						const std::wstring catalogInstanceName = itr->first;
+
+						std::wstring* searchInstName = &dgInstName;
+						int count = typesCount;
+						while (count--) {
+							if (catalogInstanceName == *searchInstName) {
+								result = edP->h.elementRef;
+								isTypeMatched = true;
+								break;
+							}
+							++searchInstName;
+						}
+					}
+
+					mdlElmdscr_freeAll(&edP);
+
+					if (isTypeMatched) {
+						break;
+					}
+				}
+			}
+		} while (status == BUFF_FULL);
+	}
+	mdlScanCriteria_free(scP);
+
+	return result;
+}
+
+
 bool planesAreMatch(const DPlane3d& first, const DPlane3d& second) {
 
     if (!planesAreParallel(first, second)) {
@@ -283,25 +366,6 @@ DVec3d computeVectorToPlane(const DPoint3d& point, const DPlane3d& plane) {
 
     return res;
 }
-
-//LevelID getLevelIdByName(MSWCharCP name)
-//{
-//    LevelID activeLevelId, levelId;
-//    mdlLevel_getActive(&activeLevelId);
-//
-//    if (SUCCESS != mdlLevel_getIdFromName(&levelId, 
-//        ACTIVEMODEL, LEVEL_NULL_ID, name))
-//    {
-//        mdlLevel_setActiveByName(LEVEL_NULL_ID, name);
-//        if (SUCCESS != mdlLevel_getIdFromName(&levelId,
-//            ACTIVEMODEL, LEVEL_NULL_ID, name)) {
-//            return LEVEL_NULL_ID;
-//        }
-//        // возвращаем
-//        mdlLevel_setActive(activeLevelId);
-//    }
-//    return levelId;
-//}
 
 TFFrame* createPenetrFrame(
     EditElemHandleR shapeBody, EditElemHandleR shapePerf,
@@ -455,4 +519,56 @@ StatusInt getFacePlaneByLabel(DPlane3dR outPlane,
     if (edP) mdlElmdscr_freeAll(&edP);    
 
     return status;
+}
+
+
+/*------------------------------------------------------------------------------
+Установка значения DataGroup свойства
+----------------------------------------------------------------------------- */
+bool setDataGroupInstanceValue(const ElementRef& elemRef, DgnModelRefP modelRefP,
+	const std::wstring& catalogType, const std::wstring& catalogInstance,
+	const std::wstring& itemXPath, const std::wstring& value)
+{
+	if (elemRef == NULL || elementRef_isEOF(elemRef)) {
+		return false;
+	}
+
+	/*!
+	To iterate through all the CCatalogInstances in the collection see the following:
+	\code
+	CCatalogCollection::CCollectionConst_iterator itr;
+	for (itr = GetCatalogCollection().Begin(); itr != GetCatalogCollection().End(); itr++)
+	CCatalogInstanceT const& pCatalogInstance = *itr->second;
+	\endcode
+	*/
+
+	Bentley::Building::Elements::BuildingEditElemHandle beeh(elemRef, modelRefP);
+	beeh.LoadDataGroupData();
+
+	CCatalogCollection& collection = beeh.GetCatalogCollection();
+
+	bool matches = false;
+	CCatalogCollection::CCollectionConst_iterator itr = NULL;
+	for (itr = collection.Begin(); itr != collection.End(); itr++) {
+		CCatalogInstanceT const& pCatalogInstance = *itr->second;
+
+		if (pCatalogInstance.GetCatalogAppTypeName() == catalogType &&
+			pCatalogInstance.GetCatalogInstanceName() == catalogInstance)
+		{
+			matches = true;
+			break;
+		}
+	}
+
+	if (!matches) {
+		collection.InsertDataGroupCatalogInstance(catalogType, catalogInstance);
+		collection.UpdateInstanceDataDefaults(catalogInstance);
+	}
+
+
+	CCatalogSchemaItemT*    pSchemaItem = NULL;
+	if ((pSchemaItem = collection.FindDataGroupSchemaItem(itemXPath))) {
+		pSchemaItem->SetValue(value);
+	}
+	return SUCCESS == beeh.Rewrite();
 }

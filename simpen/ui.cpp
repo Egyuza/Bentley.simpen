@@ -8,23 +8,36 @@ namespace Openings
 
 namespace UI
 {
+	const char* keinPref = "mdl keyin simpen.ui simpen.ui opening";
+
 	void sendTaskDataSynch() {
-		mdlInput_sendSynchronizedKeyin(
-			"mdl keyin simpen.ui simpen.ui sendTaskData", 0, 0, 0);
+		char cmd[256];
+		sprintf(cmd, "%s sendTaskData", keinPref);
+		mdlInput_sendSynchronizedKeyin(cmd, 0, 0, 0);
 	}
 
 	void readDataSynch() {
-		mdlInput_sendSynchronizedKeyin(
-			"mdl keyin simpen.ui simpen.ui readData", 0, 0, 0);
+		char cmd[256];
+		sprintf(cmd, "%s readData", keinPref);
+		mdlInput_sendSynchronizedKeyin(cmd, 0, 0, 0);
 	}
 
 	void reload() {
-		mdlInput_sendKeyin("mdl keyin simpen.ui simpen.ui reload", 0, 0, 0);
+		char cmd[256];
+		sprintf(cmd, "%s reload", keinPref);
+		mdlInput_sendSynchronizedKeyin(cmd, 0, 0, 0);
 	}
 
 	void setEnableAddToModel() {
-		mdlInput_sendKeyin(
-			"mdl keyin simpen.ui simpen.ui enableAddToModel", 0, 0, 0);
+		char cmd[256];
+		sprintf(cmd, "%s enableAddToModel", keinPref);
+		mdlInput_sendSynchronizedKeyin(cmd, 0, 0, 0);
+	}
+
+	void setDGDataSynch_KKS(int filePos, const char* kks) {
+		char cmd[256];
+		sprintf(cmd, "%s setdgdata  %u %s", keinPref, filePos, kks);
+		mdlInput_sendSynchronizedKeyin(cmd, 0, 0, 0);
 	}
 
 	void prompt(char* pMessage) {

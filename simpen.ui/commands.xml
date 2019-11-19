@@ -2,29 +2,65 @@
 <KeyinTree xmlns="http://www.bentley.com/schemas/1.0/MicroStation/AddIn/KeyinTree.xsd">
 
     <RootKeyinTable ID="root">
-        <Keyword SubtableRef="Commands" CommandClass="MacroCommand" CommandWord="SIMPEN.UI" >
+        <Keyword SubtableRef="Commands" CommandClass="MacroCommand" CommandWord="SIMPEN.UI">
             <Options Required="true"/>
         </Keyword>
     </RootKeyinTable>
 
     <SubKeyinTables>
         <KeyinTable ID="Commands">
-            <Keyword CommandWord="FORM"/>
-            <Keyword CommandWord="readData"><Options Hidden="true"/></Keyword>
-            <Keyword CommandWord="reload"><Options Hidden="true"/></Keyword>
-            <Keyword CommandWord="enableAddToModel"><Options Hidden="true"/></Keyword>
-            <Keyword CommandWord="sendTaskData"><Options Hidden="true"/></Keyword>
-            <Keyword CommandWord="setdgdata"><Options Hidden="true"/></Keyword>
+            <Keyword CommandWord="FORM" SubtableRef="Forms"/>            
+            <Keyword CommandWord="OPENING" SubtableRef="Openings">
+                <Options Hidden="true"/>
+            </Keyword>
+            <Keyword CommandWord="PENETR" SubtableRef="Penetrations">
+                <Options Hidden="true"/>
+            </Keyword>           
+        </KeyinTable>
+
+        <KeyinTable ID="Forms">
+            <Keyword CommandWord="OPENING"/>
+            <Keyword CommandWord="PENETR">
+                <!--TODO сделать видимым-->
+                <Options Hidden="true"/>
+            </Keyword>
+        </KeyinTable>
+        
+        <KeyinTable ID="Openings">
+            <Keyword CommandWord="readData"/>
+            <Keyword CommandWord="reload"/>
+            <Keyword CommandWord="enableAddToModel"/>
+            <Keyword CommandWord="sendTaskData"/>
+            <Keyword CommandWord="setdgdata"/>
+        </KeyinTable>
+
+        <KeyinTable ID="Penetrations">
+            <Keyword CommandWord="readData"/>
+            <Keyword CommandWord="reload"/>
+            <Keyword CommandWord="enableAddToModel"/>
+            <Keyword CommandWord="sendTaskData"/>
+            <!--<Keyword CommandWord="setdgdata"/>-->
         </KeyinTable>
     </SubKeyinTables>
-
+    
     <KeyinHandlers>
-        <KeyinHandler Keyin="SIMPEN.UI FORM" Function="simpen.ui.Keyins.showForm"/>
-        <KeyinHandler Keyin="SIMPEN.UI readData" Function="simpen.ui.Keyins.readData"/>
-        <KeyinHandler Keyin="SIMPEN.UI reload" Function="simpen.ui.Keyins.reload"/>
-        <KeyinHandler Keyin="SIMPEN.UI enableAddToModel" Function="simpen.ui.Keyins.enableAddToModel"/>
-        <KeyinHandler Keyin="SIMPEN.UI sendTaskData" Function="simpen.ui.Keyins.sendTaskData"/>
-        <KeyinHandler Keyin="SIMPEN.UI setdgdata" Function="simpen.ui.Keyins.setDgData"/>
+        <!--Запуск форм-->
+        <KeyinHandler Keyin="SIMPEN.UI FORM OPENING" Function="simpen.ui.Keyins.Openings.showForm"/>
+        <KeyinHandler Keyin="SIMPEN.UI FORM PENETR" Function="simpen.ui.Keyins.Penetrations.showForm"/>
+
+        <!--ПРОЁМЫ-->
+        <KeyinHandler Keyin="SIMPEN.UI OPENING readData" Function="simpen.ui.Keyins.Openings.readData"/>
+        <KeyinHandler Keyin="SIMPEN.UI OPENING reload" Function="simpen.ui.Keyins.Openings.reload"/>
+        <KeyinHandler Keyin="SIMPEN.UI OPENING enableAddToModel" Function="simpen.ui.Keyins.Openings.enableAddToModel"/>
+        <KeyinHandler Keyin="SIMPEN.UI OPENING sendTaskData" Function="simpen.ui.Keyins.Openings.sendTaskData"/>
+        <KeyinHandler Keyin="SIMPEN.UI OPENING setdgdata" Function="simpen.ui.Keyins.Openings.setDgData"/>
+        
+        <!--ПРОХОДКИ-->
+        <KeyinHandler Keyin="SIMPEN.UI PENETR readData" Function="simpen.ui.Keyins.Penetrations.readData"/>
+        <KeyinHandler Keyin="SIMPEN.UI PENETR reload" Function="simpen.ui.Keyins.Penetrations.reload"/>
+        <KeyinHandler Keyin="SIMPEN.UI PENETR enableAddToModel" Function="simpen.ui.Keyins.Penetrations.enableAddToModel"/>
+        <KeyinHandler Keyin="SIMPEN.UI PENETR sendTaskData" Function="simpen.ui.Keyins.Penetrations.sendTaskData"/>
+        <!--<KeyinHandler Keyin="SIMPEN.UI PENETR setdgdata" Function="simpen.ui.Keyins.Penetrations.setDgData"/>-->
     </KeyinHandlers>
 
 </KeyinTree>

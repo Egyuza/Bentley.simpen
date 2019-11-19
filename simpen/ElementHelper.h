@@ -36,16 +36,17 @@ bool AddChildToCell(EditElemHandleR cell, EditElemHandleR child);
 bool ToEditHandle(EditElemHandleR eehOut, MSElement element);
 bool ToEditHandle(EditElemHandleR eehOut, MSElementDescrP elemDescrP);
 
-ElementRef findIntersectedTFFormWithElement(
+ElementRef tfFindIntersectedByTfType(
     const MSElementP elementP, const int typesNum, int tfType, ...);
+
+ElementRef tfFindIntersectedByDGInstance(
+	const MSElementP elementP, const int typesCount, std::wstring dgInstName, ...);
 
 bool planesAreMatch(const DPlane3d& first, const DPlane3d& second);
 bool planesAreParallel(const DPlane3d& first, const DPlane3d& second);
 double distanceToPlane(const DPoint3d& point, const DPlane3d& plane);
 DVec3d computeVector(const DPoint3d& first, const DPoint3d& second);
 DVec3d computeVectorToPlane(const DPoint3d& point, const DPlane3d& plane);
-
-//LevelID getLevelIdByName(MSWCharCP name);
 
 // Создание объекта прямоугольной проходки
 TFFrame* createPenetrFrame(
@@ -61,5 +62,9 @@ void createCross(EditElemHandleR outCross,
 
 StatusInt getFacePlaneByLabel(
     DPlane3dR outPlane, MSElementDescrCP tfformEdP, FaceLabelEnum label);
+
+bool setDataGroupInstanceValue(const ElementRef& elemRef, DgnModelRefP modelRefP,
+	const std::wstring& catalogType, const std::wstring& catalogInstance,
+	const std::wstring& itemXPath, const std::wstring& value);
 
 #endif // !ELEMENT_HELPER_H

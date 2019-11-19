@@ -45,7 +45,6 @@ const bool isZero(DVec3dR vec);
 
 double convertFromCExprVal(double cexpr);
 void convertToCExprVal(double* cexpr, double value);
-bool setDataGroupInstanceValue(const ElementRef& elemRef, const std::wstring& value);
 
 }
 

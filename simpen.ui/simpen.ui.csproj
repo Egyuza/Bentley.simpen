@@ -87,6 +87,12 @@
     <Compile Include="CExpressions.cs" />
     <Compile Include="Keyins.cs" />
     <Compile Include="Addin.cs" />
+    <Compile Include="PenetrForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PenetrForm.Designer.cs">
+      <DependentUpon>PenetrForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="OpeningForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -102,9 +108,13 @@
     <Compile Include="WindowHelper.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="history.txt" />
     <Content Include="TODO.txt" />
     <EmbeddedResource Include="commands.xml" />
     <Content Include="Readme.txt" />
+    <EmbeddedResource Include="PenetrForm.resx">
+      <DependentUpon>PenetrForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="OpeningForm.resx">
       <DependentUpon>OpeningForm.cs</DependentUpon>
     </EmbeddedResource>

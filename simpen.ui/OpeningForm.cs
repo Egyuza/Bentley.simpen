@@ -6,23 +6,23 @@ using System.Reflection;
 
 namespace simpen.ui
 {
-enum Mode
-{
-    BY_TASK,
-    BY_CONTOUR,
-    BY_POINTS
-}
-
-enum FieldType
-{
-    HEIGHT,
-    WIDTH,
-    LENGTH,
-    KKS
-}
 
 public partial class OpeningForm : Form
 {
+    enum Mode
+    {
+        BY_TASK,
+        BY_CONTOUR,
+        BY_POINTS
+    }
+    enum FieldType
+    {
+        HEIGHT,
+        WIDTH,
+        LENGTH,
+        KKS
+    }
+        
     static Properties.Settings Sets {
         get
         {
@@ -32,25 +32,16 @@ public partial class OpeningForm : Form
 
     static class CExpr
     {
+        private const string pref = "opening";
+        
         public const string 
-            HEIGHT = "openingHeight", // "rectHeight",
-            WIDTH = "openingWidth", // "rectWidth",
-            DEPTH = "openingDistance", // "rectDepth",
-            KKS = "openingKKS", // "rectKKS",
-            IS_POLICY_THROUGH = "openingIsThroughHole",
-            IS_READY_TO_PUBLISH = "openingIsReadyToPublish",
-            IS_REQUIRED_REMOVE_CONTOUR = "openingIsRequiredRemoveContour";
-        }
-
-    static class CExprContour
-    {
-        public const string 
-        DEPTH = "openingDistance",
-        KKS = "openingKKS",
-        //IS_SWEEP_BI = "openingIsSweepBi",
-        IS_POLICY_THROUGH = "openingIsThroughHole",
-        IS_READY_TO_PUBLISH = "openingIsReadyToPublish",
-        IS_REQUIRED_REMOVE_CONTOUR = "openingIsRequiredRemoveContour";
+            HEIGHT = pref + "Height",
+            WIDTH = pref + "Width",
+            DEPTH = pref + "Distance",
+            KKS = pref + "KKS",
+            IS_POLICY_THROUGH = pref + "IsThroughHole",
+            IS_READY_TO_PUBLISH = pref + "IsReadyToPublish",
+            IS_REQUIRED_REMOVE_CONTOUR = pref + "IsRequiredRemoveContour";
     }
 
     bool isReadyToPublishTrigger_;
@@ -95,7 +86,6 @@ public partial class OpeningForm : Form
 
         if (isTaskMode()) // НВС
         {
-            //Addin.Instance.sendCadCommand("locate rect");
             sendKeyin("locate task");
         }    
         else if (isContourMode())
@@ -103,7 +93,7 @@ public partial class OpeningForm : Form
             sendKeyin("locate contour");
         }
     }
-
+    
     private Mode getMode()
     {
         return rbtnModeTask.Checked ? Mode.BY_TASK : Mode.BY_CONTOUR;
@@ -281,7 +271,7 @@ public partial class OpeningForm : Form
 
         try
         {
-            Addin.Instance.setCExpressionValue(CExprContour.IS_READY_TO_PUBLISH, res);
+            Addin.Instance.setCExpressionValue(CExpr.IS_READY_TO_PUBLISH, res);
         }
         catch (Exception)
         {
@@ -433,13 +423,12 @@ public partial class OpeningForm : Form
         sendProperty(FieldType.LENGTH);
         sendProperty(FieldType.KKS);
 
-        Addin.Instance.setCExpressionValue(isContourMode() ? 
-            CExprContour.IS_POLICY_THROUGH : CExpr.IS_POLICY_THROUGH,
+        Addin.Instance.setCExpressionValue(CExpr.IS_POLICY_THROUGH,
             chbxPolicyThrough.Checked);
 
         if (isContourMode()) {
             Addin.Instance.setCExpressionValue(
-            CExprContour.IS_REQUIRED_REMOVE_CONTOUR, chbxRemoveContour.Checked);
+            CExpr.IS_REQUIRED_REMOVE_CONTOUR, chbxRemoveContour.Checked);
         }
 
         checkValidationState();
@@ -452,10 +441,8 @@ public partial class OpeningForm : Form
 
         string result = fieldType == FieldType.HEIGHT ? CExpr.HEIGHT :
             fieldType == FieldType.WIDTH ? CExpr.WIDTH :
-            fieldType == FieldType.LENGTH ?
-                isContourMode() ? CExprContour.DEPTH : CExpr.DEPTH :
-            fieldType == FieldType.KKS ?
-                isContourMode() ? CExprContour.KKS : CExpr.KKS :
+            fieldType == FieldType.LENGTH ? CExpr.DEPTH :
+            fieldType == FieldType.KKS ? CExpr.KKS :
             "";
 
         Debug.Assert(result.Length > 0, string.Format(
@@ -507,9 +494,7 @@ public partial class OpeningForm : Form
         dgvFields.Rows[(int)FieldType.LENGTH].Visible = !chbxPolicyThrough.Checked;
 
         Addin.Instance.setCExpressionValue(
-            isContourMode() ? 
-                CExprContour.IS_POLICY_THROUGH : CExpr.IS_POLICY_THROUGH, 
-            chbxPolicyThrough.Checked);
+            CExpr.IS_POLICY_THROUGH, chbxPolicyThrough.Checked);
 
         sendTaskData();
         sendKeyin("update preview");
@@ -525,6 +510,7 @@ public partial class OpeningForm : Form
         Sets.mode = (int)getMode();
         Sets.isPolicyThrough = chbxPolicyThrough.Checked;
         Sets.isRequiredRemoveConture = chbxRemoveContour.Checked;
+        Sets.Save();
     }
 
     private void sendKeyin(string smallCmdName)

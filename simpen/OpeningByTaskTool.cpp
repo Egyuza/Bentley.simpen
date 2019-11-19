@@ -360,8 +360,13 @@ OpeningByTaskTool::BuildLocateAgenda(HitPathCP path, MstnButtonEventCP ev)
 
     ElementRef& formRef = OpeningTask::getInstance().tfFormRef;
 
-    formRef = findIntersectedTFFormWithElement(&boundsEdP->el,
+    formRef = tfFindIntersectedByTfType(&boundsEdP->el,
         3, TF_LINEAR_FORM_ELM, TF_SLAB_FORM_ELM, TF_FREE_FORM_ELM);
+
+	if (formRef == NULL) {
+		formRef = tfFindIntersectedByDGInstance(&boundsEdP->el,	
+			2, L"ConcreteWalls", L"ConcreteSlabs");
+	}
 
     if (formRef == NULL) {
         mdlOutput_messageCenter(MESSAGE_WARNING, 

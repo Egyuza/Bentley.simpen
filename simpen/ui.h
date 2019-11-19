@@ -13,6 +13,7 @@ namespace UI
 	void reload();
 
 	void setEnableAddToModel();
+	void setDGDataSynch_KKS(int filePos, const char* kks);
 
 	void prompt(char* pMessage);
 	void promptU(char* pMessage);

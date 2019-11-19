@@ -46,7 +46,6 @@ private:
     void OnPostInstall() override;
     bool OnInstall() override;
     void OnCleanup() override;
-    
 };
 
 }

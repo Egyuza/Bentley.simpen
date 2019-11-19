@@ -1,5 +1,6 @@
 #include "ElementHelper.h"
 #include "OpeningHelper.h"
+#include "ui.h"
 
 #include <buildingeditelemhandle.h>
 #include <CatalogCollection.h>
@@ -33,6 +34,7 @@
 #include <msvar.fdf>
 #include <msvec.fdf>
 #include <mdltfprojection.fdf>
+
 
 using Bentley::Ustn::Element::EditElemHandle;
 
@@ -115,23 +117,20 @@ StatusInt computeAndAddToModel(Opening& opening) {
         if (SUCCESS == mdlTFModelRef_addFrame(ACTIVEMODEL, frameP))
         {
             if (fpos) {
-                // TODO научиться это делать в mdl:
+                // записываем свойства в созданный CompoundCell:
 
-                //ElementRef elemRef = mdlModelRef_getElementRef(ACTIVEMODEL, fpos);
-                //std::wstring kksValue(&opening.kks[0], &opening.kks[50]);
-                //setDataGroupInstanceValue(elemRef, kksValue);
-                // записываем свойства в созданный CompoundCell
+                ElementRef elemRef = mdlModelRef_getElementRef(ACTIVEMODEL, fpos);
+                std::wstring kksValue(&opening.getKKS()[0], &opening.getKKS()[50]);
 
-                char buf[256];
-                sprintf(buf, "mdl keyin simpen.ui simpen.ui setdgdata %u %s", // sprintf(buf, "mdl keyin aepsim aepsim setdgdata %u %s"
-                    fpos, opening.getKKS());
-                mdlInput_sendSynchronizedKeyin((MSCharCP)buf, 0, 0, 0);
+                setDataGroupInstanceValue(elemRef, ACTIVEMODEL, 
+					Opening::CATALOG_TYPE_NAME, Opening::CATALOG_INSTANCE_NAME, 
+					L"Opening/@PartCode", kksValue);
             }
 
             if (opening.getTask().isRequiredRemoveContour && 
                 !elementRef_isEOF(opening.contourRef)) 
             {  
-                // todo проверить на контур из референса
+                // TODO проверить на контур из референса
 
                 // Удаляем контур:
                 MSElementDescrP contourEdP = NULL;
@@ -407,46 +406,6 @@ StatusInt findDirectionVector(DVec3d& outDirectionVec, double& distance,
 }
 
 //
-
-bool setDataGroupInstanceValue(const ElementRef& elemRef, const std::wstring& value) {
-    if (NULL == elemRef) {
-        return false;
-    }
-
-    /*!
-    To iterate through all the CCatalogInstances in the collection see the following:
-    \code
-    CCatalogCollection::CCollectionConst_iterator itr;
-    for (itr = GetCatalogCollection().Begin(); itr != GetCatalogCollection().End(); itr++)
-    CCatalogInstanceT const& pCatalogInstance = *itr->second;
-    \endcode
-    */
-
-    Bentley::Building::Elements::BuildingEditElemHandle beeh(elemRef, ACTIVEMODEL);
-    beeh.LoadDataGroupData();
-    beeh.LoadDataGroupFromDisk();
-
-    CCatalogCollection& collection = beeh.GetCatalogCollection();
-
-    collection.SetIsValid(true);
-    if (false) {
-
-        collection.InsertDataGroupCatalogInstance(L"Opening", L"Opening");
-
-        beeh.GetCatalogCollection().UpdateInstanceDataDefaults(
-            Opening::CATALOG_INSTANCE_NAME);
-
-        std::wstring const      itemXPath = L"Opening/Opening/@PartCode";
-        //std::wstring const      itemValue = L"Wood";
-        CCatalogSchemaItemT*    pSchemaItem = NULL;
-        if (NULL != (pSchemaItem = beeh.GetCatalogCollection().FindDataGroupSchemaItem(itemXPath)))
-            pSchemaItem->SetValue(value);
-
-        return SUCCESS == beeh.Rewrite();
-    }
-
-    return false;
-}
 
 int modifyFunc(
     MSElementUnion      *element,     // <=> element to be modified

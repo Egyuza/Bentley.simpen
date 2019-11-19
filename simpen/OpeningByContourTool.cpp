@@ -6,6 +6,8 @@
 #include "ui.h"
 
 #include <elementref.h>
+#include <buildingeditelemhandle.h>
+#include <CatalogCollection.h>
 
 #include <mdltfelmdscr.fdf>
 #include <mdltfform.fdf>
@@ -83,7 +85,8 @@ void OpeningByContourTool::addToModel(char *unparsedP)
 }
 
 // Фильтр элементов, которые будут доступны пользователю для выбора
-bool OpeningByContourTool::OnPostLocate(HitPathCP path, char *cantAcceptReason) {
+bool OpeningByContourTool::OnPostLocate(HitPathCP path, char *cantAcceptReason) 
+{
     if (!__super::OnPostLocate(path, cantAcceptReason)) {
         return false;
     }
@@ -108,6 +111,24 @@ bool OpeningByContourTool::OnPostLocate(HitPathCP path, char *cantAcceptReason) 
             return true;
         }
     }
+
+	Bentley::Building::Elements::BuildingEditElemHandle beeh(elRef, ACTIVEMODEL);
+	beeh.LoadDataGroupData();
+
+	CCatalogCollection::CCollectionConst_iterator itr;
+	for (itr = beeh.GetCatalogCollection().Begin(); itr != beeh.GetCatalogCollection().End(); itr++)
+	{
+		const std::wstring catalogInstanceName = itr->first;
+		//CCatalogInstanceT const& pCatalogInstance = *itr->second;
+		//std::wstring name = pCatalogInstance.GetCatalogInstanceName();
+
+		if (catalogInstanceName == L"ConcreteWalls" || 
+			catalogInstanceName == L"ConcreteSlabs")
+		{
+			return true;
+		}
+	}
+
     return false;
 }
 
