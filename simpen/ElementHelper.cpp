@@ -210,6 +210,7 @@ ElementRef tfFindIntersectedByTfType(
                              
                     int* typeP = &tfType;
 					int count = typesNum;
+
                     while (count--) {
                         if (elemTfType == *typeP) {
                             result = edP->h.elementRef;
@@ -233,8 +234,8 @@ ElementRef tfFindIntersectedByTfType(
     return result;
 }
 
-ElementRef tfFindIntersectedByDGInstance(
-	const MSElementP elementP, const int typesCount, std::wstring dgInstName, ...)
+ElementRef tfFindIntersectedByDGInstance(const MSElementP elementP, 
+	const int typesCount, std::wstring dgInstNames[], std::wstring& outMatchedInstName)
 {
 	ElementRef result = NULL;
 
@@ -284,17 +285,15 @@ ElementRef tfFindIntersectedByDGInstance(
 					CCatalogCollection::CCollectionConst_iterator itr;
 					for (itr = beeh.GetCatalogCollection().Begin(); itr != beeh.GetCatalogCollection().End(); itr++)
 					{
-						const std::wstring catalogInstanceName = itr->first;
+						const std::wstring catalogInstanceName = itr->first;						
 
-						std::wstring* searchInstName = &dgInstName;
-						int count = typesCount;
-						while (count--) {
-							if (catalogInstanceName == *searchInstName) {
+						for (int ii = 0; ii < typesCount; ++ii) {
+							if (catalogInstanceName == dgInstNames[ii]) {
+								outMatchedInstName = dgInstNames[ii];
 								result = edP->h.elementRef;
 								isTypeMatched = true;
 								break;
 							}
-							++searchInstName;
 						}
 					}
 

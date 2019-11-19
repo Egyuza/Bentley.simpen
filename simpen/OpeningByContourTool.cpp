@@ -110,24 +110,22 @@ bool OpeningByContourTool::OnPostLocate(HitPathCP path, char *cantAcceptReason)
 		{
             return true;
         }
+
+		Bentley::Building::Elements::BuildingEditElemHandle beeh(elRef, ACTIVEMODEL);
+		beeh.LoadDataGroupData();
+
+		CCatalogCollection::CCollectionConst_iterator itr;
+		for (itr = beeh.GetCatalogCollection().Begin(); itr != beeh.GetCatalogCollection().End(); itr++)
+		{
+			const std::wstring catalogInstanceName = itr->first;
+			if (catalogInstanceName == L"ConcreteWalls" || 
+				catalogInstanceName == L"ConcreteSlabs")
+			{
+				return true;
+			}
+		}
     }
 
-	Bentley::Building::Elements::BuildingEditElemHandle beeh(elRef, ACTIVEMODEL);
-	beeh.LoadDataGroupData();
-
-	CCatalogCollection::CCollectionConst_iterator itr;
-	for (itr = beeh.GetCatalogCollection().Begin(); itr != beeh.GetCatalogCollection().End(); itr++)
-	{
-		const std::wstring catalogInstanceName = itr->first;
-		//CCatalogInstanceT const& pCatalogInstance = *itr->second;
-		//std::wstring name = pCatalogInstance.GetCatalogInstanceName();
-
-		if (catalogInstanceName == L"ConcreteWalls" || 
-			catalogInstanceName == L"ConcreteSlabs")
-		{
-			return true;
-		}
-	}
 
     return false;
 }

@@ -8,6 +8,7 @@
 #include "pipepen.h"
 #include "simpencmd.h"
 #include "ElementHelper.h"
+#include "XmlAttributeHelper.h"
 
 /*----------------------------------------------------------------------+
 |                                                                       |
@@ -23,6 +24,7 @@
 #include <ListModelHelper.h>
 #include <interface/ElemHandle.h>
 #include <interface/ILocate.h>
+#include "XmlAttributeHelper.h"
 
 #include <elementref.h>
 
@@ -1478,8 +1480,6 @@ MSElementDescr* makeTube2(
 
 
     }
-
-    // todo активировать, когда будет исправлено
 
     /// ===== доб 17/06/2019 ====
     /// ===== изм 21/06/2019 ====
@@ -3260,8 +3260,6 @@ int processInstance(Bentley::WString strInst) {
 
 }
 
-
-
 //////////////////////////
 int scanPartsReport(
     ElementRef eref,
@@ -3287,6 +3285,86 @@ int scanPartsReport(
     DPoint3d pMax;
     MSElementDescr* edP = NULL;
     mdlElmdscr_getByElemRef(&edP, eref, ACTIVEMODEL, FALSE, 0);
+
+
+	USING_NAMESPACE_BENTLEY_XMLINSTANCEAPI_NATIVE;
+
+
+	XMLFragmentListP pXMLFragmentList = NULL;
+
+	if (SUCCESS == mdlXMLFragmentList_extractFromElement(&pXMLFragmentList, &edP->el)) {
+		XMLFragmentListP  pCurrent = NULL;
+		for (pCurrent = pXMLFragmentList; pCurrent != NULL; pCurrent = mdlXMLFragmentList_getNext(pCurrent)) {
+			XMLFragmentP pXMLFragment = mdlXMLFragmentList_getXMLFragment(pCurrent);
+			// If fragment contains dimensions then get Door width and height
+
+			pXMLFragment = pXMLFragment;
+		}
+		mdlXMLFragmentList_free(&pXMLFragmentList);
+	}
+	
+	bool isFiltered = false; // флаг фильтра элемента
+
+	bool status;
+	XmlInstanceSchemaManager mgrR(ACTIVEMODEL);
+	mgrR.ReadSchemas(status);
+	if (status) {
+		XmlInstanceStatus stt;
+		stt.status = LICENSE_FAILED;
+		XmlInstanceApi xapiR = XmlInstanceApi::CreateApi(stt, mgrR);
+		StringListHandle slhR = xapiR.ReadInstances(stt, eref);
+
+		int res = 0;
+		for (int i = 0; i < slhR.GetCount(); i++)
+		{
+			Bentley::WString strInst = slhR.GetString(i);
+
+			XmlDomRef domRef;
+			XmlNodeRef rootNodeRef;
+			if (SUCCESS != mdlXMLDom_createFromText(&domRef, 0, strInst.GetMSWCharCP())) {
+				break;
+			}
+
+			mdlXMLDom_getRootNode(&rootNodeRef, domRef);
+
+			if (mdlXMLDomNode_hasChildNodes(rootNodeRef)) {
+				XmlNodeListRef nodeListRef;
+				mdlXMLDomNode_getChildNodes(&nodeListRef, rootNodeRef);
+
+				int numChildren = mdlXMLDomNodeList_getNumChildren(nodeListRef);
+
+				XmlNodeRef child;
+				for (int i = 0; i < numChildren; ++i) {
+					mdlXMLDomNodeList_getChild(&child, nodeListRef, i);
+
+					int maxChars = 256;
+					// std::wstring value = L"";
+					MSWChar value[256];
+
+					XmlNodeRef subChild = NULL;
+					if (XmlAttributeHelper::findChildNode(&subChild, child, L"Description")) {
+						XmlAttributeHelper::getNodeValue(value, &maxChars, subChild);
+					}
+
+					mdlXMLDomNode_free(child);
+					
+					if (wcscmp(value, L"PenFlange") == 0) {
+						isFiltered = true;
+						break;
+					}
+				}
+				mdlXMLDomNodeList_free(nodeListRef);
+			}
+
+			mdlXMLDom_free(domRef);
+		}
+	}
+
+	if (isFiltered) {
+		return 0;
+	}
+
+
     DPoint3d p[2];
     if (edP) {
         mdlElmdscr_computeRange(&pMin, &pMax, edP, NULL);

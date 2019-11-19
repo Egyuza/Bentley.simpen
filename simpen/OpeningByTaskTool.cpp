@@ -195,6 +195,7 @@ bool OpeningByTaskTool::OnPostLocate(HitPathCP path, char *cantAcceptReason) {
                 return true;
             }
         }
+
     }
 
     return false;
@@ -363,9 +364,11 @@ OpeningByTaskTool::BuildLocateAgenda(HitPathCP path, MstnButtonEventCP ev)
     formRef = tfFindIntersectedByTfType(&boundsEdP->el,
         3, TF_LINEAR_FORM_ELM, TF_SLAB_FORM_ELM, TF_FREE_FORM_ELM);
 
+	std::wstring matchedInstName = L"";
 	if (formRef == NULL) {
-		formRef = tfFindIntersectedByDGInstance(&boundsEdP->el,	
-			2, L"ConcreteWalls", L"ConcreteSlabs");
+		std::wstring searchInstances[2] = { L"ConcreteWalls", L"ConcreteSlabs" };
+		formRef = tfFindIntersectedByDGInstance(
+			&boundsEdP->el, 2, searchInstances, matchedInstName);
 	}
 
     if (formRef == NULL) {
@@ -379,13 +382,15 @@ OpeningByTaskTool::BuildLocateAgenda(HitPathCP path, MstnButtonEventCP ev)
 
         StatusInt status = SUCCESS;                
         int formType = mdlTFElmdscr_getApplicationType(formEeh.GetElemDescrP());
-        if (formType == TF_LINEAR_FORM_ELM) {
+        if (formType == TF_LINEAR_FORM_ELM || matchedInstName == L"ConcreteWalls") {
             status = getFacePlaneByLabel(planeFirst,
                 formEeh.GetElemDescrP(), FaceLabelEnum_Left);
             status += getFacePlaneByLabel(planeSecond,
                 formEeh.GetElemDescrP(), FaceLabelEnum_Right);
         }
-        else if (formType == TF_SLAB_FORM_ELM || formType == TF_FREE_FORM_ELM) {
+        else if (formType == TF_SLAB_FORM_ELM || formType == TF_FREE_FORM_ELM ||
+			matchedInstName == L"ConcreteSlabs")
+		{
             status = getFacePlaneByLabel(planeFirst,
                 formEeh.GetElemDescrP(), FaceLabelEnum_Top);
             status += getFacePlaneByLabel(planeSecond,

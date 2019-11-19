@@ -39,8 +39,8 @@ bool ToEditHandle(EditElemHandleR eehOut, MSElementDescrP elemDescrP);
 ElementRef tfFindIntersectedByTfType(
     const MSElementP elementP, const int typesNum, int tfType, ...);
 
-ElementRef tfFindIntersectedByDGInstance(
-	const MSElementP elementP, const int typesCount, std::wstring dgInstName, ...);
+ElementRef tfFindIntersectedByDGInstance(const MSElementP elementP,
+	const int typesCount, std::wstring dgInstNames[], std::wstring& outMatchedInstName);
 
 bool planesAreMatch(const DPlane3d& first, const DPlane3d& second);
 bool planesAreParallel(const DPlane3d& first, const DPlane3d& second);
