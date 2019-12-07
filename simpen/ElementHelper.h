@@ -13,6 +13,7 @@
 #include <interface/ElemHandleGeometry.h>
 #include <interface/element/DisplayHandler.h> 
 #include <leveltable.h>
+#include <buildingeditelemhandle.h>
 
 #include <list>
 
@@ -36,8 +37,8 @@ bool AddChildToCell(EditElemHandleR cell, EditElemHandleR child);
 bool ToEditHandle(EditElemHandleR eehOut, MSElement element);
 bool ToEditHandle(EditElemHandleR eehOut, MSElementDescrP elemDescrP);
 
-ElementRef tfFindIntersectedByTfType(
-    const MSElementP elementP, const int typesNum, int tfType, ...);
+ElementRef findIntersectedByTFType(
+    const MSElementDescrP edP, const int typesNum, int tfType, ...);
 
 ElementRef tfFindIntersectedByDGInstance(const MSElementP elementP,
 	const int typesCount, std::wstring dgInstNames[], std::wstring& outMatchedInstName);
@@ -63,7 +64,8 @@ void createCross(EditElemHandleR outCross,
 StatusInt getFacePlaneByLabel(
     DPlane3dR outPlane, MSElementDescrCP tfformEdP, FaceLabelEnum label);
 
-bool setDataGroupInstanceValue(const ElementRef& elemRef, DgnModelRefP modelRefP,
+bool setDataGroupInstanceValue(
+	Bentley::Building::Elements::BuildingEditElemHandle& beeh,
 	const std::wstring& catalogType, const std::wstring& catalogInstance,
 	const std::wstring& itemXPath, const std::wstring& value);
 

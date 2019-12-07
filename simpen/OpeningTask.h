@@ -22,7 +22,7 @@ struct OpeningTask {
     bool isRequiredRemoveContour;
     bool isReadyToPublish;
 
-    ElementRef tfFormRef;
+    ElementRef tfFormRef; // todo modelRef стены?
     bool isContourSelected;
     bool isTFFormSelected;
     bool isTaskSelected;

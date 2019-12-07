@@ -197,7 +197,10 @@ extern "C" DLLEXPORT  int MdlMain (int argc, char *argv[])
     //mdlSystem_setFunction(SYSTEM_ELMDSCR_TO_FILE, callbackElmdDscrToFile);
     //mdlChangeTrack_setFunction (CHANGE_TRACK_FUNC_Changed, callbackDgnFileChanged);
 
-    mdlLocate_setFunction(LOCATE_GLOBAL_PRELOCATE, callbackLocateFilter);
+	mdlLocate_setFunction(LOCATE_GLOBAL_PRELOCATE, callbackLocateFilter);
+	
+	mdlLocate_setFunction(LOCATE_PROVIDE_PATH_DESCRIPTION, 
+		Openings::LocateFunc_providePathDescription);
 
     return SUCCESS;
 }

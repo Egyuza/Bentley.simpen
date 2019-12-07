@@ -7,6 +7,7 @@
 #include <elementref.h>
 #include <interface\ElemHandle.h>
 #include <ListModelHelper.h>
+#include <msdisplaypath.h>
 
 #include <ditemlib.fdf>
 #include <leveltable.fdf>
@@ -16,7 +17,12 @@
 #include <mdltfform.fdf>
 #include <mdltfframe.fdf>
 #include <mdltfmodelref.fdf>
+#include <mdltfaform.fdf>
 
+#include <mdltfelmdscr.fdf>
+#include <mdltfperfo.fdf>
+#include <mdltfprojection.fdf>
+#include <mscnv.fdf>
 #include <msdgnmodelref.fdf>
 #include <msdialog.fdf>
 #include <mselemen.fdf>
@@ -33,7 +39,13 @@
 #include <msundo.fdf>
 #include <msvar.fdf>
 #include <msvec.fdf>
-#include <mdltfprojection.fdf>
+
+#include <mscell.fdf>
+
+#include <mskisolid.fdf>
+
+#include <mstmatrx.fdf>
+#include <mscurrtr.fdf>
 
 
 using Bentley::Ustn::Element::EditElemHandle;
@@ -66,8 +78,9 @@ StatusInt computeAndDrawTransient(Opening& opening) {
     return SUCCESS;
 }
 
-StatusInt computeAndAddToModel(Opening& opening) {
-
+StatusInt computeAndAddToModel(Opening& opening,
+	bool rewritePrevious, MSElementDescr* previousP) 
+{
     EditElemHandle bodyShape, perfoShape, crossFirst, crossSecond;
 		
 	if (SUCCESS != computeElementsForOpening(
@@ -77,12 +90,11 @@ StatusInt computeAndAddToModel(Opening& opening) {
         return ERROR;
     }
 
-	LevelID lvlId;
-    mdlLevel_getActive(&lvlId);
-	const LevelID activeLevelId = lvlId;
-    const int COLOR_ACTIVE = tcb->symbology.color;
+	const LevelID activeLevelId = tcb->activeLevel;
+	const symbology activeSymbology = tcb->symbology;
 
-	tcb->symbology.color = COLOR_BYLEVEL;
+	tcb->symbology = Opening::SYMBOLOGY;
+
 	if (SUCCESS != mdlLevel_setActiveByName(LEVEL_NULL_ID, Opening::LEVEL_NAME))
 	{
 		const char* msg = "Не найден слой - <C-OPENING-BOUNDARY>";
@@ -96,7 +108,7 @@ StatusInt computeAndAddToModel(Opening& opening) {
     
 	if (frameP == NULL) {
 		mdlLevel_setActive(activeLevelId);
-		tcb->symbology.color = COLOR_ACTIVE;
+		tcb->symbology = activeSymbology;
 		return ERROR;
 	}
 
@@ -114,17 +126,53 @@ StatusInt computeAndAddToModel(Opening& opening) {
         DgnModelRefP modelRefP = ACTIVEMODEL;
         UInt32 fpos = mdlElement_getFilePos(FILEPOS_NEXT_NEW_ELEMENT, &modelRefP);
         
-        if (SUCCESS == mdlTFModelRef_addFrame(ACTIVEMODEL, frameP))
+		if (rewritePrevious && previousP && 
+			previousP->h.dgnModelRef == modelRefP) 
+		{
+			// todo 
+			//TFFrame* prevFrameP = NULL;
+			//MSElementDescr* prevFrameDef = NULL;
+			//TFFrameList* listP = mdlTFFrameList_constructFromElmdscr(previousP);
+			//if (listP) {
+			//	prevFrameP = mdlTFFrameList_getFrame(listP);
+			//	if (prevFrameP) {
+			//		prevFrameDef = mdlTFFrame_get3DElmdscr(prevFrameP);
+			//	}
+			//}
+		
+			UInt32 prevPos = elementRef_getFilePos(previousP->h.elementRef);
+			//MSElementDescr* newEdP = mdlTFFrame_get3DElmdscr(frameP);		
+
+			//resStatus = newEdP != NULL;
+			//mdlElmdscr_rewriteByModelRef(newEdP, previousP, prevPos, modelRefP);
+
+			mdlElmdscr_deleteByModelRef(previousP, prevPos, modelRefP, 1);
+			resStatus = mdlTFModelRef_addFrame(modelRefP, frameP);
+
+		}
+		else {
+			resStatus = mdlTFModelRef_addFrame(modelRefP, frameP);
+		}
+
+        if (resStatus == SUCCESS)
         {
             if (fpos) {
                 // записываем свойства в созданный CompoundCell:
+                ElementRef elemRef = mdlModelRef_getElementRef(modelRefP, fpos);
+				
+				Bentley::Building::Elements::
+					BuildingEditElemHandle beeh(elemRef, modelRefP);
+				
+				MSWChar kksW[50];
+				mdlCnv_convertMultibyteToUnicode(opening.getKKS(), -1, kksW, 50);
 
-                ElementRef elemRef = mdlModelRef_getElementRef(ACTIVEMODEL, fpos);
-                std::wstring kksValue(&opening.getKKS()[0], &opening.getKKS()[50]);
+                //std::wstring kksValue(kksW);
 
-                setDataGroupInstanceValue(elemRef, ACTIVEMODEL, 
-					Opening::CATALOG_TYPE_NAME, Opening::CATALOG_INSTANCE_NAME, 
-					L"Opening/@PartCode", kksValue);
+                setDataGroupInstanceValue(beeh, Opening::CATALOG_TYPE_NAME, 
+					Opening::CATALOG_INSTANCE_NAME, L"Opening/@PartCode", kksW);
+					
+				updateOpeningR(beeh.GetElemDescrP());
+				beeh.Rewrite();
             }
 
             if (opening.getTask().isRequiredRemoveContour && 
@@ -135,10 +183,10 @@ StatusInt computeAndAddToModel(Opening& opening) {
                 // Удаляем контур:
                 MSElementDescrP contourEdP = NULL;
                 mdlElmdscr_getByElemRef(
-                    &contourEdP, opening.contourRef, ACTIVEMODEL, FALSE, 0);
+                    &contourEdP, opening.contourRef, modelRefP, FALSE, 0);
 
                 fpos = mdlElmdscr_getFilePos(contourEdP);
-                mdlElmdscr_deleteByModelRef(contourEdP, fpos, ACTIVEMODEL, TRUE);
+                mdlElmdscr_deleteByModelRef(contourEdP, fpos, modelRefP, TRUE);
             }
 
             mdlOutput_prompt("Проём успешно создан");
@@ -146,7 +194,7 @@ StatusInt computeAndAddToModel(Opening& opening) {
         }
     }
         
-    tcb->symbology.color = COLOR_ACTIVE;  // 1. ! до активации слоя
+    tcb->symbology = activeSymbology;  // 1. ! до активации слоя
     mdlLevel_setActive(activeLevelId); // 2.
 
     return resStatus;
@@ -175,21 +223,22 @@ StatusInt computeElementsForOpening(EditElemHandleR outBodyShape,
     createShape(contour, &opening.contourPoints[0], opening.contourPoints.size(), false);
 
    // int tfTypes[2] = { TF_LINEAR_FORM_ELM, TF_SLAB_FORM_ELM };
-    TFFormRecipeList* wall = NULL;
+    
         // findIntersectedTFFormWithElement(contour.GetElementP(), tfTypes, 2);
 
-    if (!wall) {
-        EditElemHandle eeh = 
-            EditElemHandle(OpeningTask::getInstance().tfFormRef, ACTIVEMODEL);
+	EditElemHandle formEeh = 
+		EditElemHandle(OpeningTask::getInstance().tfFormRef, ACTIVEMODEL);
+	int formType = mdlTFElmdscr_getApplicationType(formEeh.GetElemDescrP());
 
-        if (BSISUCCESS != mdlTFFormRecipeList_constructFromElmdscr(
-            &wall, eeh.GetElemDescrP())) 
-        {
-			tcb->symbology.color = COLOR_ACTIVE;  // 1. ! до активации слоя
-			mdlLevel_setActive(activeLevelId); // 2.
-            return ERROR;
-        }
+	TFFormRecipeList* wall = NULL;
+    if (BSISUCCESS != mdlTFFormRecipeList_constructFromElmdscr(
+        &wall, formEeh.GetElemDescrP()))
+    {
+		tcb->symbology.color = COLOR_ACTIVE;  // 1. ! до активации слоя
+		mdlLevel_setActive(activeLevelId); // 2.
+        return ERROR;
     }
+    
 
     DPlane3d contourPlane;
     mdlElmdscr_extractNormal(
@@ -198,8 +247,19 @@ StatusInt computeElementsForOpening(EditElemHandleR outBodyShape,
     double distance = 0.0;
     {   // обновление и корректировка
         DVec3d directVector;
-        if (SUCCESS != 
-			findDirectionVector(directVector, distance, contourPlane, wall))
+		StatusInt orientStatus = ERROR;
+
+		if (formType == TF_ARC_FORM_ELM) {
+			orientStatus = findDirVecFromArcWall(directVector, distance, contourPlane,
+				opening.contourPoints[0], OpeningTask::getInstance().tfFormRef,
+				ACTIVEMODEL);
+		}
+		else {
+			orientStatus =
+				findDirectionVector(directVector, distance, contourPlane, wall);
+		}
+
+        if (SUCCESS != orientStatus)
 		{
 			tcb->symbology.color = COLOR_ACTIVE;  // 1. ! до активации слоя
 			mdlLevel_setActive(activeLevelId); // 2.
@@ -266,6 +326,133 @@ StatusInt computeElementsForOpening(EditElemHandleR outBodyShape,
 	mdlLevel_setActive(activeLevelId); // 2.
 
     return SUCCESS;
+}
+
+StatusInt findDirVecFromArcWall(DVec3d& outDirVec, double& outDistance,
+	const DPlane3d& contourPlane, const DPoint3d contourVertex, 
+	const ElementRef wallRef, DgnModelRefP modelRefP)
+{
+	outDistance = 0.0;
+	mdlVec_zero(&outDirVec);
+
+	EditElemHandle wallEeh = EditElemHandle(wallRef, modelRefP);
+
+
+	int formType = mdlTFElmdscr_getApplicationType(wallEeh.GetElemDescrP());
+	if (formType != TF_ARC_FORM_ELM) {
+		return ERROR;
+	}
+
+	StatusInt status = SUCCESS;
+	TFBrepList* brepListP = NULL;
+
+	TFFormRecipeList* wallP = NULL;
+	status += mdlTFFormRecipeList_constructFromElmdscr(&wallP, wallEeh.GetElemDescrP());
+	status += mdlTFFormRecipeList_getBrepList(wallP, &brepListP, 0, 0, 0);
+	
+	TFFormRecipeArc* arcP = mdlTFFormRecipeList_getFormRecipe(wallP);
+	mdlTFFormRecipeArc_getThickness(arcP, &outDistance);
+
+	TFBrepFaceList* leftFacesP = 
+		mdlTFBrepList_getFacesByLabel(brepListP, FaceLabelEnum_Left);
+	MSElementDescrP leftEdP;
+	status += mdlTFBrepFaceList_getElmdscr(&leftEdP, leftFacesP, NULL);
+
+	TFBrepFaceList* rightFacesP =
+		mdlTFBrepList_getFacesByLabel(brepListP, FaceLabelEnum_Right);
+	MSElementDescrP rightEdP;
+	status += mdlTFBrepFaceList_getElmdscr(&rightEdP, rightFacesP, NULL);
+
+	TFBrepFaceList* baseFacesP =
+		mdlTFBrepList_getFacesByLabel(brepListP, FaceLabelEnum_Base);
+	MSElementDescrP baseEdP;
+	status += mdlTFBrepFaceList_getElmdscr(&baseEdP, baseFacesP, NULL);
+
+	// расстояние между левой и провой поверхностями стены:
+
+	if (SUCCESS == status) {
+		// проецируем всё на плоскость базовой поверхности стены, 
+		// там вычисляем необходимое расстояние для проёма:
+
+		DPlane3d basePlane;
+		mdlElmdscr_extractNormal(&basePlane.normal, &basePlane.origin, baseEdP, NULL);
+		
+		DPoint3d arcCenter;
+		double arcSweep, arcRadius;
+		double arcThickness = outDistance;
+		RotMatrix rot;
+		mdlTFFormRecipeArc_extractBaseParams(arcP, 
+			&arcCenter, &arcSweep, &arcRadius, &rot);
+
+		DPoint3d projCenter;
+		mdlVec_projectPointToPlane(&projCenter,
+			&arcCenter, &basePlane.origin, &basePlane.normal);
+
+		DPoint3d projStart = contourVertex;
+		mdlVec_projectPointToPlane(&projStart,
+			&projStart, &basePlane.origin, &basePlane.normal);
+
+		if (std::abs(mdlVec_distance(&projStart, &projCenter) - arcRadius) < 0.1)
+		{
+			arcRadius -= arcThickness;
+		}
+
+		DPoint3d projEndEx;
+		mdlVec_projectPoint(&projEndEx,
+			&projStart, &contourPlane.normal, 1.25 * outDistance);
+		mdlVec_projectPointToPlane(&projEndEx,
+			&projEndEx, &basePlane.origin, &basePlane.normal);
+
+		// чтобы точно получить пересечение, увеличиваем в обе стороны
+		DPoint3d projStartEx;
+		mdlVec_projectPoint(&projStartEx,
+			&projStart, &contourPlane.normal, -1.25 * outDistance);
+
+		EditElemHandle line;
+		DPoint3d pts[] = { projStartEx, projEndEx };
+		сreateLine(line, pts);
+
+		MSElement arc;
+		mdlArc_create(&arc,
+			NULL, &projCenter, arcRadius, arcRadius, &rot, 0, arcSweep);
+
+		EditElemHandle arcEeh;
+		ToEditHandle(arcEeh, arc);
+
+		//msTransientElmP = mdlTransient_addElemDescr(msTransientElmP,
+		//	arcEeh.GetElemDescrCP(), true, 0xffff, DRAW_MODE_TempDraw, FALSE, FALSE, TRUE);
+
+		DPoint3d intersectsLine[3] = { DPoint3d(), DPoint3d(), DPoint3d() };
+		DPoint3d intersectsArc[3] = { DPoint3d(), DPoint3d(), DPoint3d() };
+		int count =
+			mdlIntersect_allBetweenElms(intersectsLine, intersectsArc, 5,
+				line.GetElemDescrP(), arcEeh.GetElemDescrP(), NULL, 0.1);
+
+		count = count;
+
+		if (count == 1) {
+			mdlVec_subtractDPoint3dDPoint3d(&outDirVec, &intersectsArc[0], &projStart);
+			outDistance = mdlVec_distance(&intersectsArc[0], &projStart);
+		}
+
+		//pts[0] = projStart;
+		//pts[1] = intersectsArc[0];
+		//сreateLine(line, pts);
+
+		//msTransientElmP = mdlTransient_addElemDescr(msTransientElmP,
+		//	line.GetElemDescrCP(), true, 0xffff, DRAW_MODE_TempDraw, FALSE, FALSE, TRUE);
+
+	}
+
+	if (leftFacesP) {
+		mdlTFBrepFaceList_free(&leftFacesP);
+	}
+
+	if (brepListP) {
+		mdlTFBrepList_free(&brepListP);
+	}
+
+	return status;
 }
 
 
@@ -405,48 +592,147 @@ StatusInt findDirectionVector(DVec3d& outDirectionVec, double& distance,
     return ERROR;
 }
 
-//
-
 int modifyFunc(
-    MSElementUnion      *element,     // <=> element to be modified
-    void                *params,      // => user parameter
-    DgnModelRefP        modelRef,     // => model to hold current elem
-    MSElementDescr      *elmDscrP,    // => element descr for elem
-    MSElementDescr      **newDscrPP,  // <= if replacing entire descr
-    ModifyElementSource elemSource   // => The source for the element.
+	MSElementUnion      *element,     // <=> element to be modified
+	void                *params,      // => user parameter
+	DgnModelRefP        modelRef,     // => model to hold current elem
+	MSElementDescr      *elmDscrP,    // => element descr for elem
+	MSElementDescr      **newDscrPP,  // <= if replacing entire descr
+	ModifyElementSource elemSource   // => The source for the element.
 ) {
-    //eleFunc return value Meaning 
-    //MODIFY_STATUS_NOCHANGE The element was not changed. 
-    //MODIFY_STATUS_REPLACE Replace original element with the new element. 
-    //MODIFY_STATUS_DELETE Delete the original element. 
-    //MODIFY_STATUS_ABORT Stop processing component elements. MODIFY_STATUS_ABORT can be used with any of the other values. 
-    //MODIFY_STATUS_FAIL An error occurred during element modification. Ignore all changes previously made. 
-    //MODIFY_STATUS_REPLACEDSCR Replace the current element descriptor with a new element descriptor. This is used to replace one or more elements with a (possibly) different number of elements. 
-    //MODIFY_STATUS_ERROR MODIFY_STATUS_FAIL | MODIFY_STATUS_ABORT 
+	//eleFunc return value Meaning 
+	//MODIFY_STATUS_NOCHANGE The element was not changed. 
+	//MODIFY_STATUS_REPLACE Replace original element with the new element. 
+	//MODIFY_STATUS_DELETE Delete the original element. 
+	//MODIFY_STATUS_ABORT Stop processing component elements. MODIFY_STATUS_ABORT can be used with any of the other values. 
+	//MODIFY_STATUS_FAIL An error occurred during element modification. Ignore all changes previously made. 
+	//MODIFY_STATUS_REPLACEDSCR Replace the current element descriptor with a new element descriptor. This is used to replace one or more elements with a (possibly) different number of elements. 
+	//MODIFY_STATUS_ERROR MODIFY_STATUS_FAIL | MODIFY_STATUS_ABORT 
 
-    //int cl = PRIMARY_CLASS;
+	//int cl = PRIMARY_CLASS;
 
-    //mdlElement_setProperties(element, 0, 0, &cl, 0, 0, 0, 0, 0);
+	//mdlElement_setProperties(element, 0, 0, &cl, 0, 0, 0, 0, 0);
 
-    return MODIFY_STATUS_REPLACE;
+	return MODIFY_STATUS_REPLACE;
 }
 
+std::string updatedInfo;
+int updatedElementsCount;
+
+bool updateOpeningR(MSElementDescrP edP)
+{
+	bool res = false;
+
+	if (edP->el.ehdr.type == CELL_HEADER_ELM) {
+
+		MSElementDescrP childP = edP->h.firstElem;
+		while (childP)
+		{
+			res |= updateOpeningR(childP);
+			childP = childP->h.next;
+		}
+		return res;
+	}
+	
+	const LevelID activeLevelId = tcb->activeLevel;
+	const Symbology activeSymbology = tcb->symbology;
+
+	LevelID levelId;
+	bool isMatched = false;
+
+	if (edP->el.ehdr.type == CMPLX_SHAPE_ELM /*BOUNDARY*/ || 
+		edP->el.ehdr.type == LINE_ELM /*BOUNDARY*/) {
+		MSWCharCP leveName = Opening::LEVEL_NAME;
+		if (SUCCESS != mdlLevel_getIdFromName(&levelId,
+			ACTIVEMODEL, LEVEL_NULL_ID, leveName))
+		{
+			if (SUCCESS != mdlLevel_setActiveByName(LEVEL_NULL_ID, leveName))
+			{
+				char msg[256];
+				sprintf(msg, "Не найден слой - <%s>", leveName);
+				mdlOutput_messageCenter(MESSAGE_WARNING, msg, msg, FALSE);
+			}
+		}
+
+		isMatched = true;
+	}
+	else if (edP->el.ehdr.type == LINE_STRING_ELM /*CROSSES*/ ||
+			edP->el.ehdr.type == SHAPE_ELM /*PERFORATOR*/) 
+	{
+		MSWCharCP leveName = Opening::LEVEL_SYMBOL_NAME;
+		if (SUCCESS != mdlLevel_getIdFromName(&levelId,
+			ACTIVEMODEL, LEVEL_NULL_ID, leveName))
+		{
+			if (SUCCESS != mdlLevel_setActiveByName(LEVEL_NULL_ID, leveName))
+			{
+				char msg[256];
+				sprintf(msg, "Не найден слой - <%s>", leveName);
+				mdlOutput_messageCenter(MESSAGE_WARNING, msg, msg, FALSE);
+			}
+		}
+		isMatched = true;
+	}
+
+	if (isMatched) {		
+		if (edP->el.ehdr.level != levelId ||
+			edP->el.hdr.dhdr.symb != Opening::SYMBOLOGY) 
+		{
+			edP->el.hdr.dhdr.symb = Opening::SYMBOLOGY;
+			edP->el.ehdr.level = levelId;
+			res = true;
+		}
+	}
+
+	// recover:
+	if (tcb->activeLevel != activeLevelId) {
+		tcb->activeLevel = activeLevelId;
+	}
+	if (tcb->symbology != activeSymbology) {
+		tcb->symbology = activeSymbology;
+	}
+
+	return res;
+}
+
+
 int scanOpenings(
-    MSElementDescr  *edDstP,
-    void*  param,
-    ScanCriteria    *pScanCriteria
+	MSElementDescr* edP,
+	void*  param,
+	ScanCriteria *pScanCriteria
 ) {
 
-    TFFrameList* flP = mdlTFFrameList_constructFromElmdscr(edDstP);
-    if (flP) {
-        mdlTFFrameList_free(&flP);
+	if (TF_COMPOUND_CELL_ELM != mdlTFElmdscr_getApplicationType(edP)) {
+		return 0;
+	}
 
-        //ret = mdlModify_elementDescr2(&edDstP, ACTIVEMODEL, MODIFY_REQUEST_NOHEADERS, eleFunc, 0, 0);
-        mdlModify_elementSingle(ACTIVEMODEL, mdlElmdscr_getFilePos(edDstP),
-            MODIFY_REQUEST_NOHEADERS, MODIFY_ORIG, modifyFunc, 0, 0);
-    }
+	if (!isOpening(edP)) {
+		return 0;
+	}
 
-    return 0;
+	bool isDirty = updateOpeningR(edP);
+
+	{ // check Cell.Name:
+		MSWChar name[MAX_CELLNAME_LENGTH];
+		mdlCell_extractName(name, MAX_CELLNAME_LENGTH, &edP->el);
+
+		if (wcscmp(name, &Opening::CELL_NAME[0]) != 0) {
+			isDirty = true;
+			mdlCell_setName(&edP->el, &Opening::CELL_NAME[0]);
+		}
+	}
+
+	if (isDirty) {
+		EditElemHandle eeh = EditElemHandle(edP, true, false);
+		if (SUCCESS == eeh.ReplaceInModel()) {
+			++updatedElementsCount;
+
+			char text[256];
+			sprintf(text, "elemId = %u\n", edP->el.hdr.ehdr.uniqueId);
+			updatedInfo.append(text);			
+		}
+	}
+
+	return 0;
 }
 
 // todo Обновление всех проёмов модели
@@ -454,19 +740,199 @@ void cmdUpdateAll(char *unparsedP)
 {
     ScanCriteria    *scP = NULL;
     UShort          typeMask[6];
-    int status;
+    int status = 0;
 
     memset(typeMask, 0, sizeof(typeMask));
     typeMask[0] = TMSK0_CELL_HEADER;
 
     scP = mdlScanCriteria_create();
-    status = mdlScanCriteria_setReturnType(scP, MSSCANCRIT_ITERATE_ELMDSCR, FALSE, TRUE);
-    status = mdlScanCriteria_setElmDscrCallback(scP, (PFScanElemDscrCallback)scanOpenings, 0);
-    status = mdlScanCriteria_setElementTypeTest(scP, typeMask, sizeof(typeMask));
-    status = mdlScanCriteria_setCellNameTest(scP, L"Opening");
-    status = mdlScanCriteria_setModel(scP, ACTIVEMODEL);
-    status = mdlScanCriteria_scan(scP, NULL, NULL, NULL);
-    status = mdlScanCriteria_free(scP);
+	status += mdlScanCriteria_setReturnType(scP, MSSCANCRIT_ITERATE_ELMDSCR, FALSE, TRUE);
+	status += mdlScanCriteria_setElmDscrCallback(scP, (PFScanElemDscrCallback)scanOpenings, 0);
+    //status +=  mdlScanCriteria_setCellNameTest(scP, L"Opening");
+	status += mdlScanCriteria_setDrawnElements(scP);
+	status += mdlScanCriteria_addSingleElementTypeTest(scP, CELL_HEADER_ELM);
+	status += mdlScanCriteria_setModel(scP, ACTIVEMODEL);
+
+	if (status == SUCCESS) {
+		mdlUndo_startGroup();
+
+		updatedElementsCount = 0;
+		updatedInfo = "";
+
+		mdlScanCriteria_scan(scP, NULL, NULL, NULL);
+
+		char text[256];
+		sprintf(text, "Обновлено проёмов: %i\n", updatedElementsCount);
+		updatedInfo.insert(0, text);
+
+		mdlOutput_messageCenter(MESSAGE_INFO, text, &updatedInfo[0], 
+			strcmp(unparsedP, "silent") == 0 ? FALSE : TRUE);
+
+		mdlUndo_endGroup();
+	}
+    mdlScanCriteria_free(scP);
 }
+
+
+void LocateFunc_providePathDescription
+(
+	DisplayPathP    path,           /* => display path */
+	MSWCharP        description,    /* <=> description */
+	MSWCharCP       refStr          /* => Ref string */
+)
+{
+	/* !!!
+		Перезаписывает atfflyover tooltip 
+		только если библиотека довавлена в автозагрузку, порядок загрузки также
+		определяет приоритет перезаписи "description" среди прочих библиотек,
+		кот. также могут переопределять эту функцию	
+	*/
+
+	ElementRef  elemRef;
+	MSElement   el;
+	int         elSize;
+
+	// Get the element
+	elemRef = mdlDisplayPath_getCursorElem(path);
+	elSize = elementRef_getElement(elemRef, &el, sizeof el);
+
+	DgnModelRefP modelRefP = mdlDisplayPath_getPathRoot(path);
+
+	MSElementDescrP edP = NULL;
+	mdlElmdscr_getByElemRef(&edP, elemRef, modelRefP, FALSE, 0);
+
+	if (TF_COMPOUND_CELL_ELM != mdlTFElmdscr_getApplicationType(edP)) {
+		return;
+	}
+
+	bool isOpeningElement = false;
+	std::wstring kks = L"";
+
+	{	// проверка на DataGroup каталог
+		using namespace Bentley::Building::Elements;
+		BuildingEditElemHandle beeh(elemRef, ACTIVEMODEL);
+		beeh.LoadDataGroupData();
+
+		CCatalogCollection::CCollectionConst_iterator itr;
+		CCatalogCollection& collection = beeh.GetCatalogCollection();
+		for (itr = collection.Begin(); itr != collection.End(); itr++)
+		{
+			const std::wstring catalogInstanceName = itr->first;
+			if (catalogInstanceName == L"Opening") {
+				isOpeningElement = true;
+
+				std::wstring itemXPath = L"Opening/@PartCode";
+
+				CCatalogSchemaItemT*    pSchemaItem = NULL;
+				if ((pSchemaItem = collection.FindDataGroupSchemaItem(itemXPath))) {
+					kks = pSchemaItem->GetValue();
+				}
+
+				break;
+			}
+		}
+	}
+
+	if (!isOpeningElement) {
+		return;
+	}
+
+	TFFrameList* frameList = mdlTFFrameList_constructFromElmdscr(edP);
+
+	if (!frameList) {
+		return;
+	}
+	
+	double width = 0;
+	double height = 0;
+
+	TFFrame* frameP = mdlTFFrameList_getFrame(frameList);
+
+	TFPerforatorList* perfoListP = NULL;
+	if (SUCCESS == mdlTFFrame_getPerforatorList(frameP, &perfoListP)) {
+		TFPerforator* perfoP = mdlTFPerforatorList_getPerforator(perfoListP);
+		if (perfoP) {
+
+			TFBrepList* brepListP = NULL;
+			mdlTFPerforator_getProfile2(perfoP, &brepListP);
+
+			DPoint3d* points;
+			int size = 0;
+			if (brepListP) {
+				mdlTFBrepList_getVertexLocations(brepListP, &points, &size);
+
+				if (size == 4) {
+					width = mdlVec_distance(&points[0], &points[1]);
+					height = mdlVec_distance(&points[1], &points[2]);
+				}
+			}
+			if (points) {
+				delete points;
+			}
+		}
+	}
+
+	mdlTFPerforatorList_free(&perfoListP);
+	mdlTFFrameList_free(&frameList);
+
+	mdlCnv_UORToMaster(&width, width, modelRefP);
+	mdlCnv_UORToMaster(&height, height, modelRefP);
+	
+	MSWChar tooltip[256];
+	swprintf(tooltip, 256, 
+		L"Opening\n%s\n%.0fx%.0f", &kks[0], width, height);
+
+	wcscpy(description, tooltip);
+	
+	//mdlOutput_flyoverMsgU("My info!");
+
+	// description = L"!MY INFO";
+	//wcscat(description, L"\n Opening: KKS=\"\" WxH=\"100x400\"");
+
+	// wcscat(description, L"\nMY INFO");
+
+	return;
+}
+
+bool isOpening(MSElementDescr* edP)
+{
+	if (TF_COMPOUND_CELL_ELM != mdlTFElmdscr_getApplicationType(edP)) {
+		return false;
+	}
+
+	bool res = false;
+	{	// проверка на DataGroup каталог
+		using namespace Bentley::Building::Elements;
+		BuildingEditElemHandle beeh(edP, false, true);
+		beeh.LoadDataGroupData();
+
+		CCatalogCollection::CCollectionConst_iterator itr;
+		CCatalogCollection& collection = beeh.GetCatalogCollection();
+		for (itr = collection.Begin(); itr != collection.End(); itr++)
+		{
+			const std::wstring catalogInstanceName = itr->first;
+			if (catalogInstanceName == L"Opening") {
+				res = true;
+
+				//std::wstring itemXPath = L"Opening/@PartCode";
+				//char kks[256];
+				//CCatalogSchemaItemT*    pSchemaItem = NULL;
+				//if ((pSchemaItem = collection.FindDataGroupSchemaItem(itemXPath))) {
+				//	mdlCnv_convertUnicodeToMultibyte(
+				//		&pSchemaItem->GetValue()[0], -1, kks, 200);
+				//}
+
+				//if (strcmp(kks, "10UBA19_PN0020B") == 0) {
+				//	kks[0] = kks[0];
+				//}
+
+				break;
+			}
+		}
+	}
+
+	return res;
+}
+
 
 }

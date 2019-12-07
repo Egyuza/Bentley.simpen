@@ -101,39 +101,43 @@ namespace Keyins
         // выгрузка: clr unload domain simpenDomain
         public static void showForm(string unparsed)
         {
+            if (ViewHelper.getActiveView() == null) 
+                return;
+
             if (form == null || form.IsDisposed)
                 form = new PenetrForm();
 
             WindowHelper.show(form);
-            form.runLocatingTool();
         }
 
         public static void readData(string unparsed)
         {
             if (form == null || form.IsDisposed)
                 return;
-            form.readTaskData();
+
+            //form.readTaskData();
         }
 
         public static void reload(string unparsed)
         {
             if (form == null || form.IsDisposed)
                 return;
-            form.reload();
+
+            //form.reload();
         }
 
         public static void enableAddToModel(string unparsed)
         {
             if (form == null || form.IsDisposed)
                 return;
-            form?.enableAddToModel();
+            //form?.enableAddToModel();
         }
 
         public static void sendTaskData(string unparsed)
         {
             if (form == null || form.IsDisposed)
                 return;
-            form?.sendTaskData();
+            //form?.sendTaskData();
         }
     }
 }

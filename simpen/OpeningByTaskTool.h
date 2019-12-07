@@ -29,18 +29,31 @@ public:
 private:
     DPoint3d taskOrigin;
     DPoint3d taskBounds[8];
+	ElementRef taskRef;
     /* вершины объекта задания:
 
+		вершины через mdlCell_extract:
           5______________6
          /|             /|
         4______________7 |
         | 3 - - - - - -|-2
         |/             |/
         0______________1
+
+
+		вершины через mdlTFBrep_getVertexLocations:
+		  5______________4
+		 /|             /|
+		2______________3 |
+		| 6 - - - - - -|-7
+		|/             |/
+		1______________0
     */
 
     bool isValid;
-	ElementRef smartSolidTask;
+	//ElementRef smartSolidTask;
+	bool isTaskIsSmartSolid;
+	bool isTaskIsOpening;
 
     DPlane3d planeFirst;
     DPlane3d planeSecond;

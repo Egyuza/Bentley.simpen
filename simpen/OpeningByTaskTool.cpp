@@ -7,6 +7,7 @@
 #include "CExpression.h"
 #include "ui.h"
 
+#include <buildingeditelemhandle.h>
 #include <elementref.h>
 #include <IModel\xmlinstanceapi.h>
 #include <IModel\xmlinstanceidcache.h>
@@ -24,6 +25,7 @@
 #include <msdgnmodelref.fdf>
 #include <msdialog.fdf>
 #include <mselmdsc.fdf>
+#include <mskisolid.fdf>
 #include <mslocate.fdf>
 #include <msmisc.fdf>
 #include <msoutput.fdf>
@@ -36,6 +38,12 @@
 #include <msvec.fdf>
 #include <msview.fdf>
 #include <mswindow.fdf>
+
+#include <mscurrtr.fdf>
+
+
+#include <set>
+#include <vector>
 
 namespace Openings
 {
@@ -67,7 +75,14 @@ void OpeningByTaskTool::updatePreview(char *unparsedP)
 
     OpeningByTaskTool::prevTask = OpeningTask::getInstance();
 
+	{ // ДЛЯ ОТЛАДКИ:
+		//EditElemHandle line;
+		//сreateStringLine(line, toolP->taskBounds, 8);
+		//msTransientElmP = mdlTransient_addElemDescr(msTransientElmP,
+		//	line.GetElemDescrCP(), true, 0xffff, DRAW_MODE_TempDraw, FALSE, FALSE, TRUE);
 	
+	}
+
     if (!toolP->isValid) {
         // параметры проёма не определены
         return;
@@ -127,19 +142,22 @@ void OpeningByTaskTool::addToModel(char *unparsedP)
     {
 		mdlUndo_startGroup();
 		{
-			computeAndAddToModel(Opening::instance);
+			MSElementDescrP taskEdP = NULL;
+			mdlElmdscr_getByElemRef(
+				&taskEdP, toolP->taskRef, ACTIVEMODEL, FALSE, 0);
+
+			if (taskEdP && taskEdP->h.dgnModelRef != ACTIVEMODEL) {
+				taskEdP = NULL;
+			}
+
+			computeAndAddToModel(
+				Opening::instance, toolP->isTaskIsOpening, taskEdP);
 		
 			{ // удаление smartSolid
-				if (toolP->smartSolidTask != NULL && 
-					!elementRef_isEOF(toolP->smartSolidTask))
+				if (toolP->isTaskIsSmartSolid && taskEdP)
 				{
-					// todo проверить на контур из референса
-					MSElementDescrP contourEdP = NULL;
-					mdlElmdscr_getByElemRef(
-						&contourEdP, toolP->smartSolidTask, ACTIVEMODEL, FALSE, 0);
-				
-					int fpos = mdlElmdscr_getFilePos(contourEdP);
-					mdlElmdscr_deleteByModelRef(contourEdP, fpos, ACTIVEMODEL, TRUE);
+					int fpos = mdlElmdscr_getFilePos(taskEdP);
+					mdlElmdscr_deleteByModelRef(taskEdP, fpos, ACTIVEMODEL, TRUE);
 				}
 			}
 		}
@@ -170,7 +188,13 @@ bool OpeningByTaskTool::OnPostLocate(HitPathCP path, char *cantAcceptReason) {
 		return true;
 	}
 
-    { // 3-я проверка по атрибуту <P3DEquipment>
+	// 3-я проверка для самих проёмов
+	if (isOpening(eeh.GetElemDescrP())) {
+		// return true;
+	}
+
+    { 
+	// 4-я проверка по атрибуту <P3DEquipment>
         bool status;
         XmlInstanceSchemaManager mgrR(eeh.GetModelRef());
         mgrR.ReadSchemas(status);
@@ -195,8 +219,8 @@ bool OpeningByTaskTool::OnPostLocate(HitPathCP path, char *cantAcceptReason) {
                 return true;
             }
         }
-
     }
+
 
     return false;
 }
@@ -264,12 +288,13 @@ OpeningByTaskTool::BuildLocateAgenda(HitPathCP path, MstnButtonEventCP ev)
         return eehP;
     }
 
+	taskRef = eehP->GetElemRef();
     OpeningTask::getInstance().isTaskSelected = true;
 
-	// 2-ая для бывших дверных проёмов - <SmartSolid>
-	if (TF_EBREP_ELM == mdlTFElmdscr_getApplicationType(eehP->GetElemDescrP())) {
-		smartSolidTask = eehP->GetElemRef();
-	}
+	// для бывших дверных проёмов - <SmartSolid>
+	isTaskIsSmartSolid = 
+		TF_EBREP_ELM == mdlTFElmdscr_getApplicationType(eehP->GetElemDescrP());
+	isTaskIsOpening = isOpening(eehP->GetElemDescrP());
 
 	MSElementDescrP boundsEdP = eehP->GetElemDescrP();
 
@@ -320,10 +345,116 @@ OpeningByTaskTool::BuildLocateAgenda(HitPathCP path, MstnButtonEventCP ev)
             mdlTMatrix_referenceToMaster(&tran, cellModelP);
             mdlElmdscr_transform(boundsEdP, &tran);
         }
+		// вершины в общем случае по Range, но могут быть неточными...
         mdlCell_extract(&taskOrigin, taskBounds, NULL, NULL, NULL, 0, &boundsEdP->el);
+
+		TFBrepList* brepListP = NULL;
+		mdlTFBrepList_constructFromElmdscr(&brepListP, boundsEdP, ACTIVEMODEL);
+
+		DPoint3d* verts = NULL;
+		int vertsCount = 0;
+
+		std::set<DPoint3d> vertsSet = std::set<DPoint3d>();
+		std::vector<DPoint3d> vertsVec = std::vector<DPoint3d>();
+		while (brepListP)
+		{
+			TFBrep* brepP = mdlTFBrepList_getBrep(brepListP);
+			mdlTFBrep_getVertexLocations(brepP, &verts, &vertsCount);
+
+			brepListP = mdlTFBrepList_getNext(brepListP);
+
+			if (vertsCount == 24) {
+				for (int i = 0; i < 24; ++i) {
+					if (vertsSet.insert(verts[i]).second) {
+						// сохраняем порядок точек
+						vertsVec.push_back(verts[i]);
+					}
+				}
+			}
+		}
+		if (brepListP) {
+			mdlTFBrepList_free(&brepListP);
+		}
+
+		if (vertsCount == 8) {
+			for (int i = 0; i < 8; ++i) {
+				taskBounds[i] = verts[i];
+			}
+		}
+		else if (vertsCount == 24) {
+			if (vertsSet.size() == 8) { // корректируем вершины задания:
+				for (int i = 0; i < 8; ++i) {
+					taskBounds[i] = vertsVec[i];
+				}
+			}
+		}
+		
+		if (false)
+		{
+			// ПРАВИЛЬНЫЙ пример преобразования KISolid координат:
+			KIBODY* bodyP = NULL;
+			Transform bodyTran;
+			mdlKISolid_elementToBody2(&bodyP, &bodyTran, boundsEdP, ACTIVEMODEL, 1, FALSE);
+
+			KIENTITY_LIST* listP = NULL;
+
+			mdlKISolid_listCreate(&listP);
+			mdlKISolid_getVertexList(listP, bodyP);
+			int count = 0;
+			mdlKISolid_listCount(&count, listP);
+
+			DPoint3d bbounds[8];
+			for (int i = 0; i < count && i < 8; i++)
+			{
+				KIVERTEX* vertexP = NULL;
+				mdlKISolid_listNthEl(&vertexP, listP, i);
+				DPoint3d pnt;
+				mdlKISolid_vertexData(&pnt, vertexP);
+
+				mdlKISolid_beginCurrTrans(ACTIVEMODEL);
+
+				mdlTMatrix_transformPoint(&pnt, &bodyTran);
+				mdlCurrTrans_transformPointArray(&pnt, &pnt, 1);
+
+				bbounds[i] = pnt;
+
+				mdlKISolid_endCurrTrans();
+			}
+			mdlKISolid_freeBody(bodyP);
+		}
     }
 
-	{ // Считывание KKS задания
+// #endif // DEBUG
+
+	//  СЧИТЫВАНИЕ KKS ИЗ ЗАДАНИЯ:a
+	if (isTaskIsOpening) {
+		// заданием выступает сам проём
+
+		using namespace Bentley::Building::Elements;
+		BuildingEditElemHandle beeh(eehP->GetElemDescrP(), false, true);
+		beeh.LoadDataGroupData();
+
+		CCatalogCollection::CCollectionConst_iterator itr;
+		CCatalogCollection& collection = beeh.GetCatalogCollection();
+		for (itr = collection.Begin(); itr != collection.End(); itr++)
+		{
+			const std::wstring catalogInstanceName = itr->first;
+			if (catalogInstanceName == L"Opening") {
+				std::wstring itemXPath = L"Opening/@PartCode";
+
+				CCatalogSchemaItemT*    pSchemaItem = NULL;
+				if ((pSchemaItem = collection.FindDataGroupSchemaItem(itemXPath))) {
+					mdlCnv_convertUnicodeToMultibyte(
+						&pSchemaItem->GetValue()[0], -1,
+						OpeningTask::getInstance().kks, 200);
+				}
+
+				break;
+			}
+		}		
+	}
+	else {
+		// технологическое задание
 		bool status;
 		XmlInstanceSchemaManager mgrR(eehP->GetModelRef());
 		mgrR.ReadSchemas(status);
@@ -358,11 +489,11 @@ OpeningByTaskTool::BuildLocateAgenda(HitPathCP path, MstnButtonEventCP ev)
 			}
 		}		
 	}
-
+	
     ElementRef& formRef = OpeningTask::getInstance().tfFormRef;
 
-    formRef = tfFindIntersectedByTfType(&boundsEdP->el,
-        3, TF_LINEAR_FORM_ELM, TF_SLAB_FORM_ELM, TF_FREE_FORM_ELM);
+    formRef = findIntersectedByTFType(boundsEdP,
+        4, TF_LINEAR_FORM_ELM, TF_SLAB_FORM_ELM, TF_FREE_FORM_ELM, TF_ARC_FORM_ELM);
 
 	std::wstring matchedInstName = L"";
 	if (formRef == NULL) {
@@ -380,9 +511,53 @@ OpeningByTaskTool::BuildLocateAgenda(HitPathCP path, MstnButtonEventCP ev)
     { // Определение плоскостей стены/плиты:
         EditElemHandle formEeh = EditElemHandle(formRef, ACTIVEMODEL);
 
-        StatusInt status = SUCCESS;                
-        int formType = mdlTFElmdscr_getApplicationType(formEeh.GetElemDescrP());
-        if (formType == TF_LINEAR_FORM_ELM || matchedInstName == L"ConcreteWalls") {
+        StatusInt status = SUCCESS;
+
+		int formType = mdlTFElmdscr_getApplicationType(formEeh.GetElemDescrP());
+		if (formType == TF_ARC_FORM_ELM) {
+			// РАДИАЛЬНЫЕ СТЕНЫ
+
+			status = ERROR;
+			EditElemHandle formEeh = EditElemHandle(formRef, ACTIVEMODEL);
+
+			TFBrepList* brepListP = NULL;
+			mdlTFBrepList_constructFromElmdscr(&brepListP, formEeh.GetElemDescrP(), ACTIVEMODEL);
+
+			TFBrepFaceList* faceListP = 
+				mdlTFBrepList_getFacesByLabel(brepListP, FaceLabelEnum_Right);
+
+			TFBrepList* brepIter = brepListP;
+			while (brepIter) {
+				MSElementDescr* faceP;
+				mdlTFBrepFaceList_getElmdscr(&faceP, faceListP, 0);
+				
+				TFBrep* brep = mdlTFBrepList_getBrep(brepIter);
+
+				double dist;
+				for (int i = 0; i < 8; ++i) {
+					dist = mdlTFBrep_findClosestPoint(brep, &taskBounds[i], &taskBounds[i]);
+					dist = dist;
+				}
+
+				mdlVec_extractPolygonNormal(&planeFirst.normal, &planeFirst.origin,
+					&taskBounds[0], 4);
+				mdlVec_extractPolygonNormal(&planeSecond.normal, &planeSecond.origin,
+					&taskBounds[4], 4);
+
+				status = SUCCESS;
+
+				// в случае когда поверхность стены не ломанная - след. будет NULL
+				brepIter = mdlTFBrepList_getNext(brepIter);
+			}
+			if (faceListP) {
+				mdlTFBrepFaceList_free(&faceListP);
+			}
+
+			mdlTFBrepList_free(&brepListP);
+		}       
+        else if (formType == TF_LINEAR_FORM_ELM || matchedInstName == L"ConcreteWalls" ||
+			formType == TF_ARC_FORM_ELM) 
+		{
             status = getFacePlaneByLabel(planeFirst,
                 formEeh.GetElemDescrP(), FaceLabelEnum_Left);
             status += getFacePlaneByLabel(planeSecond,
@@ -399,6 +574,20 @@ OpeningByTaskTool::BuildLocateAgenda(HitPathCP path, MstnButtonEventCP ev)
         else {
             return eehP;
         }
+
+
+		if (status != SUCCESS) {
+			if (formType == TF_SLAB_FORM_ELM || formType == TF_FREE_FORM_ELM) {
+				UI::warning("Не удаётся получить проекцию тех. задания на найденный объект <Slab>");
+			}
+			else if (formType == TF_LINEAR_FORM_ELM) {
+				UI::warning("Не удаётся получить проекцию тех. задания на найденный объект <Wall>");
+			}
+			else {
+				UI::warning("Не удаётся получить проекцию тех. задания на найденный объект"); // НВС
+			}
+			return eehP;
+		}
 
         { // корректировка плоскостей относительно пользователя
             DPlane3d buff;
@@ -423,28 +612,53 @@ OpeningByTaskTool::BuildLocateAgenda(HitPathCP path, MstnButtonEventCP ev)
                 }
             }
         }
-
-        if (status != SUCCESS) {
-			if (formType == TF_SLAB_FORM_ELM || formType == TF_FREE_FORM_ELM) {
-				UI::warning("Не удаётся получить проекцию тех. задания на найденный объект <Slab>");
-			}
-			else if (formType == TF_LINEAR_FORM_ELM) {
-				UI::warning("Не удаётся получить проекцию тех. задания на найденный объект <Wall>");
-			}
-			else {
-				UI::warning("Не удаётся получить проекцию тех. задания на найденный объект"); // НВС
-			}
-            return eehP;
-        }
     }        
     
     { // Определение параметров контура:
         DPoint3d* bnds = taskBounds;
-        DPoint3d facetPoints[3][4] = {
-            { bnds[0], bnds[1], bnds[7], bnds[4] },
-            { bnds[1], bnds[2], bnds[6], bnds[7] },
-            { bnds[4], bnds[7], bnds[6], bnds[5] },
-        };
+		DPoint3d facetPoints[3][4];
+
+		EditElemHandle formEeh = EditElemHandle(formRef, ACTIVEMODEL);
+		int formType = mdlTFElmdscr_getApplicationType(formEeh.GetElemDescrP());
+		
+		if (formType == TF_ARC_FORM_ELM) {
+			facetPoints[0][0] = bnds[0];
+			facetPoints[0][1] = bnds[1];
+			facetPoints[0][2] = bnds[2];
+			facetPoints[0][3] = bnds[3];
+			
+			facetPoints[1][0] = bnds[0];
+			facetPoints[1][1] = bnds[3];
+			facetPoints[1][2] = bnds[4];
+			facetPoints[1][3] = bnds[7];
+			
+			facetPoints[2][0] = bnds[3];
+			facetPoints[2][1] = bnds[2];
+			facetPoints[2][2] = bnds[5];
+			facetPoints[2][3] = bnds[4];
+		}
+		else {
+			//	{ bnds[0], bnds[1], bnds[7], bnds[4] },
+			//	{ bnds[1], bnds[2], bnds[6], bnds[7] },
+			//	{ bnds[4], bnds[7], bnds[6], bnds[5] },
+
+			facetPoints[0][0] = bnds[0];
+			facetPoints[0][1] = bnds[1];
+			facetPoints[0][2] = bnds[7];
+			facetPoints[0][3] = bnds[4];
+
+			facetPoints[1][0] = bnds[1];
+			facetPoints[1][1] = bnds[2];
+			facetPoints[1][2] = bnds[6];
+			facetPoints[1][3] = bnds[7];
+
+			facetPoints[2][0] = bnds[4];
+			facetPoints[2][1] = bnds[7];
+			facetPoints[2][2] = bnds[6];
+			facetPoints[2][3] = bnds[5];
+		}
+			
+			
 
         for (int i = 0; i < 3; ++i) {
             DPlane3d facet;
@@ -457,7 +671,7 @@ OpeningByTaskTool::BuildLocateAgenda(HitPathCP path, MstnButtonEventCP ev)
                     mdlVec_projectPointToPlane(&pts[j],
                         &facetPoints[i][j], &facet.origin, &facet.normal);
                 }
-
+				// опорная точка Origin:
                 mdlVec_extractPolygonNormal(NULL, &contourOrigin, pts, 4);
                 mdlVec_projectPointToPlane(&contourOrigin, &contourOrigin,
                     &planeFirst.origin, &planeFirst.normal);
@@ -465,14 +679,14 @@ OpeningByTaskTool::BuildLocateAgenda(HitPathCP path, MstnButtonEventCP ev)
                 { // Высота
                     OpeningTask::getInstance().height = CExpr::convertToMaster(
                         mdlVec_distance(&pts[3], &pts[0]));
-
+					// вектор высоты:
                     mdlVec_subtractDPoint3dDPoint3d(&heightVec,
                         &pts[3], &pts[0]);
                 }
                 {// Ширина
                     OpeningTask::getInstance().width = CExpr::convertToMaster(
                         mdlVec_distance(&pts[1], &pts[0]));
-
+					// вектор ширины:
                     mdlVec_subtractDPoint3dDPoint3d(&widthVec,
                         &pts[1], &pts[0]);
                 }
@@ -483,7 +697,7 @@ OpeningByTaskTool::BuildLocateAgenda(HitPathCP path, MstnButtonEventCP ev)
 
                     OpeningTask::getInstance().depth = CExpr::convertToMaster(
                         mdlVec_distance(&projPoint, &contourOrigin));
-
+					// вектор глубины:
                     mdlVec_subtractDPoint3dDPoint3d(&depthVec,
                         &projPoint, &contourOrigin);
                 }
@@ -545,7 +759,10 @@ void OpeningByTaskTool::clear() {
 	OpeningTask::getInstance().clear();
 
 	isValid = false;
-	smartSolidTask = NULL;
+	taskRef = NULL;
+
+	isTaskIsSmartSolid =
+	isTaskIsOpening = false;
 	isAddToModelProcessActive = false;
 
 	// todo ? сброс занчений в форме пользователя ?
@@ -563,6 +780,8 @@ void OpeningByTaskTool::OnPostInstall() {
 
     mdlSelect_freeAll();
     prevTask = OpeningTask();
+	
+
 
     UI::promptU("Выберите объект технологического задания для проёма");
 }

@@ -11,18 +11,17 @@
 #include <msmisc.fdf>
 #include <msvec.fdf>
 
-
 using Bentley::Ustn::Element::EditElemHandle;
 
-bool operator ==(DPoint3d lhs, DPoint3d rhs) {
+bool operator == (const DPoint3d lhs, const DPoint3d rhs) {
     return TRUE == mdlVec_equal(&lhs, &rhs);
 };
 
-bool operator !=(DPoint3d lhs, DPoint3d rhs) {
+bool operator != (const DPoint3d lhs, const DPoint3d rhs) {
     return !(lhs == rhs);
 };
 
-bool operator <(DPoint3d lhs, DPoint3d rhs) {
+bool operator < (const DPoint3d lhs, const DPoint3d rhs) {
     if (lhs.x != rhs.x) {
         return lhs.x < rhs.x;
     }
@@ -32,18 +31,35 @@ bool operator <(DPoint3d lhs, DPoint3d rhs) {
     return lhs.z < rhs.z;
 };
 
-bool operator >(DPoint3d lhs, DPoint3d rhs) {
+bool operator > (const DPoint3d lhs, const DPoint3d rhs) {
     return lhs != rhs && !(lhs < rhs);
 };
 
+bool operator == (const Symbology lhs, const Symbology rhs)
+{
+	return lhs.color == rhs.color &&
+		lhs.style == rhs.style &&
+		lhs.weight == rhs.weight;
+}
+
+bool operator != (Symbology lhs, Symbology rhs)
+{
+	return !(lhs == rhs);
+}
+
 namespace Openings {
+
 
 Opening Opening::instance = Opening();
 
+const std::wstring Opening::CELL_NAME = L"Opening";
 const std::wstring Opening::CATALOG_TYPE_NAME = L"Opening";
 const std::wstring Opening::CATALOG_INSTANCE_NAME = L"Opening";
-MSWCharCP Opening::LEVEL_NAME = L"C-OPENING-BOUNDARY";
-MSWCharCP Opening::LEVEL_SYMBOL_NAME = L"C-OPENING-SYMBOL";
+const MSWCharCP Opening::LEVEL_NAME = L"C-OPENING-BOUNDARY";
+const  MSWCharCP Opening::LEVEL_SYMBOL_NAME = L"C-OPENING-SYMBOL";
+const Symbology Opening::SYMBOLOGY = 
+	{ STYLE_BYLEVEL, WEIGHT_BYLEVEL, COLOR_BYLEVEL };
+
 
 Opening::Opening() {
     origin =

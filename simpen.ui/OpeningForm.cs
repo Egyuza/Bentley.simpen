@@ -52,8 +52,7 @@ public partial class OpeningForm : Form
 
         Version version = Assembly.GetExecutingAssembly().GetName().Version;
 
-        this.Text = string.Format("Проёмы v{0}.{1}.{2}",
-            version.Major, version.Minor, version.Build);
+        this.Text = "Проёмы " + Addin.getVersion();
 
         foreach (FieldType fieldType in Enum.GetValues(typeof(FieldType)))
         { 
@@ -516,6 +515,12 @@ public partial class OpeningForm : Form
     private void sendKeyin(string smallCmdName)
     {
         Addin.Instance.sendKeyin("openings " + smallCmdName);
+    }
+
+    public void updateAllOpenings()
+    {
+        
+        
     }
 }
 }

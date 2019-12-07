@@ -3225,7 +3225,9 @@ int processInstance(Bentley::WString strInst) {
             //sprintf(s, "%S = %S", wNodeName, wNodeValue);
 
             if (mdlXMLDomNode_hasChildNodes(pNodeRef)) {
+
                 if (mdlXMLDomNode_getChildNodes(&pNodeListRef, pNodeRef) == SUCCESS) {
+					int count = mdlXMLDomNodeList_getNumChildren(pNodeListRef);
                     mdlXMLDomNodeList_traverse(pNodeListRef, 0, userFuncNodeListIMod, (char*)0);
                     mdlXMLDomNodeList_free(pNodeListRef);
                 }

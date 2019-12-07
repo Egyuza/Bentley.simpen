@@ -21,19 +21,42 @@ struct OpeningCache
     EditElemHandle crossSecondP;
 };
 
-void cmdUpdateAll(char *unparsedP);
-
 StatusInt computeAndDrawTransient(Opening& opening);
-StatusInt computeAndAddToModel(Opening& opening);
+StatusInt computeAndAddToModel(Opening& opening, 
+	bool rewritePrevious = false, MSElementDescr* previousP = NULL);
 
 // TODO назвать получше
 StatusInt findDirectionVector(DVec3d& outDirectionVec, double& distance,
     const DPlane3d& contourPlane, const TFFormRecipeList* wallP);
 
+StatusInt findDirVecFromArcWall(DVec3d& outDirectionVec, double& distance,
+	const DPlane3d& contourPlane, const DPoint3d contourVertex,
+	const ElementRef wallRef, DgnModelRefP modelRefP);
+
+
 StatusInt computeElementsForOpening(EditElemHandleR outBodyShape,
     EditElemHandleR outPerfoShape, EditElemHandleR outCrossFirst,
     EditElemHandleR outCrossSecond, Opening& opening,
 	MSWCharCP boundaryLevel, MSWCharCP symbolLevel);
+
+void LocateFunc_providePathDescription
+(
+	DisplayPathP    path,           /* => display path */
+	MSWCharP        description,    /* <=> description */
+	MSWCharCP       refStr          /* => Ref string */
+);
+
+bool isOpening(MSElementDescr* edP);
+
+void cmdUpdateAll(char *unparsedP);
+
+bool updateOpeningR(MSElementDescrP edP);
+
+int scanOpenings(
+	MSElementDescr* edP,
+	void*  param,
+	ScanCriteria *pScanCriteria
+);
 
 }
 

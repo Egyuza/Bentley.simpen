@@ -22,6 +22,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -32,29 +33,46 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Bentley.Building.DataGroup.Extension">
+      <HintPath>..\..\..\..\..\aecosim_ss6\AECOsimBuildingDesigner\assemblies\Bentley.Building.DataGroup.Extension.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="Bentley.Building.DataGroupSystem">
       <HintPath>..\..\..\..\..\..\aecosim_ss6\AECOsimBuildingDesigner\assemblies\Bentley.Building.DataGroupSystem.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="Bentley.Building.DataGroupSystem.CustomTypeDescriptor, Version=1.0.0.0, Culture=neutral, PublicKeyToken=9bfed12b64a9b7df, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\..\aecosim_ss6\AECOsimBuildingDesigner\assemblies\Bentley.Building.DataGroupSystem.CustomTypeDescriptor.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Bentley.Building.DataGroupSystem.ECSchemaManager">
+      <HintPath>..\..\..\..\..\aecosim_ss6\AECOsimBuildingDesigner\assemblies\Bentley.Building.DataGroupSystem.ECSchemaManager.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="Bentley.Building.DataGroupSystem.InstanceValueProviderWrapper, Version=1.0.0.0, Culture=neutral, PublicKeyToken=9bfed12b64a9b7df, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\..\aecosim_ss6\AECOsimBuildingDesigner\assemblies\Bentley.Building.DataGroupSystem.InstanceValueProviderWrapper.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="Bentley.Building.DataGroupSystem.Serialization">
       <HintPath>..\..\..\..\..\..\aecosim_ss6\AECOsimBuildingDesigner\assemblies\Bentley.Building.DataGroupSystem.Serialization.dll</HintPath>
-    </Reference>
-    <Reference Include="Bentley.Building.Services.TransactionManager">
-      <HintPath>..\..\..\..\..\..\aecosim_ss6\AECOsimBuildingDesigner\assemblies\Bentley.Building.Services.TransactionManager.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="Bentley.General.1.0">
       <HintPath>..\..\..\..\..\..\aecosim_ss6\AECOsimBuildingDesigner\assemblies\ECFramework\Bentley.General.1.0.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Bentley.Geometry.2.0">
+      <HintPath>..\..\..\..\..\aecosim_ss6\AECOsimBuildingDesigner\assemblies\ECFramework\Bentley.Geometry.2.0.dll</HintPath>
+    </Reference>
     <Reference Include="bentley.interop.microstationdgn">
       <HintPath>..\..\..\..\..\..\aecosim_ss6\AECOsimBuildingDesigner\assemblies\bentley.interop.microstationdgn.dll</HintPath>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Bentley.Interop.TFCom">
+      <HintPath>..\..\..\..\..\aecosim_ss6\AECOsimBuildingDesigner\assemblies\Bentley.Interop.TFCom.dll</HintPath>
       <EmbedInteropTypes>True</EmbedInteropTypes>
       <Private>False</Private>
     </Reference>
@@ -62,13 +80,27 @@
       <HintPath>..\..\..\..\..\..\aecosim_ss6\AECOsimBuildingDesigner\assemblies\bentley.microstation.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Bentley.MicroStation.XmlInstanceapi">
+      <HintPath>..\..\..\..\..\aecosim_ss6\AECOsimBuildingDesigner\assemblies\Bentley.MicroStation.XmlInstanceapi.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Bentley.MicroStation.XmlInstanceCore">
+      <HintPath>..\..\..\..\..\aecosim_ss6\AECOsimBuildingDesigner\assemblies\Bentley.MicroStation.XmlInstanceCore.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="Bentley.Platform">
       <HintPath>..\..\..\..\..\..\aecosim_ss6\AECOsimBuildingDesigner\assemblies\ECFramework\Bentley.Platform.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Bentley.Structural.DataGroupHelper">
+      <HintPath>..\..\..\..\..\aecosim_ss6\AECOsimBuildingDesigner\assemblies\Bentley.Structural.DataGroupHelper.dll</HintPath>
+    </Reference>
     <Reference Include="Bentley.Windowing">
       <HintPath>..\..\..\..\..\..\aecosim_ss6\AECOsimBuildingDesigner\assemblies\ECFramework\Bentley.Windowing.dll</HintPath>
       <Private>False</Private>
+    </Reference>
+    <Reference Include="DataGroupWrapper">
+      <HintPath>..\..\..\..\..\aecosim_ss6\AECOsimBuildingDesigner\assemblies\DataGroupWrapper.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -85,6 +117,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CExpressions.cs" />
+    <Compile Include="ElementHelper.cs" />
     <Compile Include="Keyins.cs" />
     <Compile Include="Addin.cs" />
     <Compile Include="PenetrForm.cs">
@@ -99,13 +132,20 @@
     <Compile Include="OpeningForm.Designer.cs">
       <DependentUpon>OpeningForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="PenetrTaskFlange.cs" />
+    <Compile Include="PenetrTask.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Include="sp3d\P3DHangerStdComponent.cs" />
+    <Compile Include="sp3d\P3DHangerPipeSupport.cs" />
+    <Compile Include="sp3d\Sp3dTask.cs" />
+    <Compile Include="ViewHelper.cs" />
     <Compile Include="WindowHelper.cs" />
+    <Compile Include="XmlSerializer.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="history.txt" />
@@ -125,6 +165,9 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

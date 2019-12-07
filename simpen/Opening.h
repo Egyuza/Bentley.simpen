@@ -9,13 +9,24 @@
 #include <mdl.h>
 #include "OpeningTask.h"
 
+bool operator == (const DPoint3d lhs, const DPoint3d rhs);
+bool operator != (const DPoint3d lhs, const DPoint3d rhs);
+bool operator < (const DPoint3d lhs, const DPoint3d rhs);
+bool operator > (const DPoint3d lhs, const DPoint3d rhs);
+
+bool operator == (const Symbology lhs, const Symbology rhs);
+bool operator != (const Symbology lhs, const Symbology rhs);
+
 namespace Openings {
 
+
 struct Opening {
+	static const std::wstring CELL_NAME;
     static const std::wstring CATALOG_TYPE_NAME;
     static const std::wstring CATALOG_INSTANCE_NAME;
-    static MSWCharCP LEVEL_NAME;
-    static MSWCharCP LEVEL_SYMBOL_NAME;
+    static const MSWCharCP LEVEL_NAME;
+    static const MSWCharCP LEVEL_SYMBOL_NAME;
+	static const Symbology SYMBOLOGY;
 
     DPoint3d origin;
     DVec3d direction;

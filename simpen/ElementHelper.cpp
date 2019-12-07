@@ -3,7 +3,6 @@
 
 #include <math.h>
 
-#include <buildingeditelemhandle.h>
 #include <CatalogCollection.h>
 
 #include <mselmdsc.fdf>
@@ -29,6 +28,8 @@
 #include <mdltfbrep.fdf>
 #include <mdltfbrepf.fdf>
 
+#include <mstrnsnt.fdf>
+#include <msvar.fdf>
 
 using Bentley::Ustn::Element::EditElemHandle;
 
@@ -163,8 +164,106 @@ bool AddChildToCell(EditElemHandleR cell, EditElemHandleR child) {
     return SUCCESS == mdlElmdscr_appendDscr(cell.GetElemDescrP(), el_descrP);
 }
 
-ElementRef tfFindIntersectedByTfType(
-    const MSElementP elementP, const int typesNum, int tfType, ...)
+
+bool getKISolidCenterPoint(DPoint3d* center, const MSElementDescrP elemdP) {
+	bool res = false;
+
+	mdlKISolid_beginCurrTrans(ACTIVEMODEL);
+
+	KIBODY* bodyP = NULL;
+	mdlKISolid_elementToBody(&bodyP, elemdP, ACTIVEMODEL);
+	
+	DPoint3d lo, hi;
+	if (SUCCESS == mdlKISolid_getBodyBox(&lo, &hi, bodyP)) {
+		DVec3d kiVec;
+		mdlVec_subtractDPoint3dDPoint3d(&kiVec, &hi, &lo);
+		mdlVec_projectPoint(center, &lo, &kiVec, 0.5);
+		res = true;
+	}
+	mdlKISolid_freeBody(bodyP);
+	mdlKISolid_endCurrTrans();
+	return res;
+}
+
+int getIntersectPointsCount(const MSElementDescrP edP1, const MSElementDescrP edP2)
+{
+	int res = 0;
+
+	KIBODY* pBody1 = NULL;
+	KIBODY* pBody2 = NULL;
+	Transform transform1, transform2, targetTransform, toolTransform;
+
+	mdlKISolid_beginCurrTrans(ACTIVEMODEL);
+
+	StatusInt ret1 =
+		mdlKISolid_elementToBody2(&pBody1, &transform1, edP1, ACTIVEMODEL, 1L, FALSE);
+	StatusInt ret2 =
+		mdlKISolid_elementToBody2(&pBody2, &transform2, edP2, ACTIVEMODEL, 1L, FALSE);
+
+	if (ret1 == SUCCESS && ret2 == SUCCESS)
+	{
+		if (mdlTMatrix_getInverse(&targetTransform, &transform1) == SUCCESS)
+		{
+			mdlTMatrix_multiply(&toolTransform, &targetTransform, &transform2);
+			if (mdlKISolid_applyTransform(pBody2, &toolTransform) == SUCCESS)
+			{
+				int ret = mdlKISolid_intersect(pBody1, pBody2);
+				if (ret != SUCCESS)
+				{
+					mdlKISolid_freeBody(pBody1);
+					mdlKISolid_freeBody(pBody2);
+				}
+				else
+				{
+					KIENTITY_LIST* listP = NULL;
+					mdlKISolid_listCreate(&listP);
+					mdlKISolid_getVertexList(listP, pBody1);
+
+					mdlKISolid_listCount(&res, listP);
+					mdlKISolid_listDelete(&listP);
+
+					mdlKISolid_freeBody(pBody1);
+					// never free/or use pBody2 after success
+				}
+			}
+		}
+	}
+
+	mdlKISolid_endCurrTrans();
+	return res;
+}
+
+bool isKISolidPointInside(const DPoint3d& kipoint, const MSElementDescrP edP)
+{
+	DPoint3d point = kipoint;
+	int inBody = POINT_UNKNOWN;
+
+	mdlKISolid_beginCurrTrans(ACTIVEMODEL);
+
+	KIBODY* bodyP = NULL;
+	if (SUCCESS == mdlKISolid_elementToBody(&bodyP, edP, ACTIVEMODEL))
+	{
+		mdlKISolid_pointInBody(&inBody, &point, bodyP);
+		mdlKISolid_freeBody(bodyP);
+	}
+	mdlKISolid_endCurrTrans();
+
+	return inBody == POINT_INSIDE;
+}
+
+bool isCenterIsInsideOfAnother(const MSElementDescrP centerOwnerEdP, const MSElementDescrP scanEdP)
+{
+	DPoint3d center;
+
+	if (getKISolidCenterPoint(&center, centerOwnerEdP)) {
+
+		return isKISolidPointInside(center, scanEdP);
+	}
+	return false;	
+}
+
+ElementRef findIntersectedByTFType(
+    const MSElementDescrP elemdP, const int typesNum, int tfType, ...)
 {
     ElementRef result = NULL;
 
@@ -180,12 +279,33 @@ ElementRef tfFindIntersectedByTfType(
     status = mdlScanCriteria_setElementTypeTest(scP, typeMask, sizeof(typeMask));
     status = mdlScanCriteria_setModel(scP, ACTIVEMODEL);
 
-    { // ограничение по диапазоную точек:
-        ScanRange scanRng = elementP->hdr.dhdr.range;
+	DPoint3d centerKI;
+	mdlVec_zero(&centerKI);
+	getKISolidCenterPoint(&centerKI, elemdP);
+
+	DPoint3d centerPoint;
+    {	// ограничение диапазона поиска:
+        ScanRange scanRng = elemdP->el.hdr.dhdr.range;
+
+		DVector3d range;
+		mdlCnv_scanRangeToDRange(&range, &scanRng);
+
+		DVec3d rngVec;
+		mdlVec_subtractDPoint3dDPoint3d(&rngVec, &range.end, &range.org);
+
+		DPoint3d middle;
+		mdlVec_projectPoint(&middle, &range.org, &rngVec, 0.5);
+		centerPoint = middle;		
+		
+		// сканируем в минимальном диапазоне - цент диапазона элемента
+		range.org =
+		range.end = middle;
+
+		mdlCnv_dRangeToScanRange(&scanRng, &range);
         mdlScanCriteria_setRangeTest(scP, &scanRng);
     }
 
-    { // todo от этого кода можно избавится, перенеся нагрузку на callback function
+    { // todo от этого кода можно избавиться, перенеся нагрузку на callback function
         mdlScanCriteria_setReturnType(scP, MSSCANCRIT_RETURN_FILEPOS, FALSE, TRUE);
 
         UInt32 elemAddr[10];
@@ -200,6 +320,9 @@ ElementRef tfFindIntersectedByTfType(
             
             for (int i = 0; i < scanWords && elemAddr[i] < eofPos; ++i)
             {
+				ElementRef candidate = NULL;
+				int candidateIntersects = 0;
+
                 MSElementDescr* edP = NULL;
                 if (FILEPOS_EOF != 
                     mdlElmdscr_read(&edP, elemAddr[i], 0, FALSE, &realPos))
@@ -207,16 +330,28 @@ ElementRef tfFindIntersectedByTfType(
                     bool isTypeMatched = false;
 
                     int elemTfType = mdlTFElmdscr_getApplicationType(edP);
-                             
+
                     int* typeP = &tfType;
 					int count = typesNum;
 
                     while (count--) {
                         if (elemTfType == *typeP) {
-                            result = edP->h.elementRef;
-                            isTypeMatched = true;
-                            break;
-                        }                        
+							
+							if (isCenterIsInsideOfAnother(elemdP, edP))
+							{
+								result = edP->h.elementRef;
+								isTypeMatched = true;
+								break;
+							}
+							
+							int intersectPoints = 
+								getIntersectPointsCount(elemdP, edP);
+
+							if (intersectPoints > candidateIntersects) {
+								candidateIntersects = intersectPoints;
+								candidate = edP->h.elementRef;
+							}						
+                        }
                         ++typeP;
                     }
 
@@ -226,6 +361,10 @@ ElementRef tfFindIntersectedByTfType(
                         break;
                     }
                 }
+
+				if (candidate != NULL && candidateIntersects > 0) {
+					result = candidate;
+				}
             }
         } while (status == BUFF_FULL);
     }
@@ -385,14 +524,14 @@ TFFrame* createPenetrFrame(
     //UInt32 weight = 2;
     //mdlElmdscr_setSymbology(penToAdd, 0, 0, &weight, 0);
 
-    TFFrameList*      pFrameNode = NULL;
+    TFFrameList*      frameListP = NULL;
     TFPerforatorList* perfoListP = NULL;
 
     Transform tm;
     mdlTMatrix_getIdentity(&tm);
 
-    pFrameNode = mdlTFFrameList_construct();
-    frameP = mdlTFFrameList_getFrame(pFrameNode);
+    frameListP = mdlTFFrameList_construct();
+    frameP = mdlTFFrameList_getFrame(frameListP);
 
     mdlTFFrame_add3DElmdscr(frameP, penToAdd); // p3DEd is consumed, no need to free it
 
@@ -425,6 +564,7 @@ TFFrame* createPenetrFrame(
     mdlTFWStringList_free(&pNameNodeW);
 
     mdlTFFrame_synchronize(frameP);
+	mdlTFFrameList_synchronize(frameListP);
 
     { // !!! без этого не работает:
       // create openings in form that are found within the sense distance 
@@ -524,13 +664,14 @@ StatusInt getFacePlaneByLabel(DPlane3dR outPlane,
 /*------------------------------------------------------------------------------
 Установка значения DataGroup свойства
 ----------------------------------------------------------------------------- */
-bool setDataGroupInstanceValue(const ElementRef& elemRef, DgnModelRefP modelRefP,
+bool setDataGroupInstanceValue(
+	Bentley::Building::Elements::BuildingEditElemHandle& beeh,
 	const std::wstring& catalogType, const std::wstring& catalogInstance,
 	const std::wstring& itemXPath, const std::wstring& value)
 {
-	if (elemRef == NULL || elementRef_isEOF(elemRef)) {
-		return false;
-	}
+	//if (elemRef == NULL || elementRef_isEOF(elemRef)) {
+	//	return false;
+	//}
 
 	/*!
 	To iterate through all the CCatalogInstances in the collection see the following:
@@ -541,7 +682,7 @@ bool setDataGroupInstanceValue(const ElementRef& elemRef, DgnModelRefP modelRefP
 	\endcode
 	*/
 
-	Bentley::Building::Elements::BuildingEditElemHandle beeh(elemRef, modelRefP);
+	//Bentley::Building::Elements::BuildingEditElemHandle beeh(elemRef, modelRefP);
 	beeh.LoadDataGroupData();
 
 	CCatalogCollection& collection = beeh.GetCatalogCollection();
@@ -564,10 +705,11 @@ bool setDataGroupInstanceValue(const ElementRef& elemRef, DgnModelRefP modelRefP
 		collection.UpdateInstanceDataDefaults(catalogInstance);
 	}
 
+	bool res = false;
 
 	CCatalogSchemaItemT*    pSchemaItem = NULL;
 	if ((pSchemaItem = collection.FindDataGroupSchemaItem(itemXPath))) {
-		pSchemaItem->SetValue(value);
+		res = pSchemaItem->SetValue(value);
 	}
-	return SUCCESS == beeh.Rewrite();
+	return res; // SUCCESS == beeh.Rewrite();
 }
