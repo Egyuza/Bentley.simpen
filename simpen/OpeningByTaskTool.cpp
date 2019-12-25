@@ -65,14 +65,14 @@ void OpeningByTaskTool::updatePreview(char *unparsedP)
     if (prevTask == OpeningTask::getInstance()) {
         return; // параметры построения не изменились
     }
-	
-	mdlTransient_free(&msTransientElmP, true);
 
+	mdlTransient_free(&msTransientElmP, true);
+	
     OpeningByTaskTool* toolP = OpeningByTaskTool::instanceP;
 	if (!toolP || toolP->isAddToModelProcessActive) {
 		return;
 	}
-
+	
     OpeningByTaskTool::prevTask = OpeningTask::getInstance();
 
 	{ // ДЛЯ ОТЛАДКИ:
@@ -111,11 +111,16 @@ void OpeningByTaskTool::updatePreview(char *unparsedP)
         mdlVec_projectPoint(&contourPts[3], &lhs, &toolP->widthVec, -halfWidth);
     }
 
-    EditElemHandle contour;
+	EditElemHandleR contour = OpeningByTaskTool::instanceP->contour;
     if (createShape(contour, contourPts, 4, false)) {
         msTransientElmP = mdlTransient_addElemDescr(msTransientElmP,
             contour.GetElemDescrCP(), true, 0xffff, DRAW_MODE_TempDraw, FALSE, FALSE, TRUE);
     }
+
+	MSElementDescrP edP = NULL;
+	mdlElmdscr_getByElemRef(&edP,
+		contour.GetElemRef(), contour.GetModelRef(), TRUE, 0);
+
     
     Opening::instance = Opening(contour.GetElemDescrP());
 

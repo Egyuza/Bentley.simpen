@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using BCOM = Bentley.Interop.MicroStationDGN;
+using TFCOM = Bentley.Interop.TFCom;
 
 namespace simpen.ui
 {
@@ -31,6 +32,19 @@ internal sealed class Addin : Bentley.MicroStation.AddIn
     {
         get { return Bentley.MicroStation.InteropServices.Utilities.ComApp; }
     }
+    
+
+    private static TFCOM.TFApplication _tfApp;
+    public static TFCOM.TFApplication AppTF
+    {
+        get
+        {
+            return _tfApp ?? 
+                (_tfApp = new TFCOM.TFApplicationList().TFApplication);
+        }
+    }
+
+
     
     /// <summary> AddIn class must override the virtual Run() method of the base Addin class </summary>
     protected override int Run( string[] commandLine )

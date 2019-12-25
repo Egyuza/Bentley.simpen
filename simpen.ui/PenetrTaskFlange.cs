@@ -12,9 +12,9 @@ namespace simpen.ui
 {
 class PenetrTaskFlange
 {    
-    public IntPtr elemRef {get; private set; }
+    public int elemRef {get; private set; }
     public long elemId {get; private set; }
-    public IntPtr modelRef {get; private set; }
+    public int modelRef {get; private set; }
     
     public int Diametr { get; set; }
 
@@ -31,9 +31,22 @@ class PenetrTaskFlange
 
     private PenetrTaskFlange(Element element, sp3d.Sp3dTask task)
     {
-        elemRef = element.ElementRef;
-        modelRef = element.ModelRef;
-        elemId = element.ElementID;
+        BCOM.Element bcomEl = 
+        Addin.App.MdlGetModelReferenceFromModelRefP((int)element.ModelRef)
+            .GetElementByID(element.ElementID);
+        init(bcomEl, task);                      
+    }
+
+    private PenetrTaskFlange(BCOM.Element element, sp3d.Sp3dTask task)
+    {
+        init(element, task);         
+    }
+
+    private void init(BCOM.Element element, sp3d.Sp3dTask task)
+    {
+        elemRef = element.MdlElementRef();
+        modelRef = element.ModelReference.MdlModelRefP();
+        elemId = element.ID;
         Oid = task.pipe.Oid;
 
         if (task.pipe == null || task.component == null)
@@ -43,6 +56,12 @@ class PenetrTaskFlange
         }
 
         Code = task.pipe.Name;
+
+        BCOM.Point3d pt = new BCOM.Point3d() ;
+        pt.X = task.pipe.LocationX;
+        pt.Y = task.pipe.LocationY;
+        pt.Z = task.pipe.LocationZ;
+        Location = pt;
 
         // разбор типоразмера:
         try
@@ -56,6 +75,7 @@ class PenetrTaskFlange
                 task.pipe.Description);
         }            
     }
+
 
     public static bool getFromElement(Element element, out PenetrTaskFlange penTask)
     {
@@ -72,5 +92,28 @@ class PenetrTaskFlange
         penTask = new PenetrTaskFlange(element, task);
         return true;        
     }
+
+    public static bool getFromElement(BCOM.Element element, out PenetrTaskFlange penTask)
+    {
+        sp3d.Sp3dTask task = null;
+        penTask = null;
+
+        if (!ElementHelper.isElementSp3dTask(element.ID, 
+            (IntPtr)element.ModelReference.MdlModelRefP(), out task) || 
+            !(task.isFlange()))
+        {
+            return false;
+        }
+
+        penTask = new PenetrTaskFlange(element, task);
+        return true;        
+    }
+
+
+    public void setLocation(ref BCOM.Point3d origin)
+    {
+        Location = origin;
+    }
+
 }
 }

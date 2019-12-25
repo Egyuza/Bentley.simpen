@@ -46,6 +46,7 @@
 
 #include <mstmatrx.fdf>
 #include <mscurrtr.fdf>
+#include <msrmatrx.fdf>
 
 
 using Bentley::Ustn::Element::EditElemHandle;
@@ -83,6 +84,7 @@ StatusInt computeAndAddToModel(Opening& opening,
 {
     EditElemHandle bodyShape, perfoShape, crossFirst, crossSecond;
 		
+
 	if (SUCCESS != computeElementsForOpening(
         bodyShape, perfoShape, crossFirst, crossSecond, opening,
 		Opening::LEVEL_NAME, Opening::LEVEL_SYMBOL_NAME))
@@ -139,7 +141,7 @@ StatusInt computeAndAddToModel(Opening& opening,
 			//		prevFrameDef = mdlTFFrame_get3DElmdscr(prevFrameP);
 			//	}
 			//}
-		
+			
 			UInt32 prevPos = elementRef_getFilePos(previousP->h.elementRef);
 			//MSElementDescr* newEdP = mdlTFFrame_get3DElmdscr(frameP);		
 
@@ -148,7 +150,6 @@ StatusInt computeAndAddToModel(Opening& opening,
 
 			mdlElmdscr_deleteByModelRef(previousP, prevPos, modelRefP, 1);
 			resStatus = mdlTFModelRef_addFrame(modelRefP, frameP);
-
 		}
 		else {
 			resStatus = mdlTFModelRef_addFrame(modelRefP, frameP);
@@ -176,7 +177,7 @@ StatusInt computeAndAddToModel(Opening& opening,
             }
 
             if (opening.getTask().isRequiredRemoveContour && 
-                !elementRef_isEOF(opening.contourRef)) 
+                opening.contourRef != NULL && !elementRef_isEOF(opening.contourRef))
             {  
                 // TODO проверить на контур из референса
 
@@ -200,12 +201,28 @@ StatusInt computeAndAddToModel(Opening& opening,
     return resStatus;
 }
 
-
 StatusInt computeElementsForOpening(EditElemHandleR outBodyShape,
     EditElemHandleR outPerfoShape, EditElemHandleR outCrossFirst,
     EditElemHandleR outCrossSecond, Opening& opening, 
 	MSWCharCP boundaryLevel, MSWCharCP symbolLevel)
 {
+	MSElementDescrP edP = NULL;
+	mdlElmdscr_getByElemRef(&edP,
+		opening.contourRef, opening.contourModelRef, FALSE, 0);
+	EditElemHandle contour;
+	if (edP == NULL && opening.contourPoints.size() > 2) {
+		if (createShape(contour,
+				&opening.contourPoints[0], opening.contourPoints.size(), false))
+		{
+			edP = contour.GetElemDescrP();
+		}
+	}
+	if (edP == NULL) {
+		return FALSE;
+	}
+
+	int elemType = edP->el.hdr.ehdr.type;
+
 	LevelID lvlId;
 	mdlLevel_getActive(&lvlId);
 	const LevelID activeLevelId = lvlId;
@@ -219,42 +236,80 @@ StatusInt computeElementsForOpening(EditElemHandleR outBodyShape,
 		//mdlOutput_messageCenter(MESSAGE_WARNING, msg, msg, FALSE);
 	}
 
-    EditElemHandle contour;
-    createShape(contour, &opening.contourPoints[0], opening.contourPoints.size(), false);
-
-   // int tfTypes[2] = { TF_LINEAR_FORM_ELM, TF_SLAB_FORM_ELM };
-    
-        // findIntersectedTFFormWithElement(contour.GetElementP(), tfTypes, 2);
-
 	EditElemHandle formEeh = 
 		EditElemHandle(OpeningTask::getInstance().tfFormRef, ACTIVEMODEL);
 	int formType = mdlTFElmdscr_getApplicationType(formEeh.GetElemDescrP());
-
-	TFFormRecipeList* wall = NULL;
-    if (BSISUCCESS != mdlTFFormRecipeList_constructFromElmdscr(
-        &wall, formEeh.GetElemDescrP()))
-    {
-		tcb->symbology.color = COLOR_ACTIVE;  // 1. ! до активации слоя
-		mdlLevel_setActive(activeLevelId); // 2.
-        return ERROR;
-    }
-    
-
+	
     DPlane3d contourPlane;
     mdlElmdscr_extractNormal(
-        &contourPlane.normal, &contourPlane.origin, contour.GetElemDescrP(), NULL);
+        &contourPlane.normal, &contourPlane.origin, edP, NULL);
     
-    double distance = 0.0;
+    double shift;
+    DPoint3d pt1, pt2;
+    mdlMinDist_betweenElms(&pt1, &pt2, &shift, 
+        edP, formEeh.GetElemDescrP(), &contourPlane.origin, fc_epsilon);
+    
+    if (shift != 0.0 && elemType == SHAPE_ELM ) {
+
+        //mdlVec_projectPoint(&contourPlane.origin, &contourPlane.origin, &shiftVec, 1.0);
+        DPoint3d centroid;
+        mdlMeasure_linearProperties(NULL, &centroid, NULL, NULL, NULL, NULL,
+            NULL, NULL, edP, fc_epsilon);
+
+        DVec3d shiftVec;
+        //DPoint3d perpenPoint;
+        //RotMatrix rotation;
+        //mdlRMatrix_getIdentity(&rotation);
+        //int stat = mdlProject_perpendicular(&perpenPoint, NULL, &shiftVec, formEeh.GetElemDescrP(), ACTIVEMODEL, &centroid, &rotation, fc_epsilon);
+
+        mdlVec_subtractDPoint3dDPoint3d(&shiftVec, &pt2, &pt1);
+
+        Transform tMatrix;
+        mdlTMatrix_getIdentity(&tMatrix);
+        mdlTMatrix_translate(&tMatrix, &tMatrix, shiftVec.x, shiftVec.y, shiftVec.z);
+        mdlElmdscr_transform(edP, &tMatrix);
+
+        mdlElmdscr_extractNormal(
+            &contourPlane.normal, &contourPlane.origin, edP, NULL);
+
+        //EditElemHandle line;
+        //DPoint3d pts[] = { pt1, pt2 };
+        //сreateLine(line, pts);
+
+        //msTransientElmP = mdlTransient_addElemDescr(msTransientElmP,
+        //	line.GetElemDescrCP(), true, 0xffff, DRAW_MODE_TempDraw, FALSE, FALSE, TRUE);
+    }
+
+    {
+         // todo проецирование контура на ближайшую грань!!!
+    
+    }
+
+
+    Transform elTran;
+    mdlElmdscr_orientationExt(&elTran, edP, edP->h.dgnModelRef);
+
+    
+    double distance = .0;
     {   // обновление и корректировка
         DVec3d directVector;
 		StatusInt orientStatus = ERROR;
 
 		if (formType == TF_ARC_FORM_ELM) {
+            // todo для круга
 			orientStatus = findDirVecFromArcWall(directVector, distance, contourPlane,
 				opening.contourPoints[0], OpeningTask::getInstance().tfFormRef,
 				ACTIVEMODEL);
 		}
 		else {
+            TFFormRecipeList* wall = NULL;
+            if (BSISUCCESS != mdlTFFormRecipeList_constructFromElmdscr(
+                &wall, formEeh.GetElemDescrP())) {
+                tcb->symbology.color = COLOR_ACTIVE;  // 1. ! до активации слоя
+                mdlLevel_setActive(activeLevelId); // 2.
+                return ERROR;
+            }
+
 			orientStatus =
 				findDirectionVector(directVector, distance, contourPlane, wall);
 		}
@@ -266,32 +321,54 @@ StatusInt computeElementsForOpening(EditElemHandleR outBodyShape,
 			return ERROR;
         }
 
+        // если оставить знак, то направление инвертируется, 
+        // т.к. его уже задаёт вектор
+        distance = abs(distance);
+
         if (!opening.getTask().isThroughHole) {
             distance = opening.getDistance();
-            // directVector = contourPlane.normal;
         }
         else {
             opening.setDistance(distance);
         }
         opening.direction = directVector;
-        mdlVec_scaleToLength(&opening.direction, &opening.direction, 
-            distance != 0.0 ? distance : 1.0);
-        // если оставить знак, то направление инвертируется, т.к. его уже задаёт вектор
-        distance = abs(distance);
+        //mdlVec_scaleToLength(&opening.direction, &opening.direction, 
+        //    distance != 0.0 ? distance : 1.0);
     }
 
-    createShape(contour, &opening.contourPoints[0], opening.contourPoints.size(), false);
+    EditElemHandle linearContour;
+    if (elemType == SHAPE_ELM) { // todo можно объединить с CMPLX_SHAPE_ELM
+        createStringLine(linearContour,
+            &opening.contourPoints[0], opening.contourPoints.size());
 
-    DPoint3d vertices[256];
-    int numVerts;
-    mdlLinear_extract(vertices, &numVerts, contour.GetElementP(), ACTIVEMODEL);
-    //mdlLinear_extract(vertices, &numVerts, &contourEdP->el, ACTIVEMODEL);
+        // перфоратор должен быть с заливкой
+        createShape(outPerfoShape,
+            &opening.contourPoints[0], opening.contourPoints.size(), true);
+    }
+    else if (elemType == ELLIPSE_ELM) {
+        RotMatrix rot;
+		DPoint3d center;
+		double primary, secondary;
+		mdlArc_extract(NULL, NULL, NULL, &primary, &secondary, &rot, &center,
+			&edP->el);
 
-    EditElemHandle shape;
-    сreateStringLine(shape, vertices, numVerts);
-    createShape(outPerfoShape, vertices, numVerts, true);
+		createArcEllipse(linearContour, center, primary, secondary, &rot);
 
-    if (!createBody(outBodyShape, shape, opening.direction, distance, 0.0)) 
+        // перфоратор должен быть с заливкой
+        createEllipse(outPerfoShape, center, primary, secondary, &rot, true);
+    }
+    else if (elemType == CMPLX_SHAPE_ELM) {
+		MSElementDescrP tempEdp = NULL;
+		mdlElmdscr_duplicate(&tempEdp, edP);
+		mdlElmdscr_addFill(&tempEdp);
+		ToEditHandle(outPerfoShape, tempEdp);
+
+		// разрываем, чтобы получить далее полую поверхность
+		mdlElmdscr_open(&tempEdp, edP, opening.contourModelRef);
+		ToEditHandle(linearContour, tempEdp);
+    }
+
+    if (!createBody(outBodyShape, linearContour, opening.direction, distance, 0.0))
 	{
 		tcb->symbology.color = COLOR_ACTIVE;  // 1. ! до активации слоя
 		mdlLevel_setActive(activeLevelId); // 2.
@@ -299,28 +376,184 @@ StatusInt computeElementsForOpening(EditElemHandleR outBodyShape,
     }
 
 	if (SUCCESS != mdlLevel_setActiveByName(LEVEL_NULL_ID, symbolLevel))
-	{  
-		//char* msg = "Не найден слой требуемый для создания проёма - <C-OPENING-BOUNDARY>";
-		//mdlOutput_messageCenter(MESSAGE_WARNING, msg, msg, FALSE);
+	{	// todo
+		// char* msg = "Не найден слой требуемый для создания проёма - <C-OPENING-BOUNDARY>";
+		// mdlOutput_messageCenter(MESSAGE_WARNING, msg, msg, FALSE);
 	}
 
-    {   // Перекрестия:
-        DPoint3d centroid;
-        mdlMeasure_linearProperties(NULL, &centroid, NULL, NULL, NULL, NULL,
-            NULL, NULL, contour.GetElemDescrP(), fc_epsilon);
-        //NULL, NULL, contourEdP, fc_epsilon);
+    // ПЕРЕКРЕСТИЯ:
+	if (elemType == SHAPE_ELM) {
+		//NULL, NULL, contourEdP, fc_epsilon);
+		DPoint3d centroid;
+		mdlMeasure_linearProperties(NULL, &centroid, NULL, NULL, NULL, NULL,
+			NULL, NULL, linearContour.GetElemDescrP(), fc_epsilon);
 
-        createCross(outCrossFirst, centroid, vertices, numVerts);        
+		int numVerts = opening.contourPoints.size();
+		DPoint3d* vertices = &opening.contourPoints[0];
 
-        // 2-ое перекрестие получаем проецируя 1-ое на противоположную грань
-        DVec3d projVec = opening.direction;
-        mdlVec_scaleToLength(&projVec, &projVec, distance);
-        mdlVec_projectPoint(&centroid, &centroid, &projVec, 1.0);
-        for (int i = 0; i < numVerts; ++i) {
-            mdlVec_projectPoint(&vertices[i], &vertices[i], &projVec, 1.0);
-        }
-        createCross(outCrossSecond, centroid, vertices, numVerts);
-    }
+		createCross(outCrossFirst, centroid, &opening.contourPoints[0],
+			numVerts);
+
+		// 2-ое перекрестие получаем проецируя 1-ое на противоположную грань
+		DVec3d projVec = opening.direction;
+		mdlVec_scaleToLength(&projVec, &projVec, distance);
+		mdlVec_projectPoint(&centroid, &centroid, &projVec, 1.0);
+		for (int i = 0; i < numVerts; ++i) {
+			mdlVec_projectPoint(&vertices[i], &vertices[i], &projVec, 1.0);
+		}
+		createCross(outCrossSecond, centroid, vertices, numVerts);
+	}
+	else if (elemType == CMPLX_SHAPE_ELM) {
+		DVec3d normal;
+		EditElemHandle tempContour;
+		MSElementDescrP tempEdp = NULL;
+		mdlElmdscr_duplicate(&tempEdp, linearContour.GetElemDescrCP());
+		ToEditHandle(tempContour, tempEdp);
+
+		mdlElmdscr_extractNormal(&normal, NULL, tempContour.GetElemDescrP(), NULL);
+		
+		RotMatrix rot;
+		mdlRMatrix_fromNormalVector(&rot, &normal);
+		RotMatrix inverseRot;
+		mdlRMatrix_getInverse(&inverseRot, &rot);
+
+		Transform tran;
+		mdlTMatrix_fromRMatrix(&tran, &rot);
+		mdlElmdscr_transform(tempContour.GetElemDescrP(), &tran);
+
+		DPoint3d ptsRng[2];
+		mdlElmdscr_computeRange(&ptsRng[0], &ptsRng[1], tempContour.GetElemDescrP(), NULL);
+		createLine(outCrossFirst, ptsRng);
+
+		{			
+			mdlElmdscr_duplicate(&tempEdp, outCrossFirst.GetElemDescrCP());
+
+			DPoint3d middle = getMiddle(&ptsRng[1], &ptsRng[0]);
+			DVec3d nrm;
+			mdlElmdscr_extractNormal(&nrm, NULL, tempContour.GetElemDescrP(), NULL);
+
+			mdlTMatrix_fromRotationAroundPointAndVector(&tran,
+				&middle, &nrm, fc_pi / 2);
+			mdlElmdscr_transform(tempEdp, &tran);
+
+			ToEditHandle(outCrossSecond, tempEdp);
+		}
+		
+		{ // подрезка
+			RotMatrix identityRot;
+			mdlRMatrix_getIdentity(&identityRot);
+			DPoint3d intersects[10];
+			int count = mdlIntersect_allBetweenElms(intersects, NULL, 10,
+				outCrossFirst.GetElemDescrP(), tempContour.GetElemDescrP(),
+				NULL, fc_epsilon);
+
+			createStringLine(outCrossFirst, intersects, count);
+
+			count = mdlIntersect_allBetweenElms(intersects, NULL, 10,
+				outCrossSecond.GetElemDescrP(), tempContour.GetElemDescrP(),
+				NULL, fc_epsilon);
+
+			createStringLine(outCrossSecond, intersects, count);
+		}
+
+		mdlTMatrix_fromRMatrix(&tran, &inverseRot);
+		mdlElmdscr_transform(tempContour.GetElemDescrP(), &tran);
+		mdlElmdscr_transform(outCrossFirst.GetElemDescrP(), &tran);
+		mdlElmdscr_transform(outCrossSecond.GetElemDescrP(), &tran);
+
+		std::vector<DPoint3d> crossVerts = std::vector<DPoint3d>();
+
+		DPoint3d verts[10];
+		int num;
+		mdlLinear_extract(verts, &num, 
+			outCrossFirst.GetElementCP(), outCrossFirst.GetModelRef());
+		for (int i = 0; i < num; ++i) {
+			crossVerts.push_back(verts[i]);
+		}
+		mdlLinear_extract(verts, &num,
+			outCrossSecond.GetElementCP(), outCrossSecond.GetModelRef());
+		for (int i = 0; i < num; ++i) {
+			crossVerts.push_back(verts[i]);
+		}
+
+		mdlElmdscr_computeRange(&ptsRng[0], &ptsRng[1], tempContour.GetElemDescrP(), NULL);
+		createLine(outCrossFirst, ptsRng);
+
+		// 1-ое
+		DPoint3d center = getMiddle(&ptsRng[0], &ptsRng[1]);
+		createCross(outCrossFirst, center, &crossVerts[0], crossVerts.size());
+
+		// 2-ое
+		MSElementDescrP secondEdP = NULL;
+		mdlElmdscr_duplicate(&secondEdP, outCrossFirst.GetElemDescrCP());
+		
+		DVec3d projVec = opening.direction;
+		mdlVec_scaleToLength(&projVec, &projVec, distance);
+		DPoint3d secondCenter;
+		mdlVec_projectPoint(&secondCenter, &center, &projVec, 1.0);
+
+		mdlTMatrix_getIdentity(&tran);
+		mdlVec_subtractPoint(&secondCenter, &secondCenter, &center);
+		mdlTMatrix_setTranslation(&tran, &secondCenter);
+		mdlElmdscr_transform(secondEdP, &tran);
+
+		ToEditHandle(outCrossSecond, secondEdP);
+	}
+	else if (elemType == ELLIPSE_ELM) {
+		// 
+		RotMatrix rot;
+		double r1, r2;
+		DPoint3d center;
+		
+		mdlArc_extract(NULL, NULL, NULL, &r1, &r2, &rot, &center, 
+			linearContour.GetElementP());
+		
+		DVec3d normal;
+		mdlElmdscr_extractNormal(&normal, NULL, linearContour.GetElemDescrP(), NULL);
+
+		DPoint3d pts[5];
+		double k = r2/pow(2.0, 0.5); //r1 * fc_pi / 4;
+		/*pts[0] = pts[1] = ;*/
+		mdlVec_zero(&pts[0]);
+		mdlVec_zero(&pts[1]);
+		pts[0].x = pts[0].y = k;
+		pts[1].x = pts[1].y = -k;
+		mdlVec_zero(&pts[2]);
+		pts[3] = pts[0];
+		pts[3].y = -k;
+		pts[4] = pts[1];
+		pts[4].y = +k;
+
+		createStringLine(outCrossFirst, pts, 5);
+
+		Transform tran;
+		mdlTMatrix_getIdentity(&tran);
+		DVec3d zAxis = {0, 0, 1};		
+		mdlRMatrix_fromVectorToVector(&rot, &zAxis, &normal);
+		mdlTMatrix_fromRMatrix(&tran, &rot);
+
+		mdlElmdscr_transform(outCrossFirst.GetElemDescrP(), &tran);
+
+		mdlTMatrix_getIdentity(&tran);
+		mdlTMatrix_setTranslation(&tran, &center);
+		mdlElmdscr_transform(outCrossFirst.GetElemDescrP(), &tran);
+
+		// 2-ое
+		MSElementDescrP secondEdP = NULL;
+		mdlElmdscr_duplicate(&secondEdP, outCrossFirst.GetElemDescrCP());
+		
+		DVec3d projVec = opening.direction;
+		mdlVec_scaleToLength(&projVec, &projVec, distance);
+		DPoint3d secondCenter;
+		mdlVec_projectPoint(&secondCenter, &center, &projVec, 1.0);
+
+		mdlTMatrix_getIdentity(&tran);
+		mdlVec_subtractPoint(&secondCenter, &secondCenter, &center);
+		mdlTMatrix_setTranslation(&tran, &secondCenter);
+		mdlElmdscr_transform(secondEdP, &tran);
+
+		ToEditHandle(outCrossSecond, secondEdP);
+	}
     
 	tcb->symbology.color = COLOR_ACTIVE;  // 1. ! до активации слоя
 	mdlLevel_setActive(activeLevelId); // 2.
@@ -410,7 +643,7 @@ StatusInt findDirVecFromArcWall(DVec3d& outDirVec, double& outDistance,
 
 		EditElemHandle line;
 		DPoint3d pts[] = { projStartEx, projEndEx };
-		сreateLine(line, pts);
+		createLine(line, pts);
 
 		MSElement arc;
 		mdlArc_create(&arc,
@@ -578,6 +811,8 @@ StatusInt findDirectionVector(DVec3d& outDirectionVec, double& distance,
                     break;
                 }
             }
+
+			mdlVec_normalize(&outDirectionVec);
 
             if (!isForwardFound) {
                 distance = 0.0;

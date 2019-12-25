@@ -51,6 +51,10 @@ void OpeningByContourTool::updatePreview(char *unparsedP)
 
     prevTask = OpeningTask::getInstance();	 
 
+	if (!(prevTask.isContourSelected && prevTask.isTFFormSelected)) {
+		return;
+	}
+
     if (!Opening::instance.isValid()) {
         UI::warning("Контур построения не определён");
         return;
@@ -69,7 +73,6 @@ void OpeningByContourTool::updatePreview(char *unparsedP)
 void OpeningByContourTool::addToModel(char *unparsedP)
 {
 	OpeningByContourTool* toolP = OpeningByContourTool::instanceP;
-
 	toolP->isAddToModelProcessActive = true;
 
 	if (Opening::instance.isValid() && toolP &&
@@ -95,7 +98,7 @@ bool OpeningByContourTool::OnPostLocate(HitPathCP path, char *cantAcceptReason)
     EditElemHandle eeh = EditElemHandle(elRef, ACTIVEMODEL);
     
     if (!OpeningTask::getInstance().isContourSelected &&
-        eeh.GetElementType() == SHAPE_ELM) 
+        Opening::isElemContourType(eeh.GetElementType()))
     {
         return true;
     }
@@ -138,9 +141,9 @@ EditElemHandleP
     // Here we have both the new agenda entry and the current hit path if needed...
     EditElemHandleP eehP = __super::BuildLocateAgenda(path, ev);
     
-    if (eehP->GetElementType() == SHAPE_ELM) {
+    if (Opening::isElemContourType(eehP->GetElementType())) {
         Opening::instance = Opening(eehP->GetElemDescrP());
-        OpeningTask::getInstance().isContourSelected = true;       
+        OpeningTask::getInstance().isContourSelected = true;
     }
     else if (eehP->GetElementType() == CELL_HEADER_ELM) {
         // должна быть стена или плита
@@ -150,8 +153,6 @@ EditElemHandleP
         OpeningTask::getInstance().tfFormRef = eehP->GetElemRef();
         OpeningTask::getInstance().isTFFormSelected = true;               
     }
-
-    //if (FALSE == elementRef_isEOF(Opening::instance.contourRef)) {
 
     return eehP;
 }
@@ -163,7 +164,7 @@ void OpeningByContourTool::OnComplexDynamics(MstnButtonEventCP ev) {
 
 StatusInt OpeningByContourTool::OnElementModify(EditElemHandleR eeh) {
     
-    if (eeh.GetElementType() != SHAPE_ELM) {
+    if (eeh.GetElemRef() != Opening::instance.contourRef) {
         return ERROR;
     }
     

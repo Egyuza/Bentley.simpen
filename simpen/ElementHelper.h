@@ -23,8 +23,19 @@ bool operator !=(DPoint3d& pt0, DPoint3d& pt01);
 // vector - нельзя, так как у EditElemHandle - приватный оператор "="
 typedef class std::list<Bentley::Ustn::Element::EditElemHandle> ElementList;
 
-bool сreateLine(EditElemHandleR eehOut, DPoint3d* points);
-bool сreateStringLine(EditElemHandleR eehOut, DPoint3d* points, int numVerts, const UInt32* weight = NULL);
+DPoint3d getMiddle(DPoint3d* targetP, DPoint3d* baseP);
+
+bool createLine(EditElemHandleR eehOut, DPoint3d* points);
+bool createStringLine(EditElemHandleR eehOut, DPoint3d* points, int numVerts, const UInt32* weight = NULL);
+
+bool createCircle(EditElemHandleR eehOut,
+    DPoint3dCR center, double radius, int fillMode);
+
+bool createArcEllipse(EditElemHandleR eehOut, DPoint3dCR center,
+	double radius1, double radius2, RotMatrix* rotP);
+
+bool createEllipse(EditElemHandleR eehOut, DPoint3dCR center,
+    double radius1, double radius2, RotMatrix* rotP, int fillMode);
 
 bool createShape(EditElemHandleR eehOut, DPoint3d* points, int numVerts, bool fillMode);
 bool createBody(EditElemHandleR eehOut, EditElemHandleR shape, const DVec3d& vec,
@@ -51,7 +62,7 @@ DVec3d computeVectorToPlane(const DPoint3d& point, const DPlane3d& plane);
 
 // Создание объекта прямоугольной проходки
 TFFrame* createPenetrFrame(
-    EditElemHandleR shapeBody, EditElemHandleR shapePerf,
+    EditElemHandleR body, EditElemHandleR shapePerf,
     DVec3dR vec, double distance, double shell,
     bool isSweepBi, bool isPolicyThrough);
 

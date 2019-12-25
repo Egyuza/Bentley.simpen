@@ -32,6 +32,8 @@ struct Opening {
     DVec3d direction;
 
     ElementRef contourRef;
+    DgnModelRefP contourModelRef;
+
     std::vector<DPoint3d> contourPoints;
 
     static Opening instance;
@@ -47,6 +49,8 @@ struct Opening {
 
     OpeningTask& getTask();
     const bool isValid();
+
+    static bool isElemContourType(int type);
 
     bool operator ==(Opening other);
     bool operator !=(Opening other);

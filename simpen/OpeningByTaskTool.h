@@ -4,11 +4,14 @@
 #define OPENING_BY_TASK_TOOL_H
 
 #include "OpeningTask.h"
+#include "ElementHelper.h"
 
 #include <msinput.fdf>
 
 #include <mdl.h>
 #include <interface/MstnTool.h>
+
+
 
 namespace Openings
 {
@@ -30,6 +33,8 @@ private:
     DPoint3d taskOrigin;
     DPoint3d taskBounds[8];
 	ElementRef taskRef;
+	EditElemHandle contour;
+
     /* вершины объекта задания:
 
 		вершины через mdlCell_extract:

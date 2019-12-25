@@ -30,6 +30,8 @@
 
 #include <mstrnsnt.fdf>
 #include <msvar.fdf>
+#include <msrmatrx.fdf>
+
 
 using Bentley::Ustn::Element::EditElemHandle;
 
@@ -40,10 +42,19 @@ bool operator !=(DPoint3d& pt0, DPoint3d& pt1) {
     return !(pt0 == pt1);
 }
 
+DPoint3d getMiddle(DPoint3d* targetP, DPoint3d* baseP)
+{
+	DPoint3d res;
+	DVec3d vec;
+	mdlVec_subtractDPoint3dDPoint3d(&vec, targetP, baseP);
+	mdlVec_projectPoint(&res, baseP, &vec, 0.5);
+	return res;
+}
+
 /*------------------------------------------------------------------------------
 Создание простой линии по двум точкам
 ----------------------------------------------------------------------------- */
-bool сreateLine(EditElemHandleR eehOut, DPoint3d* points) {
+bool createLine(EditElemHandleR eehOut, DPoint3d* points) {
     MSElement el;
     mdlLine_create(&el, NULL, points);
     return ToEditHandle(eehOut, el);
@@ -52,7 +63,7 @@ bool сreateLine(EditElemHandleR eehOut, DPoint3d* points) {
 /*------------------------------------------------------------------------------
 Создание мультилинии
 ----------------------------------------------------------------------------- */
-bool сreateStringLine(EditElemHandleR eehOut, DPoint3d* points, int numVerts, 
+bool createStringLine(EditElemHandleR eehOut, DPoint3d* points, int numVerts, 
     const UInt32* weight) 
 {
     MSElement el;
@@ -83,6 +94,58 @@ bool createShape(
     }
     return false;
 }
+
+/*------------------------------------------------------------------------------
+Создание окружности
+----------------------------------------------------------------------------- */
+bool createCircle(EditElemHandleR eehOut,
+    DPoint3dCR center, double radius, int fillMode) {
+    MSElement el;
+
+    //DPoint3d pts[3] = { center, center, center };
+    //pts[0].x = center.x - radius;
+    //pts[0].y = center.y;
+    //pts[1].x = center.x;
+    //pts[1].y = center.y + radius;
+    //pts[2].x = center.x + radius;
+    //pts[2].y = center.y;
+
+    /* create the pushpin outline */
+    //mdlCircle_createBy3Pts(&el, NULL, pts, fillMode);
+
+    mdlEllipse_create(&el,
+        NULL, &DPoint3d(center), radius, radius, NULL, fillMode);
+
+    return ToEditHandle(eehOut, el);
+}
+
+bool createArcEllipse(EditElemHandleR eehOut, DPoint3dCR center,
+	double radius1, double radius2, RotMatrix* rotP)
+{
+	MSElement el;
+	//RotMatrix rotMatrix;
+	// mdlRMatrix_normalize(&rotMatrix, &rot);
+	mdlArc_create(&el,
+		NULL, &DPoint3d(center), radius1, radius2, rotP, 0, fc_2pi);
+
+	return ToEditHandle(eehOut, el);
+}
+
+/*------------------------------------------------------------------------------
+Создание эллипса
+----------------------------------------------------------------------------- */
+bool createEllipse(EditElemHandleR eehOut, DPoint3dCR center, 
+    double radius1, double radius2, RotMatrix* rotP, int fillMode) 
+{
+    MSElement el;
+    //RotMatrix rotMatrix;
+    // mdlRMatrix_normalize(&rotMatrix, &rot);
+    mdlEllipse_create(&el,
+        NULL, &DPoint3d(center), radius1, radius2, rotP, fillMode);
+
+    return ToEditHandle(eehOut, el);
+}
+
 
 bool createBody(EditElemHandleR eehOut, EditElemHandleR shape, const DVec3d& vec, 
     double distance, double shell) 
@@ -506,23 +569,18 @@ DVec3d computeVectorToPlane(const DPoint3d& point, const DPlane3d& plane) {
 }
 
 TFFrame* createPenetrFrame(
-    EditElemHandleR shapeBody, EditElemHandleR shapePerf,
+    EditElemHandleR body, EditElemHandleR shapePerf,
     DVec3dR vec, double distance, double shell, 
     bool isSweepBi, bool isPolicyThrough)
 {
+	if (!body.IsValid()) {
+		return NULL;
+	}
+
     TFFrame* frameP = NULL;
 
-    EditElemHandle body;
-    if (!createBody(body, shapeBody, vec, distance, shell)) {
-        return false;
-    }
-
     MSElementDescr *penToAdd = NULL;
-
     mdlElmdscr_duplicate(&penToAdd, body.GetElemDescrCP());
-
-    //UInt32 weight = 2;
-    //mdlElmdscr_setSymbology(penToAdd, 0, 0, &weight, 0);
 
     TFFrameList*      frameListP = NULL;
     TFPerforatorList* perfoListP = NULL;
@@ -620,7 +678,7 @@ void createCross(EditElemHandleR outCross,
     }
 
     UInt32 weight = 0;
-    сreateStringLine(outCross, crossPnts, j + 1, &weight);
+    createStringLine(outCross, crossPnts, j + 1, &weight);
 }
 
 StatusInt getFacePlaneByLabel(DPlane3dR outPlane, 
@@ -655,8 +713,7 @@ StatusInt getFacePlaneByLabel(DPlane3dR outPlane,
         if (frListP) mdlTFFormRecipeList_free(&frListP);        
     }
 
-    if (edP) mdlElmdscr_freeAll(&edP);    
-
+    if (edP) mdlElmdscr_freeAll(&edP);
     return status;
 }
 

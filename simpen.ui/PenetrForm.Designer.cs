@@ -36,7 +36,7 @@
             this.tlpMain = new System.Windows.Forms.TableLayoutPanel();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.chboxEdit = new System.Windows.Forms.CheckBox();
-            this.btnFitToElement = new System.Windows.Forms.Button();
+            this.btnPreview = new System.Windows.Forms.Button();
             this.btnAddToModel = new System.Windows.Forms.Button();
             this.grbxTasks = new System.Windows.Forms.GroupBox();
             this.tlpSets.SuspendLayout();
@@ -65,7 +65,6 @@
             // 
             this.dgvFields.AllowUserToAddRows = false;
             this.dgvFields.AllowUserToDeleteRows = false;
-            this.dgvFields.AllowUserToResizeColumns = false;
             this.dgvFields.AllowUserToResizeRows = false;
             this.dgvFields.BackgroundColor = System.Drawing.SystemColors.Control;
             this.dgvFields.BorderStyle = System.Windows.Forms.BorderStyle.None;
@@ -130,7 +129,7 @@
             this.flowLayoutPanel1.AutoSize = true;
             this.flowLayoutPanel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.flowLayoutPanel1.Controls.Add(this.chboxEdit);
-            this.flowLayoutPanel1.Controls.Add(this.btnFitToElement);
+            this.flowLayoutPanel1.Controls.Add(this.btnPreview);
             this.flowLayoutPanel1.Controls.Add(this.btnAddToModel);
             this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.flowLayoutPanel1.Location = new System.Drawing.Point(3, 210);
@@ -150,17 +149,18 @@
             this.chboxEdit.Text = "редактировать параметры";
             this.chboxEdit.UseVisualStyleBackColor = true;
             // 
-            // btnFitToElement
+            // btnPreview
             // 
-            this.btnFitToElement.AutoSize = true;
-            this.btnFitToElement.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.btnFitToElement.Location = new System.Drawing.Point(3, 32);
-            this.btnFitToElement.MinimumSize = new System.Drawing.Size(75, 0);
-            this.btnFitToElement.Name = "btnFitToElement";
-            this.btnFitToElement.Size = new System.Drawing.Size(75, 23);
-            this.btnFitToElement.TabIndex = 7;
-            this.btnFitToElement.Text = "Выделить";
-            this.btnFitToElement.UseVisualStyleBackColor = true;
+            this.btnPreview.AutoSize = true;
+            this.btnPreview.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.btnPreview.Location = new System.Drawing.Point(3, 32);
+            this.btnPreview.MinimumSize = new System.Drawing.Size(75, 0);
+            this.btnPreview.Name = "btnPreview";
+            this.btnPreview.Size = new System.Drawing.Size(75, 23);
+            this.btnPreview.TabIndex = 7;
+            this.btnPreview.Text = "Показать";
+            this.btnPreview.UseVisualStyleBackColor = true;
+            this.btnPreview.Click += new System.EventHandler(this.btnPreview_Click);
             // 
             // btnAddToModel
             // 
@@ -213,7 +213,7 @@
         private System.Windows.Forms.DataGridView dgvFields;
         private System.Windows.Forms.GroupBox grbxTasks;
         public System.Windows.Forms.Button btnAddToModel;
-        public System.Windows.Forms.Button btnFitToElement;
+        public System.Windows.Forms.Button btnPreview;
         private System.Windows.Forms.CheckBox chboxEdit;
     }
 }

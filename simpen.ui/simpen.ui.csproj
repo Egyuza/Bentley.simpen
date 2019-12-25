@@ -23,6 +23,7 @@
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <UseVSHostingProcess>true</UseVSHostingProcess>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -31,6 +32,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Bentley.Building.DataGroup.Extension">
@@ -104,6 +106,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data.Linq" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
@@ -118,6 +121,7 @@
   <ItemGroup>
     <Compile Include="CExpressions.cs" />
     <Compile Include="ElementHelper.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="Keyins.cs" />
     <Compile Include="Addin.cs" />
     <Compile Include="PenetrForm.cs">
@@ -175,8 +179,8 @@
     </PreBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PostBuildEvent>xcopy /y "$(TargetDir)$(TargetFileName)" "c:\Program Files (x86)\Bentley\MicroStation V8i (SELECTseries)\MicroStation\mdlapps_oim\$(TargetFileName)"
-xcopy /y "$(TargetDir)$(TargetFileName)" "c:\aecosim_ss6\AECOsimBuildingDesigner\mdlapps_oim\$(TargetFileName)"
+    <PostBuildEvent>copy /y "$(TargetDir)$(TargetFileName)" "c:\Program Files (x86)\Bentley\MicroStation V8i (SELECTseries)\MicroStation\mdlapps_oim\$(TargetFileName)"
+copy /y "$(TargetDir)$(TargetFileName)" "c:\aecosim_ss6\AECOsimBuildingDesigner\mdlapps_oim\$(TargetFileName)"
 </PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

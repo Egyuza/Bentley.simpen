@@ -2081,7 +2081,6 @@ int makePenetr(
             0. - 100.,
             lvlF, false
         );
-
     }
     else {
         mdlCnv_masterToUOR(&dPipeLength, dWallThick, MASTERFILE);

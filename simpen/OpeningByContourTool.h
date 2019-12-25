@@ -28,7 +28,7 @@ public:
 
 private:
 
-	bool isAddToModelProcessActive;
+	bool isAddToModelProcessActive;    
 	void clear();
 
     bool OnPostLocate(HitPathCP path, char *cantAcceptReason) override;

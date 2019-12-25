@@ -110,5 +110,31 @@ class ElementHelper
 
         return task != null;
     }
+
+
+    public static BCOM.Point3d getMiddlePoint(BCOM.Point3d first, BCOM.Point3d second)
+    {
+        BCOM.Vector3d vec = 
+            Addin.App.Vector3dSubtractPoint3dPoint3d(second, first);
+
+        return Addin.App.Point3dAddScaledVector3d(first, vec, 0.5);
+    }
+
+    public static double getHeight(BCOM.ConeElement cone)
+    {
+        return Addin.App.Point3dDistance(
+            cone.get_BaseCenterPoint(), cone.get_TopCenterPoint());
+    }
+
+    public static BCOM.Point3d getCenter(BCOM.ConeElement cone)
+    {
+        return getMiddlePoint(
+            cone.get_BaseCenterPoint(), cone.get_TopCenterPoint());
+    }
+
+    public static BCOM.Point3d getCenter(BCOM.Element element)
+    {
+        return getMiddlePoint(element.Range.Low,element.Range.High);
+    }
 }
 }

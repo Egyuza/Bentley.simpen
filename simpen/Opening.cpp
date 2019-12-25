@@ -72,15 +72,18 @@ Opening::Opening() {
 Opening::Opening(MSElementDescrP shapeEdP) {
     Opening();
 
-    if (shapeEdP->el.ehdr.type != SHAPE_ELM) {
+    if (!isElemContourType(shapeEdP->el.hdr.ehdr.type)) {
         return;
     }
 
     contourRef = shapeEdP->h.elementRef;
+    contourModelRef = shapeEdP->h.dgnModelRef;
+
+    // todo проверить на контурах из референсов
 
     DPoint3d points[MAX_VERTICES];
     int numVerts;
-    if (SUCCESS == mdlLinear_extract(points, &numVerts, &shapeEdP->el, ACTIVEMODEL))
+    if (SUCCESS == mdlLinear_extract(points, &numVerts, &shapeEdP->el, contourModelRef))
     {
         for (int i = 0; i < numVerts; ++i) {
             contourPoints.push_back(points[i]);
@@ -88,7 +91,6 @@ Opening::Opening(MSElementDescrP shapeEdP) {
     }
     mdlElmdscr_extractNormal(&direction, &origin, shapeEdP, NULL);
 }
-
 
 OpeningTask& Opening::getTask() {
     return OpeningTask::getInstance();
@@ -127,8 +129,8 @@ const bool Opening::isValid()
     std::set<DPoint3d> points =
         std::set<DPoint3d>(contourPoints.begin(), contourPoints.end());
 
-    return
-        points.size() > 2 && !isZero(direction);
+    return (contourRef != NULL || points.size() > 2) && !isZero(direction);
+    //return contourRef != NULL && !isZero(direction);
 }
 
 const bool isZero(DVec3dR vec)
@@ -137,6 +139,13 @@ const bool isZero(DVec3dR vec)
     mdlVec_zero(&zero);
 
     return TRUE == mdlVec_equal(&vec, &zero);
+}
+
+
+bool Opening::isElemContourType(int elType) {
+    return elType == SHAPE_ELM || 
+        elType == ELLIPSE_ELM ||
+        elType == CMPLX_SHAPE_ELM;
 }
 
 }
