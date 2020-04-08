@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<KeyinTree xmlns="http://www.bentley.com/schemas/1.0/MicroStation/AddIn/KeyinTree.xsd">
+
+    <RootKeyinTable ID="root">
+        <Keyword SubtableRef="Commands" CommandClass="MacroCommand" CommandWord="SIMPEN">
+            <Options Required="true"/>
+        </Keyword>
+    </RootKeyinTable>
+
+    <SubKeyinTables>
+        <KeyinTable ID="Commands">
+            <Keyword CommandWord="FORM" SubtableRef="Forms"/>
+            <Keyword CommandWord="PENETR" SubtableRef="Penetrations">
+                <Options Hidden="true"/>
+            </Keyword>           
+        </KeyinTable>
+
+        <KeyinTable ID="Forms">
+            <Keyword CommandWord="PENETR">
+                <!--TODO сделать видимым-->
+                <Options Hidden="true"/>
+            </Keyword>
+        </KeyinTable>
+
+        <KeyinTable ID="Penetrations">
+            <Keyword CommandWord="readData"/>
+            <Keyword CommandWord="reload"/>
+            <Keyword CommandWord="enableAddToModel"/>
+            <Keyword CommandWord="sendTaskData"/>
+            <!--<Keyword CommandWord="setdgdata"/>-->
+        </KeyinTable>
+    </SubKeyinTables>
+    
+    <KeyinHandlers>
+        <!--Запуск форм-->
+        <KeyinHandler Keyin="SIMPEN FORM PENETR" Function="simpen_cn.Keyins.Penetrations.showForm"/>
+        <!--ПРОХОДКИ-->
+        <KeyinHandler Keyin="SIMPEN PENETR readData" Function="simpen_cn.Keyins.Penetrations.readData"/>
+        <KeyinHandler Keyin="SIMPEN PENETR reload" Function="simpen_cn.Keyins.Penetrations.reload"/>
+        <KeyinHandler Keyin="SIMPEN PENETR enableAddToModel" Function="simpen_cn.Keyins.Penetrations.enableAddToModel"/>
+        <KeyinHandler Keyin="SIMPEN PENETR sendTaskData" Function="simpen_cn.Keyins.Penetrations.sendTaskData"/>
+    </KeyinHandlers>
+
+</KeyinTree>

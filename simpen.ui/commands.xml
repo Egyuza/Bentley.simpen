@@ -13,16 +13,16 @@
             <Keyword CommandWord="OPENING" SubtableRef="Openings">
                 <Options Hidden="true"/>
             </Keyword>
-            <Keyword CommandWord="PENETR" SubtableRef="Penetrations">
+            <!--<Keyword CommandWord="PENETR" SubtableRef="Penetrations">
                 <Options Hidden="true"/>
-            </Keyword>           
+            </Keyword>-->           
         </KeyinTable>
 
         <KeyinTable ID="Forms">
             <Keyword CommandWord="OPENING"/>
             <Keyword CommandWord="PENETR">
                 <!--TODO сделать видимым-->
-                <Options Hidden="true"/>
+                <!--<Options Hidden="true"/>-->
             </Keyword>
         </KeyinTable>
         
@@ -53,13 +53,13 @@
         <KeyinHandler Keyin="SIMPEN.UI OPENING reload" Function="simpen.ui.Keyins.Openings.reload"/>
         <KeyinHandler Keyin="SIMPEN.UI OPENING enableAddToModel" Function="simpen.ui.Keyins.Openings.enableAddToModel"/>
         <KeyinHandler Keyin="SIMPEN.UI OPENING sendTaskData" Function="simpen.ui.Keyins.Openings.sendTaskData"/>
-        <KeyinHandler Keyin="SIMPEN.UI OPENING setdgdata" Function="simpen.ui.Keyins.Openings.setDgData"/>
+        <!--<KeyinHandler Keyin="SIMPEN.UI OPENING setdgdata" Function="simpen.ui.Keyins.Openings.setDgData"/>-->
         
         <!--ПРОХОДКИ-->
-        <KeyinHandler Keyin="SIMPEN.UI PENETR readData" Function="simpen.ui.Keyins.Penetrations.readData"/>
+        <!--<KeyinHandler Keyin="SIMPEN.UI PENETR readData" Function="simpen.ui.Keyins.Penetrations.readData"/>
         <KeyinHandler Keyin="SIMPEN.UI PENETR reload" Function="simpen.ui.Keyins.Penetrations.reload"/>
         <KeyinHandler Keyin="SIMPEN.UI PENETR enableAddToModel" Function="simpen.ui.Keyins.Penetrations.enableAddToModel"/>
-        <KeyinHandler Keyin="SIMPEN.UI PENETR sendTaskData" Function="simpen.ui.Keyins.Penetrations.sendTaskData"/>
+        <KeyinHandler Keyin="SIMPEN.UI PENETR sendTaskData" Function="simpen.ui.Keyins.Penetrations.sendTaskData"/>-->
         <!--<KeyinHandler Keyin="SIMPEN.UI PENETR setdgdata" Function="simpen.ui.Keyins.Penetrations.setDgData"/>-->
     </KeyinHandlers>
 

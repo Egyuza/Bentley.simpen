@@ -1,18 +1,37 @@
 ﻿using System;
 using System.Collections.Generic;
 
-using Bentley.Internal.MicroStation.Elements;
-using BCOM = Bentley.Interop.MicroStationDGN;
-using Bentley.Geometry;
+using Bentley.Interop.MicroStationDGN;
 using System.Runtime.InteropServices;
 
-namespace simpen.ui
+#if V8i
+using BMI = Bentley.MicroStation.InteropServices;
+#endif
+
+#if CONNECT
+using BMI = Bentley.MstnPlatformNET.InteropServices;
+#endif
+
+namespace Shared
 {
 static class ViewHelper
 {
-    public static BCOM.View getActiveView()
+    public static IEnumerable<View> getOpenViews()
     {
-        foreach (BCOM.View view in Addin.App.ActiveDesignFile.Views)
+        var res = new List<View>();
+        foreach (View view in App.ActiveDesignFile.Views)
+        {
+            if (view.IsOpen)
+            {
+                res.Add(view);
+            }
+        }
+        return res;
+    }
+
+    public static View getActiveView()
+    {
+        foreach (View view in App.ActiveDesignFile.Views)
         {
             if (view.IsOpen && view.IsSelected)
             {
@@ -24,14 +43,8 @@ static class ViewHelper
 
     public static int getActiveViewIndex()
     {
-        foreach (BCOM.View view in Addin.App.ActiveDesignFile.Views)
-        {
-            if (view.IsOpen && view.IsSelected)
-            {
-                return view.Index;
-            }
-        }
-        return -1;
+        View activeView = getActiveView();
+        return activeView != null ? activeView.Index : -1;
     }
 
     [DllImport("stdmdlbltin.dll", CallingConvention = CallingConvention.Cdecl)]
@@ -63,15 +76,11 @@ static class ViewHelper
         public int optionPadding2;
     };
 
-    public static void zoomToElement(long elemId, int modelRefP)
+    public static void zoomToElement(Element element)
     {
-        BCOM.ModelReference modelRef =
-            Addin.App.MdlGetModelReferenceFromModelRefP(modelRefP);
+        View view = getActiveView();
 
-        BCOM.Element el = modelRef.GetElementByID(elemId);
-        BCOM.View view = getActiveView();
-
-        if (view == null || !el.IsGraphical) {
+        if (view == null || !element.IsGraphical) {
             return;
         }
 
@@ -102,30 +111,33 @@ static class ViewHelper
         
         const double zoom = 4;
         
-        BCOM.Point3d extent = 
-            Addin.App.Point3dSubtract(el.Range.High, el.Range.Low);
+        Point3d extent = 
+            App.Point3dSubtract(element.Range.High, element.Range.Low);
         
-        extent = Addin.App.Point3dScale(extent, zoom);
+        extent = App.Point3dScale(extent, zoom);
         //view.set_Origin(Addin.App.Point3dSubtract(el.Range.Low,
         //    Addin.App.Point3dScale(extent, 0.5)));
 
-        BCOM.Point3d pOrigin;
+        Point3d pOrigin;
 
         //pOrigin = Addin.App.Point3dSubtract(el.Range.Low,
         //    Addin.App.Point3dScale(extent, 0.5));
 
-        pOrigin.X = (el.Range.Low.X + el.Range.High.X) / 2;
-        pOrigin.Y = (el.Range.Low.Y + el.Range.High.Y) / 2;
-        pOrigin.Z = (el.Range.Low.Z + el.Range.High.Z) / 2;
+        pOrigin.X = (element.Range.Low.X + element.Range.High.X) / 2;
+        pOrigin.Y = (element.Range.Low.Y + element.Range.High.Y) / 2;
+        pOrigin.Z = (element.Range.Low.Z + element.Range.High.Z) / 2;
 
         view.set_Origin(pOrigin);
-        el.IsHighlighted = true;
+        element.IsHighlighted = true;
 
         view.set_Extents(extent);
         view.ZoomAboutPoint(ref pOrigin, 1.0);
 
         view.Redraw();
     }
-
+    private static Application App
+    {
+        get { return BMI.Utilities.ComApp; }
+    }
 }
 }

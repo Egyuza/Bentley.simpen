@@ -18,10 +18,10 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;V8i</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
     <UseVSHostingProcess>true</UseVSHostingProcess>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
@@ -29,7 +29,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>..\..\Distrib\ui\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;V8i</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
@@ -57,8 +57,32 @@
       <HintPath>..\..\..\..\..\..\aecosim_ss6\AECOsimBuildingDesigner\assemblies\Bentley.Building.DataGroupSystem.InstanceValueProviderWrapper.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Bentley.Building.DataGroupSystem.MicroStation.Units">
+      <HintPath>..\..\..\..\..\aecosim_ss6\AECOsimBuildingDesigner\assemblies\Bentley.Building.DataGroupSystem.MicroStation.Units.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="Bentley.Building.DataGroupSystem.Serialization">
       <HintPath>..\..\..\..\..\..\aecosim_ss6\AECOsimBuildingDesigner\assemblies\Bentley.Building.DataGroupSystem.Serialization.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Bentley.DGNECPlugin">
+      <HintPath>..\..\..\..\..\aecosim_ss6\AECOsimBuildingDesigner\assemblies\Bentley.DGNECPlugin.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Bentley.DGNECPlugin.Common">
+      <HintPath>..\..\..\..\..\aecosim_ss6\AECOsimBuildingDesigner\assemblies\Bentley.DGNECPlugin.Common.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Bentley.EC.Persistence.2.0">
+      <HintPath>..\..\..\..\..\aecosim_ss6\AECOsimBuildingDesigner\assemblies\ECFramework\Bentley.EC.Persistence.2.0.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Bentley.ECObjects.2.0">
+      <HintPath>..\..\..\..\..\aecosim_ss6\AECOsimBuildingDesigner\assemblies\ECFramework\Bentley.ECObjects.2.0.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Bentley.ECSystem.2.0">
+      <HintPath>..\..\..\..\..\aecosim_ss6\AECOsimBuildingDesigner\assemblies\ECFramework\Bentley.ECSystem.2.0.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Bentley.General.1.0">
@@ -67,10 +91,15 @@
     </Reference>
     <Reference Include="Bentley.Geometry.2.0">
       <HintPath>..\..\..\..\..\aecosim_ss6\AECOsimBuildingDesigner\assemblies\ECFramework\Bentley.Geometry.2.0.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Bentley.Geometry.Common.1.0">
+      <HintPath>..\..\..\..\..\aecosim_ss6\AECOsimBuildingDesigner\assemblies\ECFramework\Bentley.Geometry.Common.1.0.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="bentley.interop.microstationdgn">
       <HintPath>..\..\..\..\..\..\aecosim_ss6\AECOsimBuildingDesigner\assemblies\bentley.interop.microstationdgn.dll</HintPath>
-      <EmbedInteropTypes>True</EmbedInteropTypes>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
       <Private>False</Private>
     </Reference>
     <Reference Include="Bentley.Interop.TFCom">
@@ -96,6 +125,11 @@
     </Reference>
     <Reference Include="Bentley.Structural.DataGroupHelper">
       <HintPath>..\..\..\..\..\aecosim_ss6\AECOsimBuildingDesigner\assemblies\Bentley.Structural.DataGroupHelper.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Bentley.Units">
+      <HintPath>..\..\..\..\..\aecosim_ss6\AECOsimBuildingDesigner\assemblies\ECFramework\Bentley.Units.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="Bentley.Windowing">
       <HintPath>..\..\..\..\..\..\aecosim_ss6\AECOsimBuildingDesigner\assemblies\ECFramework\Bentley.Windowing.dll</HintPath>
@@ -103,6 +137,11 @@
     </Reference>
     <Reference Include="DataGroupWrapper">
       <HintPath>..\..\..\..\..\aecosim_ss6\AECOsimBuildingDesigner\assemblies\DataGroupWrapper.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="ECSchemaManager">
+      <HintPath>..\..\..\..\..\aecosim_ss6\AECOsimBuildingDesigner\assemblies\ECFramework\ECSchemaManager.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -120,8 +159,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CExpressions.cs" />
-    <Compile Include="ElementHelper.cs" />
-    <Compile Include="Extensions.cs" />
     <Compile Include="Keyins.cs" />
     <Compile Include="Addin.cs" />
     <Compile Include="PenetrForm.cs">
@@ -136,20 +173,12 @@
     <Compile Include="OpeningForm.Designer.cs">
       <DependentUpon>OpeningForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="PenetrTaskFlange.cs" />
-    <Compile Include="PenetrTask.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
-    <Compile Include="sp3d\P3DHangerStdComponent.cs" />
-    <Compile Include="sp3d\P3DHangerPipeSupport.cs" />
-    <Compile Include="sp3d\Sp3dTask.cs" />
-    <Compile Include="ViewHelper.cs" />
-    <Compile Include="WindowHelper.cs" />
-    <Compile Include="XmlSerializer.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="history.txt" />
@@ -173,6 +202,7 @@
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
+  <Import Project="..\Shared\Shared.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>
@@ -180,8 +210,10 @@
   </PropertyGroup>
   <PropertyGroup>
     <PostBuildEvent>copy /y "$(TargetDir)$(TargetFileName)" "c:\Program Files (x86)\Bentley\MicroStation V8i (SELECTseries)\MicroStation\mdlapps_oim\$(TargetFileName)"
+
 copy /y "$(TargetDir)$(TargetFileName)" "c:\aecosim_ss6\AECOsimBuildingDesigner\mdlapps_oim\$(TargetFileName)"
-</PostBuildEvent>
+
+copy /y "$(TargetDir)$(TargetFileName)" "c:\temp\pwsrv_18962556\dms03252\$(TargetFileName)"</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

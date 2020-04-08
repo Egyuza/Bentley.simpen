@@ -587,6 +587,18 @@ int char_replace(char * str, char ch1, char ch2) {
     return changes;
 }
 
+void strtrim(char* str, char trimChar = ' ') {
+	int start = 0; // number of leading spaces
+	char* buffer = str;
+	while (*str && *str++ == trimChar) ++start;
+	while (*str++); // move to end of string
+	int end = str - buffer - 1;
+	while (end > 0 && buffer[end - 1] == trimChar) --end; // backup over trailing spaces
+	buffer[end] = 0; // remove trailing spaces
+	if (end <= start || start == 0) return; // exit if no leading spaces or string is now empty
+	str = buffer + start;
+	while ((*buffer++ = *str++));  // remove leading spaces: K&R
+}
 
 //////////////////////////////////
 int userFuncNodeListIMod(XmlNodeRef node, void* sValueVoid) {
@@ -770,6 +782,8 @@ int userFuncNodeListIMod(XmlNodeRef node, void* sValueVoid) {
     if (ntype == 3 && sValue) // value
     {
         mdlCnv_convertUnicodeToMultibyte(wNodeValue, -1, sValue, 200);
+		strtrim(sValue);
+		strtrim(sValue, '\t'); // asci code = 9 = '	'
     }
 
 
@@ -2012,8 +2026,7 @@ int makePenetr(
     double dFlangeOutsideDiameter;
     double dFlangeLength;
     double dFlangeOffset;
-
-
+	
 
     dPipeDiameter = dPipeDiam;
     dPipeThickness = dPipeThick;

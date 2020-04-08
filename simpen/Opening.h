@@ -26,7 +26,7 @@ struct Opening {
     static const std::wstring CATALOG_INSTANCE_NAME;
     static const MSWCharCP LEVEL_NAME;
     static const MSWCharCP LEVEL_SYMBOL_NAME;
-	static const Symbology SYMBOLOGY;
+	static const Symbology SYMBOLOGY_BY_LEVEL;
 
     DPoint3d origin;
     DVec3d direction;

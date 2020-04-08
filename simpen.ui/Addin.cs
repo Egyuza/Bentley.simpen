@@ -14,13 +14,15 @@ internal sealed class Addin : Bentley.MicroStation.AddIn
 {
     private static Addin instance_;
     
-    private const string mdlAppName = "simpen";
+    public string Name { get { return "simpen.ui"; }}
+
+    private const string mdlRefAppName = "simpen";
     
     /// <summary> Private constructor required for all AddIn classes derived from
     /// Bentley.MicroStation.AddIn. </summary>
     private Addin( IntPtr mdlDesc ) : base(mdlDesc)
     {
-        instance_ = this;      
+        instance_ = this;
     }
     
     public static Addin Instance
@@ -33,7 +35,6 @@ internal sealed class Addin : Bentley.MicroStation.AddIn
         get { return Bentley.MicroStation.InteropServices.Utilities.ComApp; }
     }
     
-
     private static TFCOM.TFApplication _tfApp;
     public static TFCOM.TFApplication AppTF
     {
@@ -44,25 +45,23 @@ internal sealed class Addin : Bentley.MicroStation.AddIn
         }
     }
 
-
-    
     /// <summary> AddIn class must override the virtual Run() method of the base Addin class </summary>
     protected override int Run( string[] commandLine )
     {
-        App.CadInputQueue.SendCommand(string.Format("mdl load {0}", mdlAppName));
+        App.CadInputQueue.SendCommand(string.Format("mdl load {0}", mdlRefAppName));
         return 0;
     }
     
     public void sendKeyin(string command, bool likeKeyboardCommand = false)
     {
         App.CadInputQueue.SendCommand(string.Format("mdl keyin {0} {0} {1}", 
-            mdlAppName, command), likeKeyboardCommand);
+            mdlRefAppName, command), likeKeyboardCommand);
     }
     
     public object getCExpressionValue(string CExpression)
     {
-        object value = App.GetCExpressionValue(CExpression, mdlAppName);
-        return App.GetCExpressionValue(CExpression, mdlAppName);
+        object value = App.GetCExpressionValue(CExpression, mdlRefAppName);
+        return App.GetCExpressionValue(CExpression, mdlRefAppName);
     }
 
     public void setCExpressionValue(string CExpression, object newValue)
@@ -70,7 +69,7 @@ internal sealed class Addin : Bentley.MicroStation.AddIn
         if (newValue is bool)
             newValue = Convert.ToInt32(newValue);
 
-        App.SetCExpressionValue(CExpression, newValue, mdlAppName);
+        App.SetCExpressionValue(CExpression, newValue, mdlRefAppName);
     }
 
     public static string getVersion()

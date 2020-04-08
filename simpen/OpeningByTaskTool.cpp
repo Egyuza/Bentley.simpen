@@ -40,10 +40,13 @@
 #include <mswindow.fdf>
 
 #include <mscurrtr.fdf>
+#include <msrmatrx.fdf>
 
+#include <mselemen.fdf>
 
 #include <set>
 #include <vector>
+#include <map>
 
 namespace Openings
 {
@@ -76,11 +79,25 @@ void OpeningByTaskTool::updatePreview(char *unparsedP)
     OpeningByTaskTool::prevTask = OpeningTask::getInstance();
 
 	{ // ДЛЯ ОТЛАДКИ:
+		//RotMatrix rot;
+		//mdlRMatrix_getIdentity(&rot);
+
+		//for (int ii = 0; ii < 8; ++ii) {
+		//	EditElemHandle textEeh;
+		//	MSElement el;
+		//	char text[5];
+		//	sprintf(text, "%u", ii);
+		//	mdlText_create(&el, NULL, text, &toolP->taskBounds[ii], NULL, &rot, NULL, NULL);			
+		//	ToEditHandle(textEeh, el);		
+
+		//	msTransientElmP = mdlTransient_addElemDescr(msTransientElmP,
+		//		textEeh.GetElemDescrCP(), false, 0xffff, DRAW_MODE_TempDraw, TRUE, FALSE, TRUE);
+		//}
+
 		//EditElemHandle line;
-		//сreateStringLine(line, toolP->taskBounds, 8);
+		//createStringLine(line, toolP->taskBounds, 8);
 		//msTransientElmP = mdlTransient_addElemDescr(msTransientElmP,
 		//	line.GetElemDescrCP(), true, 0xffff, DRAW_MODE_TempDraw, FALSE, FALSE, TRUE);
-	
 	}
 
     if (!toolP->isValid) {
@@ -531,17 +548,26 @@ OpeningByTaskTool::BuildLocateAgenda(HitPathCP path, MstnButtonEventCP ev)
 			TFBrepFaceList* faceListP = 
 				mdlTFBrepList_getFacesByLabel(brepListP, FaceLabelEnum_Right);
 
+			//std::map<double, DPoint3d> projPts = std::map<double, DPoint3d>();
+
 			TFBrepList* brepIter = brepListP;
 			while (brepIter) {
 				MSElementDescr* faceP;
 				mdlTFBrepFaceList_getElmdscr(&faceP, faceListP, 0);
 				
-				TFBrep* brep = mdlTFBrepList_getBrep(brepIter);
+				// TFBrep* brep = mdlTFBrepList_getBrep(brepIter);
 
 				double dist;
+				//DPoint3d foundPt;
 				for (int i = 0; i < 8; ++i) {
-					dist = mdlTFBrep_findClosestPoint(brep, &taskBounds[i], &taskBounds[i]);
-					dist = dist;
+					dist = mdlTFBrepList_findClosestPoint(brepIter, 
+						&taskBounds[i], &taskBounds[i]);
+
+					//while (projPts.find(dist) != projPts.end()) {
+					//	// чтобы все точки точно попали в коллекцию,						
+					//	dist += (fc_epsilon / fc_epsilon); 
+					//}
+					//projPts[dist] = foundPt;
 				}
 
 				mdlVec_extractPolygonNormal(&planeFirst.normal, &planeFirst.origin,
@@ -554,14 +580,14 @@ OpeningByTaskTool::BuildLocateAgenda(HitPathCP path, MstnButtonEventCP ev)
 				// в случае когда поверхность стены не ломанная - след. будет NULL
 				brepIter = mdlTFBrepList_getNext(brepIter);
 			}
+
 			if (faceListP) {
 				mdlTFBrepFaceList_free(&faceListP);
 			}
 
 			mdlTFBrepList_free(&brepListP);
 		}       
-        else if (formType == TF_LINEAR_FORM_ELM || matchedInstName == L"ConcreteWalls" ||
-			formType == TF_ARC_FORM_ELM) 
+        else if (formType == TF_LINEAR_FORM_ELM || matchedInstName == L"ConcreteWalls") 
 		{
             status = getFacePlaneByLabel(planeFirst,
                 formEeh.GetElemDescrP(), FaceLabelEnum_Left);
@@ -626,94 +652,135 @@ OpeningByTaskTool::BuildLocateAgenda(HitPathCP path, MstnButtonEventCP ev)
 		EditElemHandle formEeh = EditElemHandle(formRef, ACTIVEMODEL);
 		int formType = mdlTFElmdscr_getApplicationType(formEeh.GetElemDescrP());
 		
-		if (formType == TF_ARC_FORM_ELM) {
-			facetPoints[0][0] = bnds[0];
-			facetPoints[0][1] = bnds[1];
-			facetPoints[0][2] = bnds[2];
-			facetPoints[0][3] = bnds[3];
-			
-			facetPoints[1][0] = bnds[0];
-			facetPoints[1][1] = bnds[3];
-			facetPoints[1][2] = bnds[4];
-			facetPoints[1][3] = bnds[7];
-			
-			facetPoints[2][0] = bnds[3];
-			facetPoints[2][1] = bnds[2];
-			facetPoints[2][2] = bnds[5];
-			facetPoints[2][3] = bnds[4];
+		//if (formType == TF_ARC_FORM_ELM) {
+		//	facetPoints[0][0] = bnds[0];
+		//	facetPoints[0][1] = bnds[1];
+		//	facetPoints[0][2] = bnds[2];
+		//	facetPoints[0][3] = bnds[3];
+		//	
+		//	facetPoints[1][0] = bnds[0];
+		//	facetPoints[1][1] = bnds[3];
+		//	facetPoints[1][2] = bnds[4];
+		//	facetPoints[1][3] = bnds[7];
+		//	
+		//	facetPoints[2][0] = bnds[3];
+		//	facetPoints[2][1] = bnds[2];
+		//	facetPoints[2][2] = bnds[5];
+		//	facetPoints[2][3] = bnds[4];
+		//}
+		//else {
+
+		for (int i = 0; i < 2; ++i) {
+
+			if (i == 0) {
+				if (formType == TF_ARC_FORM_ELM) {
+					facetPoints[0][0] = bnds[0];
+					facetPoints[0][1] = bnds[1];
+					facetPoints[0][2] = bnds[2];
+					facetPoints[0][3] = bnds[3];
+					
+					facetPoints[1][0] = bnds[0];
+					facetPoints[1][1] = bnds[3];
+					facetPoints[1][2] = bnds[4];
+					facetPoints[1][3] = bnds[7];
+					
+					facetPoints[2][0] = bnds[3];
+					facetPoints[2][1] = bnds[2];
+					facetPoints[2][2] = bnds[5];
+					facetPoints[2][3] = bnds[4];
+				}
+				else {
+
+					facetPoints[0][0] = bnds[0];
+					facetPoints[0][1] = bnds[1];
+					facetPoints[0][2] = bnds[6];
+					facetPoints[0][3] = bnds[7];
+
+					facetPoints[1][0] = bnds[1];
+					facetPoints[1][1] = bnds[2];
+					facetPoints[1][2] = bnds[5];
+					facetPoints[1][3] = bnds[6];
+
+					facetPoints[2][0] = bnds[4];
+					facetPoints[2][1] = bnds[5];
+					facetPoints[2][2] = bnds[6];
+					facetPoints[2][3] = bnds[7];
+
+				}
+			}
+			else {
+				facetPoints[0][0] = bnds[0];
+				facetPoints[0][1] = bnds[1];
+				facetPoints[0][2] = bnds[7];
+				facetPoints[0][3] = bnds[4];
+
+				facetPoints[1][0] = bnds[1];
+				facetPoints[1][1] = bnds[2];
+				facetPoints[1][2] = bnds[6];
+				facetPoints[1][3] = bnds[7];
+
+				facetPoints[2][0] = bnds[4];
+				facetPoints[2][1] = bnds[7];
+				facetPoints[2][2] = bnds[6];
+				facetPoints[2][3] = bnds[5];
+			}
+
+			for (int i = 0; i < 3; ++i) {
+				DPlane3d facet;
+				mdlVec_extractPolygonNormal(&facet.normal, &facet.origin,
+					facetPoints[i], 4);
+
+				if (planesAreParallel(facet, planeFirst)) {
+					DPoint3d pts[4];
+					for (int j = 0; j < 4; ++j) {
+						mdlVec_projectPointToPlane(&pts[j],
+							&facetPoints[i][j], &facet.origin, &facet.normal);
+					}
+					// опорная точка Origin:
+					mdlVec_extractPolygonNormal(NULL, &contourOrigin, pts, 4);
+					mdlVec_projectPointToPlane(&contourOrigin, &contourOrigin,
+						&planeFirst.origin, &planeFirst.normal);
+
+					{ // Высота
+						OpeningTask::getInstance().height = CExpr::convertToMaster(
+							mdlVec_distance(&pts[3], &pts[0]));
+						// вектор высоты:
+						mdlVec_subtractDPoint3dDPoint3d(&heightVec,
+							&pts[3], &pts[0]);
+					}
+					{// Ширина
+						OpeningTask::getInstance().width = CExpr::convertToMaster(
+							mdlVec_distance(&pts[1], &pts[0]));
+						// вектор ширины:
+						mdlVec_subtractDPoint3dDPoint3d(&widthVec,
+							&pts[1], &pts[0]);
+					}
+					{ // Глубина
+						DPoint3d projPoint;
+						mdlVec_projectPointToPlane(&projPoint, &contourOrigin,
+							&planeSecond.origin, &planeSecond.normal);
+
+						OpeningTask::getInstance().depth = CExpr::convertToMaster(
+							mdlVec_distance(&projPoint, &contourOrigin));
+						// вектор глубины:
+						mdlVec_subtractDPoint3dDPoint3d(&depthVec,
+							&projPoint, &contourOrigin);
+					}
+
+					isValid = true;
+					UI::readDataSynch();
+					UI::setEnableAddToModel();
+
+					break;
+				}
+			}
+
+			if (isValid) {
+				break;
+			}
 		}
-		else {
-			//	{ bnds[0], bnds[1], bnds[7], bnds[4] },
-			//	{ bnds[1], bnds[2], bnds[6], bnds[7] },
-			//	{ bnds[4], bnds[7], bnds[6], bnds[5] },
+		//}	
 
-			facetPoints[0][0] = bnds[0];
-			facetPoints[0][1] = bnds[1];
-			facetPoints[0][2] = bnds[7];
-			facetPoints[0][3] = bnds[4];
-
-			facetPoints[1][0] = bnds[1];
-			facetPoints[1][1] = bnds[2];
-			facetPoints[1][2] = bnds[6];
-			facetPoints[1][3] = bnds[7];
-
-			facetPoints[2][0] = bnds[4];
-			facetPoints[2][1] = bnds[7];
-			facetPoints[2][2] = bnds[6];
-			facetPoints[2][3] = bnds[5];
-		}
-			
-			
-
-        for (int i = 0; i < 3; ++i) {
-            DPlane3d facet;
-            mdlVec_extractPolygonNormal(&facet.normal, &facet.origin, 
-                facetPoints[i], 4);
-
-            if (planesAreParallel(facet, planeFirst)) {
-                DPoint3d pts[4];
-                for (int j = 0; j < 4; ++j) {
-                    mdlVec_projectPointToPlane(&pts[j],
-                        &facetPoints[i][j], &facet.origin, &facet.normal);
-                }
-				// опорная точка Origin:
-                mdlVec_extractPolygonNormal(NULL, &contourOrigin, pts, 4);
-                mdlVec_projectPointToPlane(&contourOrigin, &contourOrigin,
-                    &planeFirst.origin, &planeFirst.normal);
-
-                { // Высота
-                    OpeningTask::getInstance().height = CExpr::convertToMaster(
-                        mdlVec_distance(&pts[3], &pts[0]));
-					// вектор высоты:
-                    mdlVec_subtractDPoint3dDPoint3d(&heightVec,
-                        &pts[3], &pts[0]);
-                }
-                {// Ширина
-                    OpeningTask::getInstance().width = CExpr::convertToMaster(
-                        mdlVec_distance(&pts[1], &pts[0]));
-					// вектор ширины:
-                    mdlVec_subtractDPoint3dDPoint3d(&widthVec,
-                        &pts[1], &pts[0]);
-                }
-                { // Глубина
-                    DPoint3d projPoint;
-                    mdlVec_projectPointToPlane(&projPoint, &contourOrigin,
-                        &planeSecond.origin, &planeSecond.normal);
-
-                    OpeningTask::getInstance().depth = CExpr::convertToMaster(
-                        mdlVec_distance(&projPoint, &contourOrigin));
-					// вектор глубины:
-                    mdlVec_subtractDPoint3dDPoint3d(&depthVec,
-                        &projPoint, &contourOrigin);
-                }
-
-                isValid = true;
-				UI::readDataSynch();
-				UI::setEnableAddToModel();
-
-                break;
-            }
-        }
     }
 
     return eehP;

@@ -54,6 +54,11 @@ public partial class OpeningForm : Form
 
         this.Text = "Проёмы " + Addin.getVersion();
 
+        if (Keyins.Openings.DEBUG_MODE)
+        {
+            this.Text += " [DEBUG]";
+        }
+
         foreach (FieldType fieldType in Enum.GetValues(typeof(FieldType)))
         { 
             string fieldKey = 

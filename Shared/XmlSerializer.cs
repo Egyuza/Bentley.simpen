@@ -3,7 +3,7 @@ using System.IO;
 using System.Xml.Serialization;
 using System.Globalization;
 
-namespace simpen.ui
+namespace Shared
 {
 /// <summary> Класс, предоставляющий упрощённые методы для сериализации и
 /// десериализации классов в Xml формат </summary>
@@ -19,8 +19,7 @@ public static class XmlSerializer
         }
         set { _namespaces = value; }
     }
-
-
+    
     /// <summary> Десериализация из файла Xml без генерации ошибки </summary>
     /// <exception cref=
     /// "Возвращает Null в случае возникновения внутренних исключений">

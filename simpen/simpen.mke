@@ -56,6 +56,7 @@ dlmObjs = \
     $(o)OpeningHelper$(oext)  \
     $(o)Opening$(oext)  \
     $(o)ElementHelper$(oext)  \
+    $(o)ProgressBar$(oext)  \
     $(o)pipepen$(oext)  \
     $(o)$(appName)$(oext)  \
     $(mdlLibs)BentleyDgn.lib \
@@ -111,6 +112,8 @@ $(o)OpeningHelper$(oext) : $(baseDir)OpeningHelper.cpp   $(baseDir)OpeningHelper
 $(o)pipepen$(oext) : $(baseDir)pipepen.cpp   $(baseDir)pipepen.h
                  
 $(o)ElementHelper$(oext) : $(baseDir)ElementHelper.cpp   $(baseDir)ElementHelper.h
+
+$(o)ProgressBar$(oext) : $(baseDir)ProgressBar.cpp   $(baseDir)ProgressBar.h
 
 $(o)OpeningByContourTool$(oext) : $(baseDir)OpeningByContourTool.cpp   $(baseDir)OpeningByContourTool.h
 

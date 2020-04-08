@@ -1,6 +1,7 @@
 #include "ElementHelper.h"
 #include "OpeningHelper.h"
 #include "ui.h"
+#include "ProgressBar.h"
 
 #include <buildingeditelemhandle.h>
 #include <CatalogCollection.h>
@@ -48,6 +49,8 @@
 #include <mscurrtr.fdf>
 #include <msrmatrx.fdf>
 
+#include <map>
+#include <msmodel.fdf>
 
 using Bentley::Ustn::Element::EditElemHandle;
 
@@ -95,7 +98,7 @@ StatusInt computeAndAddToModel(Opening& opening,
 	const LevelID activeLevelId = tcb->activeLevel;
 	const symbology activeSymbology = tcb->symbology;
 
-	tcb->symbology = Opening::SYMBOLOGY;
+	tcb->symbology = Opening::SYMBOLOGY_BY_LEVEL;
 
 	if (SUCCESS != mdlLevel_setActiveByName(LEVEL_NULL_ID, Opening::LEVEL_NAME))
 	{
@@ -172,7 +175,7 @@ StatusInt computeAndAddToModel(Opening& opening,
                 setDataGroupInstanceValue(beeh, Opening::CATALOG_TYPE_NAME, 
 					Opening::CATALOG_INSTANCE_NAME, L"Opening/@PartCode", kksW);
 					
-				updateOpeningR(beeh.GetElemDescrP());
+				updateOpeningR(beeh.GetElemDescrP(), NULL);
 				beeh.Rewrite();
             }
 
@@ -852,9 +855,11 @@ int modifyFunc(
 }
 
 std::string updatedInfo;
+std::map<DgnModelRefP, int> updateRequiringModels;
+
 int updatedElementsCount;
 
-bool updateOpeningR(MSElementDescrP edP)
+bool updateOpeningR(MSElementDescrP edP, bool* requiredP)
 {
 	bool res = false;
 
@@ -863,23 +868,26 @@ bool updateOpeningR(MSElementDescrP edP)
 		MSElementDescrP childP = edP->h.firstElem;
 		while (childP)
 		{
-			res |= updateOpeningR(childP);
+			res |= updateOpeningR(childP, requiredP);
 			childP = childP->h.next;
 		}
 		return res;
 	}
+
+	DgnModelRefP modelRefP = edP->h.dgnModelRef;
 	
+
 	const LevelID activeLevelId = tcb->activeLevel;
 	const Symbology activeSymbology = tcb->symbology;
 
 	LevelID levelId;
-	bool isMatched = false;
+	bool isElementMatched = false;
 
 	if (edP->el.ehdr.type == CMPLX_SHAPE_ELM /*BOUNDARY*/ || 
 		edP->el.ehdr.type == LINE_ELM /*BOUNDARY*/) {
 		MSWCharCP leveName = Opening::LEVEL_NAME;
 		if (SUCCESS != mdlLevel_getIdFromName(&levelId,
-			ACTIVEMODEL, LEVEL_NULL_ID, leveName))
+			modelRefP, LEVEL_NULL_ID, leveName))
 		{
 			if (SUCCESS != mdlLevel_setActiveByName(LEVEL_NULL_ID, leveName))
 			{
@@ -887,16 +895,19 @@ bool updateOpeningR(MSElementDescrP edP)
 				sprintf(msg, "Не найден слой - <%s>", leveName);
 				mdlOutput_messageCenter(MESSAGE_WARNING, msg, msg, FALSE);
 			}
+			else {
+				mdlLevel_getIdFromName(&levelId,
+					modelRefP, LEVEL_NULL_ID, leveName);
+			}
 		}
-
-		isMatched = true;
+		isElementMatched = true;
 	}
 	else if (edP->el.ehdr.type == LINE_STRING_ELM /*CROSSES*/ ||
 			edP->el.ehdr.type == SHAPE_ELM /*PERFORATOR*/) 
 	{
 		MSWCharCP leveName = Opening::LEVEL_SYMBOL_NAME;
 		if (SUCCESS != mdlLevel_getIdFromName(&levelId,
-			ACTIVEMODEL, LEVEL_NULL_ID, leveName))
+			modelRefP, LEVEL_NULL_ID, leveName))
 		{
 			if (SUCCESS != mdlLevel_setActiveByName(LEVEL_NULL_ID, leveName))
 			{
@@ -904,17 +915,30 @@ bool updateOpeningR(MSElementDescrP edP)
 				sprintf(msg, "Не найден слой - <%s>", leveName);
 				mdlOutput_messageCenter(MESSAGE_WARNING, msg, msg, FALSE);
 			}
+			else {
+				mdlLevel_getIdFromName(&levelId,
+					modelRefP, LEVEL_NULL_ID, leveName);
+			}
 		}
-		isMatched = true;
+		isElementMatched = true;
 	}
 
-	if (isMatched) {		
+	if (isElementMatched) {		
 		if (edP->el.ehdr.level != levelId ||
-			edP->el.hdr.dhdr.symb != Opening::SYMBOLOGY) 
+			edP->el.hdr.dhdr.symb != Opening::SYMBOLOGY_BY_LEVEL) 
 		{
-			edP->el.hdr.dhdr.symb = Opening::SYMBOLOGY;
-			edP->el.ehdr.level = levelId;
-			res = true;
+			if (mdlModelRef_isReadOnly(modelRefP)) {
+				updateRequiringModels[modelRefP]++;
+
+				if (requiredP != NULL) {
+					*requiredP = true;
+				}
+			}
+			else {
+				edP->el.hdr.dhdr.symb = Opening::SYMBOLOGY_BY_LEVEL;
+				edP->el.ehdr.level = levelId;
+				res = true;
+			}
 		}
 	}
 
@@ -944,7 +968,8 @@ int scanOpenings(
 		return 0;
 	}
 
-	bool isDirty = updateOpeningR(edP);
+	bool referenceRequired = false;
+	bool isDirty = updateOpeningR(edP, &referenceRequired);
 
 	{ // check Cell.Name:
 		MSWChar name[MAX_CELLNAME_LENGTH];
@@ -957,8 +982,8 @@ int scanOpenings(
 	}
 
 	if (isDirty) {
-		EditElemHandle eeh = EditElemHandle(edP, true, false);
-		if (SUCCESS == eeh.ReplaceInModel()) {
+		EditElemHandle eeh = EditElemHandle(edP, true, false);		
+		if (!referenceRequired && SUCCESS == eeh.ReplaceInModel()) {
 			++updatedElementsCount;
 
 			char text[256];
@@ -968,6 +993,42 @@ int scanOpenings(
 	}
 
 	return 0;
+}
+
+void scanThroughAllRefsRecurse(DgnModelRefP modelRef, ScanCriteria *scP,
+	int* progressP, const int progressStep)
+{
+	mdlScanCriteria_setModel(scP, modelRef);
+	mdlScanCriteria_scan(scP, NULL, NULL, NULL);
+
+	ModelRefIteratorP iterator;
+	mdlModelRefIterator_create(&iterator, modelRef,
+		MRITERATE_PrimaryChildRefs, 0);
+
+	DgnModelRefP refModelRef;
+	while (NULL != (refModelRef = mdlModelRefIterator_getNext(iterator)))
+	{
+		*progressP += progressStep;
+		char text[256];
+		sprintf(text, "Обновление проёмов: %i%%", *progressP);
+		ProgressBar::updateStatus(text, *progressP);
+
+		scanThroughAllRefsRecurse(refModelRef, scP, progressP, progressStep);
+	}
+}
+
+void countAllRefsRecurse(DgnModelRefP modelRef, int* countOutP)
+{
+	ModelRefIteratorP iterator;
+	mdlModelRefIterator_create(&iterator, modelRef,
+		MRITERATE_PrimaryChildRefs, 0);
+
+	DgnModelRefP refModelRef;
+	while (NULL != (refModelRef = mdlModelRefIterator_getNext(iterator)))
+	{
+		(*countOutP)++;
+		countAllRefsRecurse(refModelRef, countOutP);
+	}
 }
 
 // todo Обновление всех проёмов модели
@@ -993,11 +1054,47 @@ void cmdUpdateAll(char *unparsedP)
 
 		updatedElementsCount = 0;
 		updatedInfo = "";
+		updateRequiringModels = std::map<DgnModelRefP, int>();
 
-		mdlScanCriteria_scan(scP, NULL, NULL, NULL);
+		{
+			ProgressBar::openStatus("Обновление проёмов");
+			int refsCount = 0;
+			countAllRefsRecurse(ACTIVEMODEL, &refsCount);
+
+			int step = refsCount == 0 ? 100 : 100/refsCount;
+			int currentProgress = 0;
+			scanThroughAllRefsRecurse(ACTIVEMODEL, scP, &currentProgress, step);
+
+			ProgressBar::closeStatus();
+		}
+
+
+		int openingsReqCount = 0;
+		if (updateRequiringModels.size() > 0) {
+			updatedInfo.append("\n\nМодели требующие обновления:\n");
+		}
+		for (std::map<DgnModelRefP, int>::iterator iter = updateRequiringModels.begin(); 
+			iter != updateRequiringModels.end(); iter++) 
+		{
+			std::pair<DgnModelRefP, int> pair = *iter;
+			openingsReqCount += pair.second;
+
+			char fileName[256];
+			mdlModelRef_getFileName(pair.first, fileName, 256);
+
+			MSWChar displayName[512];
+			//mdlModelRef_getModelName(pair.first, displayName);
+			mdlModelRef_getDisplayName(pair.first, displayName, 512, NULL);
+			std::wstring ws(displayName);
+
+			//updatedInfo.append(fileName);
+			updatedInfo.append(ws.begin(), ws.end());
+			updatedInfo.append("\n");
+		}
 
 		char text[256];
-		sprintf(text, "Обновлено проёмов: %i\n", updatedElementsCount);
+		sprintf(text, "Обновлено проёмов: %i\n\nТребуется обновить в ссылочных моделях: %i (моделей: %i) ", 
+			updatedElementsCount, openingsReqCount, updateRequiringModels.size());
 		updatedInfo.insert(0, text);
 
 		mdlOutput_messageCenter(MESSAGE_INFO, text, &updatedInfo[0], 
@@ -1007,6 +1104,7 @@ void cmdUpdateAll(char *unparsedP)
 	}
     mdlScanCriteria_free(scP);
 }
+
 
 
 void LocateFunc_providePathDescription

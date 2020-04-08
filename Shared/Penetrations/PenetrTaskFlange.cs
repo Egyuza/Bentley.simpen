@@ -1,20 +1,36 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 
-
-using Bentley.Internal.MicroStation;
-using Bentley.Internal.MicroStation.Elements;
-using Bentley.MicroStation.XmlInstanceApi;
 using BCOM = Bentley.Interop.MicroStationDGN;
+using TFCOM = Bentley.Interop.TFCom;
 
-namespace simpen.ui
+#if V8i
+using Bentley.Internal.MicroStation.Elements;
+using BMI = Bentley.MicroStation.InteropServices;
+#endif
+
+#if CONNECT
+using Bentley.DgnPlatformNET.Elements;
+using Bentley.MstnPlatformNET;
+using BMI = Bentley.MstnPlatformNET.InteropServices;
+#endif
+
+using Shared.sp3d;
+
+namespace Shared.Penetrations
 {
-class PenetrTaskFlange
+public class PenetrTaskFlange
 {    
+#if V8i
     public int elemRef {get; private set; }
-    public long elemId {get; private set; }
     public int modelRef {get; private set; }
+#endif
+#if CONNECT
+    public long elemRef {get; private set; }
+    public long modelRef {get; private set; }
+#endif
+
+    public long elemId {get; private set; }
     
     public int Diametr { get; set; }
 
@@ -28,21 +44,12 @@ class PenetrTaskFlange
 
     public bool isValid { get { return string.IsNullOrEmpty(ErrorText); } }
 
-
-    private PenetrTaskFlange(Element element, sp3d.Sp3dTask task)
+    private PenetrTaskFlange(BCOM.Element element, Sp3dTask task)
     {
-        BCOM.Element bcomEl = 
-        Addin.App.MdlGetModelReferenceFromModelRefP((int)element.ModelRef)
-            .GetElementByID(element.ElementID);
-        init(bcomEl, task);                      
+        init(element, task);
     }
 
-    private PenetrTaskFlange(BCOM.Element element, sp3d.Sp3dTask task)
-    {
-        init(element, task);         
-    }
-
-    private void init(BCOM.Element element, sp3d.Sp3dTask task)
+    private void init(BCOM.Element element, Sp3dTask task)
     {
         elemRef = element.MdlElementRef();
         modelRef = element.ModelReference.MdlModelRefP();
@@ -73,34 +80,16 @@ class PenetrTaskFlange
         {
             ErrorText = string.Format("Не удалость разобрать типоразмер \"{0}\"",
                 task.pipe.Description);
-        }            
-    }
-
-
-    public static bool getFromElement(Element element, out PenetrTaskFlange penTask)
-    {
-        sp3d.Sp3dTask task = null;
-        penTask = null;
-
-        if (!ElementHelper.isElementSp3dTask(
-                element.ElementID, element.ModelRef, out task) || 
-            !(task.isFlange()))
-        {
-            return false;
         }
-
-        penTask = new PenetrTaskFlange(element, task);
-        return true;        
     }
 
     public static bool getFromElement(BCOM.Element element, out PenetrTaskFlange penTask)
     {
-        sp3d.Sp3dTask task = null;
-        penTask = null;
+        Sp3dTask task = null;
+        penTask = null;        
 
-        if (!ElementHelper.isElementSp3dTask(element.ID, 
-            (IntPtr)element.ModelReference.MdlModelRefP(), out task) || 
-            !(task.isFlange()))
+        if (!ElementHelper.isElementSp3dTask(
+            ElementHelper.getElement(element), out task) || !(task.isFlange()))
         {
             return false;
         }
@@ -115,5 +104,9 @@ class PenetrTaskFlange
         Location = origin;
     }
 
+    private static BCOM.Application App
+    {
+        get { return BMI.Utilities.ComApp; }
+    }
 }
 }

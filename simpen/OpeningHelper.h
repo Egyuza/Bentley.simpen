@@ -50,7 +50,7 @@ bool isOpening(MSElementDescr* edP);
 
 void cmdUpdateAll(char *unparsedP);
 
-bool updateOpeningR(MSElementDescrP edP);
+bool updateOpeningR(MSElementDescrP edP, bool* requiredP);
 
 int scanOpenings(
 	MSElementDescr* edP,

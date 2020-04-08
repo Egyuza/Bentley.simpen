@@ -7,7 +7,16 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "simpen", "simpen\simpen.vcx
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "simpen.ui", "simpen.ui\simpen.ui.csproj", "{5EA97BCE-858D-498F-ADCF-372A9FC8DE99}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "simpen_cn", "simpen_connect\simpen_cn.csproj", "{4642F70A-ACCB-42AA-A949-3F0CF1CB5C9A}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Shared", "Shared\Shared.shproj", "{D601EECB-B677-47A3-8082-B5616CE59E48}"
+EndProject
 Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Shared\Shared.projitems*{4642f70a-accb-42aa-a949-3f0cf1cb5c9a}*SharedItemsImports = 4
+		Shared\Shared.projitems*{5ea97bce-858d-498f-adcf-372a9fc8de99}*SharedItemsImports = 4
+		Shared\Shared.projitems*{d601eecb-b677-47a3-8082-b5616ce59e48}*SharedItemsImports = 13
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|Win32 = Debug|Win32
@@ -18,18 +27,19 @@ Global
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{1C1C8D19-F586-4ED7-839F-41745AF16DAF}.Debug|Any CPU.ActiveCfg = Debug|Win32
-		{1C1C8D19-F586-4ED7-839F-41745AF16DAF}.Debug|Win32.ActiveCfg = Debug|Win32
-		{1C1C8D19-F586-4ED7-839F-41745AF16DAF}.Debug|Win32.Build.0 = Debug|Win32
-		{1C1C8D19-F586-4ED7-839F-41745AF16DAF}.Release_Debug|Any CPU.ActiveCfg = Release_Debug|Win32
-		{1C1C8D19-F586-4ED7-839F-41745AF16DAF}.Release_Debug|Win32.ActiveCfg = Release_Debug|Win32
-		{1C1C8D19-F586-4ED7-839F-41745AF16DAF}.Release_Debug|Win32.Build.0 = Release_Debug|Win32
+		{1C1C8D19-F586-4ED7-839F-41745AF16DAF}.Debug|Win32.ActiveCfg = Release|Win32
+		{1C1C8D19-F586-4ED7-839F-41745AF16DAF}.Debug|Win32.Build.0 = Release|Win32
+		{1C1C8D19-F586-4ED7-839F-41745AF16DAF}.Release_Debug|Any CPU.ActiveCfg = Release|Win32
+		{1C1C8D19-F586-4ED7-839F-41745AF16DAF}.Release_Debug|Any CPU.Build.0 = Release|Win32
+		{1C1C8D19-F586-4ED7-839F-41745AF16DAF}.Release_Debug|Win32.ActiveCfg = Release|Win32
+		{1C1C8D19-F586-4ED7-839F-41745AF16DAF}.Release_Debug|Win32.Build.0 = Release|Win32
 		{1C1C8D19-F586-4ED7-839F-41745AF16DAF}.Release|Any CPU.ActiveCfg = Release|Win32
 		{1C1C8D19-F586-4ED7-839F-41745AF16DAF}.Release|Win32.ActiveCfg = Release|Win32
 		{1C1C8D19-F586-4ED7-839F-41745AF16DAF}.Release|Win32.Build.0 = Release|Win32
 		{5EA97BCE-858D-498F-ADCF-372A9FC8DE99}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5EA97BCE-858D-498F-ADCF-372A9FC8DE99}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5EA97BCE-858D-498F-ADCF-372A9FC8DE99}.Debug|Win32.ActiveCfg = Debug|Any CPU
-		{5EA97BCE-858D-498F-ADCF-372A9FC8DE99}.Debug|Win32.Build.0 = Debug|Any CPU
+		{5EA97BCE-858D-498F-ADCF-372A9FC8DE99}.Debug|Win32.ActiveCfg = Release|Any CPU
+		{5EA97BCE-858D-498F-ADCF-372A9FC8DE99}.Debug|Win32.Build.0 = Release|Any CPU
 		{5EA97BCE-858D-498F-ADCF-372A9FC8DE99}.Release_Debug|Any CPU.ActiveCfg = Release|Any CPU
 		{5EA97BCE-858D-498F-ADCF-372A9FC8DE99}.Release_Debug|Any CPU.Build.0 = Release|Any CPU
 		{5EA97BCE-858D-498F-ADCF-372A9FC8DE99}.Release_Debug|Win32.ActiveCfg = Release|Any CPU
@@ -38,6 +48,18 @@ Global
 		{5EA97BCE-858D-498F-ADCF-372A9FC8DE99}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5EA97BCE-858D-498F-ADCF-372A9FC8DE99}.Release|Win32.ActiveCfg = Release|Any CPU
 		{5EA97BCE-858D-498F-ADCF-372A9FC8DE99}.Release|Win32.Build.0 = Release|Any CPU
+		{4642F70A-ACCB-42AA-A949-3F0CF1CB5C9A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4642F70A-ACCB-42AA-A949-3F0CF1CB5C9A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4642F70A-ACCB-42AA-A949-3F0CF1CB5C9A}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{4642F70A-ACCB-42AA-A949-3F0CF1CB5C9A}.Debug|Win32.Build.0 = Debug|Any CPU
+		{4642F70A-ACCB-42AA-A949-3F0CF1CB5C9A}.Release_Debug|Any CPU.ActiveCfg = Release|Any CPU
+		{4642F70A-ACCB-42AA-A949-3F0CF1CB5C9A}.Release_Debug|Any CPU.Build.0 = Release|Any CPU
+		{4642F70A-ACCB-42AA-A949-3F0CF1CB5C9A}.Release_Debug|Win32.ActiveCfg = Release|Any CPU
+		{4642F70A-ACCB-42AA-A949-3F0CF1CB5C9A}.Release_Debug|Win32.Build.0 = Release|Any CPU
+		{4642F70A-ACCB-42AA-A949-3F0CF1CB5C9A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4642F70A-ACCB-42AA-A949-3F0CF1CB5C9A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4642F70A-ACCB-42AA-A949-3F0CF1CB5C9A}.Release|Win32.ActiveCfg = Release|Any CPU
+		{4642F70A-ACCB-42AA-A949-3F0CF1CB5C9A}.Release|Win32.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Xml.Serialization;
 
-namespace simpen.ui.sp3d
+namespace Shared.sp3d
 {
 [Serializable]
 public class P3DHangerStdComponent

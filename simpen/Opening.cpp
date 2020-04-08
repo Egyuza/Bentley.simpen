@@ -57,7 +57,7 @@ const std::wstring Opening::CATALOG_TYPE_NAME = L"Opening";
 const std::wstring Opening::CATALOG_INSTANCE_NAME = L"Opening";
 const MSWCharCP Opening::LEVEL_NAME = L"C-OPENING-BOUNDARY";
 const  MSWCharCP Opening::LEVEL_SYMBOL_NAME = L"C-OPENING-SYMBOL";
-const Symbology Opening::SYMBOLOGY = 
+const Symbology Opening::SYMBOLOGY_BY_LEVEL = 
 	{ STYLE_BYLEVEL, WEIGHT_BYLEVEL, COLOR_BYLEVEL };
 
 

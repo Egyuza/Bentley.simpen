@@ -2,13 +2,23 @@
 using System.Windows.Forms;
 using System.Collections.Generic;
 
-namespace simpen.ui
+using BCOM = Bentley.Interop.MicroStationDGN;
+
+#if V8i
+using BMI = Bentley.MicroStation.InteropServices;
+#endif
+
+#if CONNECT
+using BMI = Bentley.MstnPlatformNET.InteropServices;
+#endif
+
+namespace Shared
 {
 internal static class WindowHelper
 {
     static Dictionary<Form, WindowContent> cache = new Dictionary<Form, WindowContent>();
 
-    internal static void show(Form form)
+    internal static void show(Form form, string id)
     {
         WindowManager winMngr = // вычислит только если Addin загружено в DefaultDomain
             WindowManager.GetForMicroStation();
@@ -27,7 +37,7 @@ internal static class WindowHelper
         }
         else
         {
-            m_window = winMngr.DockPanel(form, "simpen.ui",
+            m_window = winMngr.DockPanel(form, id,
                 form.Text, DockLocation.Floating); // здесь вызов Frm_Load  
             cache.Add(form, m_window);
 
@@ -46,12 +56,16 @@ internal static class WindowHelper
         if (cache.ContainsKey(form))
             cache.Remove(form);
     }
-
-
+    
     private static void Form_FormClosed(object sender, FormClosedEventArgs e)
     {
         close((Form)sender);
-        Addin.App.CommandState.StartDefaultCommand();
+        App.CommandState.StartDefaultCommand();
+    }
+
+    private static BCOM.Application App
+    {
+        get { return BMI.Utilities.ComApp; }
     }
 }
 }
