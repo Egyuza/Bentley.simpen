@@ -248,7 +248,6 @@ public partial class PenetrForm : Form
             cmbBx.DropDownClosed -= new EventHandler(ComboBoxCell_DropDownClosed);
             cmbBx.DropDownClosed += new EventHandler(ComboBoxCell_DropDownClosed);
         }
-
     }
 
     private void ComboBoxCell_DropDown(object sender, EventArgs e)
@@ -1134,6 +1133,5 @@ public partial class PenetrForm : Form
             // TODO решить проблему вылета при команде Modify DataGroup Instance
         }
     }
-
-}
+    }
 }

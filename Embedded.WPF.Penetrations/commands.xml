@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<KeyinTree xmlns="http://www.bentley.com/schemas/1.0/MicroStation/AddIn/KeyinTree.xsd">
+
+    <RootKeyinTable ID="root">
+        <Keyword SubtableRef="Commands" CommandClass="MacroCommand" CommandWord="EMBEDDED">
+            <Options Required="true"/>
+        </Keyword>
+    </RootKeyinTable>
+
+    <SubKeyinTables>
+        <KeyinTable ID="Commands">
+            <Keyword CommandWord="FORM" SubtableRef="Forms"/>        
+        </KeyinTable>
+
+        <KeyinTable ID="Forms">
+            <Keyword CommandWord="PENETR"/>
+        </KeyinTable>
+    </SubKeyinTables>
+    
+    <KeyinHandlers>
+        <!--Запуск форм-->
+        <KeyinHandler Keyin="EMBEDDED FORM PENETR" Function="Embedded.Penetrations.Keyins.openForm"/>        
+    </KeyinHandlers>
+
+</KeyinTree>

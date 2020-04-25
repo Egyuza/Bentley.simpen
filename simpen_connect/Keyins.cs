@@ -17,13 +17,16 @@ namespace Keyins
         // выгрузка: clr unload domain simpenDomain
         public static void showForm(string unparsed)
         {
-            if (ViewHelper.getActiveView() == null) 
-                return;
+            //if (ViewHelper.getActiveView() == null) 
+            //    return;
             
-            if (form == null || form.IsDisposed)
-                form = new PenetrForm();
+            //if (form == null || form.IsDisposed)
+            //    form = new PenetrForm();
 
-            WindowHelper.show(form, Addin.Instance.Name);
+            //WindowHelper.show(form, Addin.Instance.Name);
+
+
+            
         }
 
         public static void readData(string unparsed)

@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>a63e37c8-3403-405b-808d-ad8260d8a1c7</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>Shared.Bentley</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)BentleyInteropBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ElementHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)BentleyExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)sp3d\P3Dbase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)sp3d\P3DEquipment.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)sp3d\P3DHangerPipeSupport.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)sp3d\P3DHangerStdComponent.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)sp3d\Sp3dTask.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)WindowHelper.cs" />
+  </ItemGroup>
+</Project>

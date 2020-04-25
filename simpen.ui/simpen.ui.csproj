@@ -202,6 +202,12 @@
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Embedded.UI\Embedded.UI.csproj">
+      <Project>{2c1825d3-6bb5-4340-a921-7c8088ca5167}</Project>
+      <Name>Embedded.UI</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="..\Shared\Shared.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
@@ -209,11 +215,11 @@
     </PreBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PostBuildEvent>copy /y "$(TargetDir)$(TargetFileName)" "c:\Program Files (x86)\Bentley\MicroStation V8i (SELECTseries)\MicroStation\mdlapps_oim\$(TargetFileName)"
+    <PostBuildEvent>rem copy /y "$(TargetDir)$(TargetFileName)" "c:\Program Files (x86)\Bentley\MicroStation V8i (SELECTseries)\MicroStation\mdlapps_oim\$(TargetFileName)"
 
-copy /y "$(TargetDir)$(TargetFileName)" "c:\aecosim_ss6\AECOsimBuildingDesigner\mdlapps_oim\$(TargetFileName)"
+copy /y "$(TargetDir)*.dll" "c:\aecosim_ss6\AECOsimBuildingDesigner\assemblies\OIM\*.dll"
 
-copy /y "$(TargetDir)$(TargetFileName)" "c:\temp\pwsrv_18962556\dms03252\$(TargetFileName)"</PostBuildEvent>
+rem copy /y "$(TargetDir)$(TargetFileName)" "c:\temp\pwsrv_18962556\dms03252\$(TargetFileName)"</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

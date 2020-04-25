@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>f415c176-6c28-4570-a31d-ddd2fecec1b4</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>Embedded.Penetrations.Shared</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)DiameterType.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)PenetrationModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)PenetrationVM.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)PenetrDataSource.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)PenetrHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)PenetrInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)PenetrTask.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)PenetrTaskFlange.cs" />
+  </ItemGroup>
+</Project>

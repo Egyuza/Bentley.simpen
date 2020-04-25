@@ -1,0 +1,164 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{E3596EDD-11ED-49A9-BC77-471AA38FDCF0}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Embedded.Penetrations.C</RootNamespace>
+    <AssemblyName>Embedded.Penetrations.Cn</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;CONNECT</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Bentley.Building.Api">
+      <HintPath>..\..\..\..\Program Files\Bentley\AECOsim CONNECT Edition\AECOsimBuildingDesigner\Assemblies\Bentley.Building.Api.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Bentley.Building.DataGroupSystem">
+      <HintPath>..\..\..\..\Program Files\Bentley\AECOsim CONNECT Edition\AECOsimBuildingDesigner\Assemblies\Bentley.Building.DataGroupSystem.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Bentley.Building.DataGroupSystem.CustomTypeDescriptor">
+      <HintPath>..\..\..\..\Program Files\Bentley\AECOsim CONNECT Edition\AECOsimBuildingDesigner\Assemblies\Bentley.Building.DataGroupSystem.CustomTypeDescriptor.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Bentley.Building.DataGroupSystem.Serialization">
+      <HintPath>..\..\..\..\Program Files\Bentley\AECOsim CONNECT Edition\AECOsimBuildingDesigner\Assemblies\Bentley.Building.DataGroupSystem.Serialization.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Bentley.Building.Structural.Api">
+      <HintPath>..\..\..\..\Program Files\Bentley\AECOsim CONNECT Edition\AECOsimBuildingDesigner\Assemblies\Bentley.Building.Structural.Api.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Bentley.DgnDisplayNet">
+      <HintPath>..\..\..\..\Program Files\Bentley\AECOsim CONNECT Edition\AECOsimBuildingDesigner\Bentley.DgnDisplayNet.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Bentley.DgnPlatformNET">
+      <HintPath>..\..\..\..\Program Files\Bentley\MicroStation CONNECT Edition\MicroStation\Bentley.DgnPlatformNET.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Bentley.EC.Persistence3">
+      <HintPath>..\..\..\..\Program Files\Bentley\AECOsim CONNECT Edition\AECOsimBuildingDesigner\Assemblies\ECFramework\Bentley.EC.Persistence3.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Bentley.ECObjects.MixedMode3">
+      <HintPath>..\..\..\..\Program Files\Bentley\AECOsim CONNECT Edition\AECOsimBuildingDesigner\Assemblies\ECFramework\Bentley.ECObjects.MixedMode3.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Bentley.ECObjects3">
+      <HintPath>..\..\..\..\Program Files\Bentley\AECOsim CONNECT Edition\AECOsimBuildingDesigner\Assemblies\ECFramework\Bentley.ECObjects3.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Bentley.ECSystem3">
+      <HintPath>..\..\..\..\Program Files\Bentley\AECOsim CONNECT Edition\AECOsimBuildingDesigner\Assemblies\ECFramework\Bentley.ECSystem3.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Bentley.General.1.0">
+      <HintPath>..\..\..\..\Program Files\Bentley\AECOsim CONNECT Edition\AECOsimBuildingDesigner\Assemblies\ECFramework\Bentley.General.1.0.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Bentley.GeometryNET">
+      <HintPath>..\..\..\..\Program Files\Bentley\AECOsim CONNECT Edition\AECOsimBuildingDesigner\Bentley.GeometryNET.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Bentley.GeometryNET.Common">
+      <HintPath>..\..\..\..\Program Files\Bentley\AECOsim CONNECT Edition\AECOsimBuildingDesigner\Bentley.GeometryNET.Common.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Bentley.GeometryNET.Structs">
+      <HintPath>..\..\..\..\Program Files\Bentley\AECOsim CONNECT Edition\AECOsimBuildingDesigner\Bentley.GeometryNET.Structs.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Bentley.Interop.MicroStationDGN">
+      <HintPath>..\..\..\..\Program Files\Bentley\AECOsim CONNECT Edition\AECOsimBuildingDesigner\Assemblies\Bentley.Interop.MicroStationDGN.dll</HintPath>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Bentley.Interop.TFCom">
+      <HintPath>..\..\..\..\Program Files\Bentley\AECOsim CONNECT Edition\AECOsimBuildingDesigner\Assemblies\Bentley.Interop.TFCom.dll</HintPath>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Bentley.MicroStation">
+      <HintPath>..\..\..\..\Program Files\Bentley\AECOsim CONNECT Edition\AECOsimBuildingDesigner\Assemblies\Bentley.MicroStation.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Bentley.Platform">
+      <HintPath>..\..\..\..\Program Files\Bentley\AECOsim CONNECT Edition\AECOsimBuildingDesigner\Assemblies\ECFramework\Bentley.Platform.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Bentley.UI">
+      <HintPath>..\..\..\..\Program Files\Bentley\AECOsim CONNECT Edition\AECOsimBuildingDesigner\Assemblies\ECFramework\Bentley.UI.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Bentley.Windowing">
+      <HintPath>..\..\..\..\Program Files\Bentley\AECOsim CONNECT Edition\AECOsimBuildingDesigner\Assemblies\ECFramework\Bentley.Windowing.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="ustation">
+      <HintPath>..\..\..\..\Program Files\Bentley\AECOsim CONNECT Edition\AECOsimBuildingDesigner\ustation.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Addin.cs" />
+    <Compile Include="Keyins.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Embedded.UI\Embedded.UI.csproj">
+      <Project>{2c1825d3-6bb5-4340-a921-7c8088ca5167}</Project>
+      <Name>Embedded.UI</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="commands.xml">
+      <LogicalName>CommandTable.xml</LogicalName>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <Import Project="..\Shared\Shared.projitems" Label="Shared" />
+  <Import Project="..\Shared.Bentley\Shared.Bentley.projitems" Label="Shared" />
+  <Import Project="..\Shared.Penetrations\Shared.Penetrations.projitems" Label="Shared" />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>copy /y "$(TargetDir)*.dll" "c:\Program Files\Bentley\AECOsim CONNECT Edition\AECOsimBuildingDesigner\Assemblies\OIM\*.dll"</PostBuildEvent>
+  </PropertyGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

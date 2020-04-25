@@ -1,4 +1,5 @@
 ﻿using Shared;
+using Shared.Penetrations;
 
 namespace simpen.ui
 {
@@ -67,16 +68,8 @@ namespace Keyins
         // выгрузка: clr unload domain simpenDomain
         public static void showForm(string unparsed)
         {
-            DEBUG_MODE =
-                unparsed == null ? false : unparsed.ToUpper().Equals("DEBUG");
-
-            if (ViewHelper.getActiveView() == null) 
-                return;
-
-            if (form == null || form.IsDisposed)
-                form = new PenetrForm();
-
-            WindowHelper.show(form, Addin.Instance.Name + "::" + "Penetr");
+            //WindowHelper.show(new PenetrForm(), "pen_id");
+            PenetrationVM.getInstance(Addin.Instance, unparsed).showForm();
         }
 
         public static void readData(string unparsed)

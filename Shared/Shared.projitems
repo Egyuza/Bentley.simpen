@@ -10,26 +10,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)CustomException.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ElementHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Openings\OpeningTask.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Penetrations\DiameterType.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Penetrations\PenetrDataSource.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Penetrations\PenetrHelper.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Penetrations\PenetrInfo.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Penetrations\PenetrTask.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Penetrations\PenetrTaskFlange.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)BentleyInterop.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)sp3d\P3Dbase.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)sp3d\P3DEquipment.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)sp3d\P3DHangerPipeSupport.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)sp3d\P3DHangerStdComponent.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)sp3d\Sp3dTask.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)ViewHelper.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)WindowHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)NotifyPropertyChangedBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)XmlSerializer.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="$(MSBuildThisFileDirectory)TODO_common.txt" />
+    <Content Include="$(MSBuildThisFileDirectory)TODO.txt" />
   </ItemGroup>
 </Project>

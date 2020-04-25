@@ -1,6 +1,6 @@
-﻿namespace simpen.ui
+﻿namespace Embedded.UI
 {
-    partial class PenetrForm
+    partial class PenetrationForm
     {
         /// <summary>
         /// Required designer variable.
@@ -28,21 +28,21 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle7 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle8 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle9 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
             this.tlpSets = new System.Windows.Forms.TableLayoutPanel();
             this.dgvFields = new System.Windows.Forms.DataGridView();
             this.tlpMain = new System.Windows.Forms.TableLayoutPanel();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.label1 = new System.Windows.Forms.Label();
-            this.lblSelectedCount = new System.Windows.Forms.Label();
+            this.lblSelectionCount = new System.Windows.Forms.Label();
             this.chboxEdit = new System.Windows.Forms.CheckBox();
             this.btnPreview = new System.Windows.Forms.Button();
             this.btnAddToModel = new System.Windows.Forms.Button();
+            this.lblBreak = new System.Windows.Forms.Label();
             this.lblStatus = new System.Windows.Forms.Label();
             this.grbxTasks = new System.Windows.Forms.GroupBox();
-            this.lblBreak = new System.Windows.Forms.Label();
             this.tlpSets.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvFields)).BeginInit();
             this.tlpMain.SuspendLayout();
@@ -73,23 +73,23 @@
             this.dgvFields.BackgroundColor = System.Drawing.SystemColors.Control;
             this.dgvFields.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.dgvFields.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.Single;
-            dataGridViewCellStyle7.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle7.BackColor = System.Drawing.SystemColors.ControlLight;
-            dataGridViewCellStyle7.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            dataGridViewCellStyle7.ForeColor = System.Drawing.SystemColors.WindowText;
-            dataGridViewCellStyle7.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle7.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle7.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dgvFields.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle7;
+            dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle4.BackColor = System.Drawing.SystemColors.ControlLight;
+            dataGridViewCellStyle4.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            dataGridViewCellStyle4.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle4.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle4.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dgvFields.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle4;
             this.dgvFields.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
-            dataGridViewCellStyle8.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle8.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle8.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            dataGridViewCellStyle8.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
-            dataGridViewCellStyle8.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle8.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle8.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.dgvFields.DefaultCellStyle = dataGridViewCellStyle8;
+            dataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle5.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle5.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            dataGridViewCellStyle5.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
+            dataGridViewCellStyle5.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle5.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle5.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.dgvFields.DefaultCellStyle = dataGridViewCellStyle5;
             this.dgvFields.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgvFields.EditMode = System.Windows.Forms.DataGridViewEditMode.EditOnEnter;
             this.dgvFields.EnableHeadersVisualStyles = false;
@@ -97,20 +97,19 @@
             this.dgvFields.Margin = new System.Windows.Forms.Padding(0, 1, 0, 0);
             this.dgvFields.MultiSelect = false;
             this.dgvFields.Name = "dgvFields";
-            dataGridViewCellStyle9.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle9.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle9.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            dataGridViewCellStyle9.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle9.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle9.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dgvFields.RowHeadersDefaultCellStyle = dataGridViewCellStyle9;
+            dataGridViewCellStyle6.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle6.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle6.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            dataGridViewCellStyle6.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle6.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle6.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dgvFields.RowHeadersDefaultCellStyle = dataGridViewCellStyle6;
             this.dgvFields.RowHeadersVisible = false;
             this.dgvFields.RowTemplate.DefaultCellStyle.ForeColor = System.Drawing.Color.Black;
             this.dgvFields.RowTemplate.Height = 20;
             this.dgvFields.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvFields.Size = new System.Drawing.Size(406, 140);
             this.dgvFields.TabIndex = 2;
-            this.dgvFields.EnabledChanged += new System.EventHandler(this.dgvFields_EnabledChanged);
             // 
             // tlpMain
             // 
@@ -133,7 +132,7 @@
             this.flowLayoutPanel1.AutoSize = true;
             this.flowLayoutPanel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.flowLayoutPanel1.Controls.Add(this.label1);
-            this.flowLayoutPanel1.Controls.Add(this.lblSelectedCount);
+            this.flowLayoutPanel1.Controls.Add(this.lblSelectionCount);
             this.flowLayoutPanel1.Controls.Add(this.chboxEdit);
             this.flowLayoutPanel1.Controls.Add(this.btnPreview);
             this.flowLayoutPanel1.Controls.Add(this.btnAddToModel);
@@ -155,16 +154,16 @@
             this.label1.TabIndex = 10;
             this.label1.Text = "Выбрано:";
             // 
-            // lblSelectedCount
+            // lblSelectionCount
             // 
-            this.lblSelectedCount.AutoSize = true;
-            this.flowLayoutPanel1.SetFlowBreak(this.lblSelectedCount, true);
-            this.lblSelectedCount.Location = new System.Drawing.Point(61, 6);
-            this.lblSelectedCount.Margin = new System.Windows.Forms.Padding(0, 6, 3, 3);
-            this.lblSelectedCount.Name = "lblSelectedCount";
-            this.lblSelectedCount.Size = new System.Drawing.Size(13, 13);
-            this.lblSelectedCount.TabIndex = 11;
-            this.lblSelectedCount.Text = "0";
+            this.lblSelectionCount.AutoSize = true;
+            this.flowLayoutPanel1.SetFlowBreak(this.lblSelectionCount, true);
+            this.lblSelectionCount.Location = new System.Drawing.Point(61, 6);
+            this.lblSelectionCount.Margin = new System.Windows.Forms.Padding(0, 6, 3, 3);
+            this.lblSelectionCount.Name = "lblSelectionCount";
+            this.lblSelectionCount.Size = new System.Drawing.Size(13, 13);
+            this.lblSelectionCount.TabIndex = 11;
+            this.lblSelectionCount.Text = "0";
             // 
             // chboxEdit
             // 
@@ -205,6 +204,16 @@
             this.btnAddToModel.UseVisualStyleBackColor = true;
             this.btnAddToModel.Click += new System.EventHandler(this.btnAddToModel_Click);
             // 
+            // lblBreak
+            // 
+            this.lblBreak.AutoSize = true;
+            this.flowLayoutPanel1.SetFlowBreak(this.lblBreak, true);
+            this.lblBreak.Location = new System.Drawing.Point(165, 57);
+            this.lblBreak.Margin = new System.Windows.Forms.Padding(3, 6, 3, 0);
+            this.lblBreak.Name = "lblBreak";
+            this.lblBreak.Size = new System.Drawing.Size(0, 13);
+            this.lblBreak.TabIndex = 12;
+            // 
             // lblStatus
             // 
             this.lblStatus.Anchor = System.Windows.Forms.AnchorStyles.Left;
@@ -229,25 +238,14 @@
             this.grbxTasks.TabStop = false;
             this.grbxTasks.Text = "Задания:";
             // 
-            // lblBreak
-            // 
-            this.lblBreak.AutoSize = true;
-            this.flowLayoutPanel1.SetFlowBreak(this.lblBreak, true);
-            this.lblBreak.Location = new System.Drawing.Point(165, 57);
-            this.lblBreak.Margin = new System.Windows.Forms.Padding(3, 6, 3, 0);
-            this.lblBreak.Name = "lblBreak";
-            this.lblBreak.Size = new System.Drawing.Size(0, 13);
-            this.lblBreak.TabIndex = 12;
-            // 
-            // PenetrForm
+            // PenetrationForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(418, 271);
             this.Controls.Add(this.tlpMain);
-            this.Name = "PenetrForm";
+            this.Name = "PenetrationForm";
             this.Text = "Проходки";
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.OpeningForm_FormClosed);
             this.tlpSets.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dgvFields)).EndInit();
             this.tlpMain.ResumeLayout(false);
@@ -265,12 +263,12 @@
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
         private System.Windows.Forms.DataGridView dgvFields;
         private System.Windows.Forms.GroupBox grbxTasks;
-        public System.Windows.Forms.Button btnAddToModel;
-        public System.Windows.Forms.Button btnPreview;
+        private System.Windows.Forms.Button btnAddToModel;
+        private System.Windows.Forms.Button btnPreview;
         private System.Windows.Forms.CheckBox chboxEdit;
         private System.Windows.Forms.Label lblStatus;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Label lblSelectedCount;
+        private System.Windows.Forms.Label lblSelectionCount;
         private System.Windows.Forms.Label lblBreak;
     }
 }
