@@ -6,9 +6,11 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 
 using BCOM = Bentley.Interop.MicroStationDGN;
+using TFCOM = Bentley.Interop.TFCom;
 
 using Shared;
 using Shared.Bentley;
+using System.Diagnostics;
 
 #if V8i
 using Bentley.MicroStation;
@@ -71,10 +73,12 @@ public class PenetrationModel : NotifyPropertyChangedBase
             BCOM.MsdDrawingMode.Temporary);
     }
 
-#if V8i    
+#if V8i
+    Bentley.MicroStation.AddIn addin_;
     public PenetrationModel(Bentley.MicroStation.AddIn addin) : this()
     {
-        addin.SelectionChangedEvent += Addin_SelectionChangedEvent;
+        addin_ = addin;
+        addin_.SelectionChangedEvent += Addin_SelectionChangedEvent;
     }
 
     private void Addin_SelectionChangedEvent(
@@ -128,9 +132,11 @@ public class PenetrationModel : NotifyPropertyChangedBase
     }
 
 #elif CONNECT
+    Bentley.MstnPlatformNET.AddIn addin_;
     public PenetrationModel(Bentley.MstnPlatformNET.AddIn addin) : this()
     {
-        addin.SelectionChangedEvent += Addin_SelectionChangedEvent;
+        addin_ = addin;
+        addin_.SelectionChangedEvent += Addin_SelectionChangedEvent;
     }
 
     private void Addin_SelectionChangedEvent(
@@ -229,19 +235,71 @@ public class PenetrationModel : NotifyPropertyChangedBase
 
     public void preview()
     {
-        foreach (PenetrTask task in TaskSelection)
+        previewTranCon_.Reset();
+
+        try
         {
-            System.Windows.Forms.MessageBox.Show(task.ToString());
+            foreach (PenetrTask task in TaskSelection)
+            {
+                long diamIndex = DiameterType.Parse(task.DiameterTypeStr).number;
+                PenetrInfo penInfo = 
+                    penData_.getPenInfo(task.FlangesType, diamIndex);
+
+                TFCOM.TFFrameList frameList = 
+                    PenetrHelper.createFrameList(task, penInfo);
+
+                previewTranCon_.AppendCopyOfElement(
+                        frameList.AsTFFrame.Get3DElement());
+
+                var projList = frameList.AsTFFrame.GetProjectionList();                
+                
+                do 
+                {
+                    try
+                    {
+                        BCOM.Element projEl = null;
+                        projList.AsTFProjection.GetElement(out projEl);
+                        if(projEl != null)
+                            previewTranCon_.AppendCopyOfElement(projEl);
+                    }
+                    catch (Exception) { /* !не требует обработки  */ }               
+                } while ((projList = projList.GetNext()) != null);
+            }
+
         }
+        catch (Exception ex) // TODO
+        {
+            // ex.ShowMessage();
+        }
+       
     }
 
     public void create()
     {
+        previewTranCon_?.Reset();
         System.Windows.Forms.MessageBox.Show("TODO create");
     }
 
+    public void loadContext()
+    {
+        addin_.SelectionChangedEvent += Addin_SelectionChangedEvent;
+        previewTranCon_?.Reset();
+        selectionTranCon_?.Reset();
+    }
 
-    private PenetrDataSource penData_;
+    public void clearContext()
+    {
+        addin_.SelectionChangedEvent -= Addin_SelectionChangedEvent;
+        previewTranCon_?.Reset();
+        selectionTranCon_?.Reset();
+
+        tasks_.Clear();
+        TaskSelection.Clear();
+        TaskSelection.ResetBindings();
+        OnPropertyChanged(NP.TaskSelection);
+    }
+
+    private PenetrDataSource penData_; // TODO переименовать
 
     private Dictionary<IntPtr, PenetrTask> tasks_ = 
         new Dictionary<IntPtr, PenetrTask>();

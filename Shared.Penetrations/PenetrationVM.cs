@@ -24,8 +24,9 @@ public class PenetrationVM
         isDebugMode_ = unparsed == null ? 
             false : unparsed.Equals("DEBUG", StringComparison.OrdinalIgnoreCase);
 
-        return instance_ ?? (instance_ =
-            new PenetrationVM(new PenetrationModel(addin)));
+        instance_ = instance_ ?? new PenetrationVM(new PenetrationModel(addin));
+        instance_.loadContext();
+        return instance_;
     }
 #elif CONNECT
     private static Bentley.MstnPlatformNET.AddIn addin_;
@@ -36,10 +37,16 @@ public class PenetrationVM
         isDebugMode_ = unparsed == null ? 
             false : unparsed.Equals("DEBUG", StringComparison.OrdinalIgnoreCase);
 
-        return instance_ ?? (instance_ =
-            new PenetrationVM(new PenetrationModel(addin)));
+        instance_ = instance_ ?? new PenetrationVM(new PenetrationModel(addin));
+        instance_.loadContext();
+        return instance_;
     }
 #endif
+
+    public void loadContext()
+    {
+        penModel_.loadContext();
+    }
 
     private PenetrationVM(PenetrationModel model)
     {
@@ -85,6 +92,7 @@ public class PenetrationVM
         form_.setDataRowsAddedAction(rowsAdded);
         form_.setPreviewAction(penModel_.preview);
         form_.setCreateAction(penModel_.create);
+        form_.setOnCloseFormAction (penModel_.clearContext);
     }
 
     private void rowsAdded(IEnumerable<DataGridViewRow> rows)

@@ -11,6 +11,7 @@ public partial class PenetrationForm : Form
 {
     public delegate void PreviewAction();
     public delegate void CreateAction();
+    public delegate void OnCloseFormAction();
     public delegate void DataRowsAddedAction(IEnumerable<DataGridViewRow> rows);
 
     //enum ModeEnum
@@ -131,6 +132,10 @@ public partial class PenetrationForm : Form
         dataRowsAddedAction_ = action;
     }
 
+    public void setOnCloseFormAction(OnCloseFormAction action)
+    {
+        onCloseFormAction_ = action;
+    }
 
     private void DgvFields_DataError(object sender, DataGridViewDataErrorEventArgs e)
     {
@@ -160,9 +165,14 @@ public partial class PenetrationForm : Form
         createAction_?.Invoke();
     }
 
+    private void PenetrationForm_FormClosed(object sender, FormClosedEventArgs e)
+    {
+        onCloseFormAction_?.Invoke();
+    }
+
     private PreviewAction previewAction_;
     private CreateAction createAction_;
+    private OnCloseFormAction onCloseFormAction_;
     private DataRowsAddedAction dataRowsAddedAction_;
-
 }
 }

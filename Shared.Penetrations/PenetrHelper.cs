@@ -63,7 +63,30 @@ public class PenetrHelper : BentleyInteropBase
     //}    
 
 
-    public static TFCOM.TFFrameList createFrameList(
+    public static TFCOM.TFFrameList createFrameList(PenetrTask task, PenetrInfo penInfo)
+    {
+        BCOM.Level level = ElementHelper.getOrCreateLevel(PenetrTask.LEVEL_NAME);
+        BCOM.Level levelSymb = 
+            ElementHelper.getOrCreateLevel(PenetrTask.LEVEL_SYMB_NAME);
+        BCOM.Level levelRefPoint = 
+            ElementHelper.getOrCreateLevel(PenetrTask.LEVEL_POINT_NAME);
+
+        long diamIndex = DiameterType.Parse(task.DiameterTypeStr).number;  
+        //PenetrInfo penInfo = penData.getPenInfo(task.FlangesType, diamIndex); 
+
+        TFCOM.TFFrameList frameList =
+            PenetrHelper.createFrameList(task, penInfo, level);
+
+        PenetrHelper.addProjection(ref frameList, 
+            task, penInfo, levelSymb, levelRefPoint);
+
+        // TODO видимость контура перфоратора можно в конфиг. переменную
+        PenetrHelper.addPerforator(ref frameList, task, penInfo, levelSymb, false);
+
+        return frameList;
+    }
+
+    private static TFCOM.TFFrameList createFrameList(
         PenetrTask task, PenetrInfo penInfo, BCOM.Level level)
     {
         task.scanInfo();
@@ -170,6 +193,7 @@ public class PenetrHelper : BentleyInteropBase
         frameList.AsTFFrame.SetName("Penetration"); // ранее было 'EmbeddedPart'
         return frameList;
     }
+
 
     public static void addProjection (ref TFCOM.TFFrameList frameList, 
         PenetrTask task, PenetrInfo penInfo, 

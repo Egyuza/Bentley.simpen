@@ -784,7 +784,7 @@ public class PenetrTask
     }
 
     private static TFCOM.TFApplication _tfApp;
-    public static TFCOM.TFApplication AppTF
+    private static TFCOM.TFApplication AppTF
     {
         get
         {

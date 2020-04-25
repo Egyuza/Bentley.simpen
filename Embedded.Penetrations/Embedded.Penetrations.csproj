@@ -119,7 +119,7 @@
   <Import Project="..\Shared\Shared.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy /y "$(TargetDir)*.dll" "c:\aec osim_ss6\AECOsimBuildingDesigner\assemblies\OIM\*.dll"</PostBuildEvent>
+    <PostBuildEvent>copy /y "$(TargetDir)*.dll" "c:\aecosim_ss6\AECOsimBuildingDesigner\assemblies\OIM\*"</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
