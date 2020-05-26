@@ -1068,7 +1068,6 @@ void cmdUpdateAll(char *unparsedP)
 			ProgressBar::closeStatus();
 		}
 
-
 		int openingsReqCount = 0;
 		if (updateRequiringModels.size() > 0) {
 			updatedInfo.append("\n\nМодели требующие обновления:\n");

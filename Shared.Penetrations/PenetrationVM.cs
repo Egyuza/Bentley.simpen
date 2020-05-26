@@ -53,6 +53,8 @@ public class PenetrationVM
         penModel_ = model;
         penModel_.PropertyChanged += PenModel__PropertyChanged;
 
+        updateModel_ = new UpdateModel();
+
         initializeForm();
     }
 
@@ -85,7 +87,7 @@ public class PenetrationVM
 
         form_.setColumns(getColumns_());
 
-        form_.setDataSource(penModel_.TaskSelection);
+        form_.setDataSource_Create(penModel_.TaskSelection);
         form_.setBinding("lblSelectionCount", "Text",
             penModel_, PenetrationModel.NP.SelectionCount);
 
@@ -93,6 +95,10 @@ public class PenetrationVM
         form_.setPreviewAction(penModel_.preview);
         form_.setCreateAction(penModel_.addToModel);
         form_.setOnCloseFormAction (penModel_.clearContext);
+
+        form_.setScanForUpdateAction(updateModel_.scanForUpdate);
+        form_.setUpdateAction(updateModel_.update);
+
     }
 
     private void rowsAdded(IEnumerable<DataGridViewRow> rows)
@@ -174,6 +180,7 @@ public class PenetrationVM
     }
 
     private PenetrationModel penModel_;
+    private UpdateModel updateModel_;
     private PenetrationForm form_;
 
 }

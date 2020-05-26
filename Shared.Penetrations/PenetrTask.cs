@@ -639,6 +639,9 @@ public class PenetrTask : BentleyInteropBase
     /// </summary>
     public const double FLANGE_SHIFT = 1.0; // TODO можно ли сделать мешьше - 0.02
 
+    public const string CELL_NAME = "Penetration";
+    public const string CELL_NAME_OLD = "EmbeddedPart";
+
     public const string DG_CATALOG_TYPE = "EmbeddedPart";
     public const string DG_CATALOG_INSTANCE = "Embedded Part";
     public const string DG_SCHEMA_NAME = "EmbPart";

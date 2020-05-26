@@ -202,7 +202,7 @@ public static class PenetrHelper
             frameList.AsTFFrame.Add3DElement(elem);
         }
 
-        frameList.AsTFFrame.SetName("Penetration"); // ранее было 'EmbeddedPart'
+        frameList.AsTFFrame.SetName(PenetrTask.CELL_NAME); // ранее было 'EmbeddedPart'
         return frameList;
     }
 

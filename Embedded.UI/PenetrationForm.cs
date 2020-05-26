@@ -13,23 +13,10 @@ public partial class PenetrationForm : Form
 {
     public delegate void PreviewAction();
     public delegate void CreateAction();
+    public delegate void ScanForUpdateAction();
+    public delegate void UpdateAction();
     public delegate void OnCloseFormAction();
     public delegate void DataRowsAddedAction(IEnumerable<DataGridViewRow> rows);
-
-    //enum ModeEnum
-    //{
-    //    Single,
-    //    Multiple
-    //}
-
-    //enum FieldType
-    //{
-    //    FLANGES,
-    //    DIAMETR,
-    //    LENGTH,
-    //    KKS,
-    //    DESCRIPTION
-    //}
 
     static Properties.Settings Sets => Properties.Settings.Default;
 
@@ -39,13 +26,22 @@ public partial class PenetrationForm : Form
     {        
         InitializeComponent();
 
-        dgvFields.AutoGenerateColumns = false;
-        dgvFields.EnableHeadersVisualStyles = false;
-        dgvFields.Columns.Clear();
-        dgvFields.AutoSize = false;
+        { // ПОСТРОЕНИЕ:
+            dgvCreate.AutoGenerateColumns = false;
+            dgvCreate.EnableHeadersVisualStyles = false;
+            dgvCreate.Columns.Clear();
+            dgvCreate.AutoSize = false;
 
-        dgvFields.RowsAdded += DgvFields_RowsAdded;
-        dgvFields.DataError += DgvFields_DataError;
+            dgvCreate.RowsAdded += DgvFields_RowsAdded;
+            dgvCreate.DataError += DgvFields_DataError;
+        }
+
+        { // ОБНОВЛЕНИЕ:
+            dgvUpdate.AutoGenerateColumns = false;
+            dgvUpdate.EnableHeadersVisualStyles = false;
+            dgvUpdate.Columns.Clear();
+            dgvUpdate.AutoSize = false;
+        }
 
         { // TODO восстанавливаем сохранённые настройки:
             
@@ -60,20 +56,19 @@ public partial class PenetrationForm : Form
             {
                 column.CellTemplate.Style.BackColor = readonlyColor;
             }
-            dgvFields.Columns.Add(column);
+            dgvCreate.Columns.Add(column);
         } 
     }
 
-    public void setDataSource(IBindingList bindList)
+    public void setDataSource_Create(IBindingList bindList)
     {
-        dgvFields.DataSource = new BindingSource(bindList, null);
+        dgvCreate.DataSource = new BindingSource(bindList, null);
     }
 
-    //public void setCountBinding(object source, string dataMember)
-    //{
-    //    lblSelectedCount.DataBindings.Clear();
-    //    lblSelectedCount.DataBindings.Add(new Binding("Text", source, dataMember));
-    //}
+    public void setDataSource_Update(IBindingList bindList)
+    {
+        dgvUpdate.DataSource = new BindingSource(bindList, null);
+    }
 
     public void setBinding(string controlName, string controlProperty,
         object dataSource, string dataMember)
@@ -116,7 +111,7 @@ public partial class PenetrationForm : Form
     {
         btnAddToModel.Visible = 
         btnAddToModel.Enabled = false;
-        dgvFields.ReadOnly = true;
+        dgvCreate.ReadOnly = true;
     }
 
     public void setPreviewAction(PreviewAction action)
@@ -127,6 +122,16 @@ public partial class PenetrationForm : Form
     public void setCreateAction(CreateAction action)
     {
         createAction_ = action;
+    }
+
+    public void setScanForUpdateAction(ScanForUpdateAction action)
+    {
+        scanForUpdateAction_ = action;
+    }
+
+    public void setUpdateAction(UpdateAction action)
+    {
+        updateAction_ = action;
     }
 
     public void setDataRowsAddedAction(DataRowsAddedAction action)
@@ -152,7 +157,7 @@ public partial class PenetrationForm : Form
         var rows = new List<DataGridViewRow>();
         for (int i = e.RowIndex; i < e.RowIndex + e.RowCount; ++i)
         {
-            rows.Add(dgvFields.Rows[i]);
+            rows.Add(dgvCreate.Rows[i]);
         }
         dataRowsAddedAction_?.Invoke(rows);
     }
@@ -181,6 +186,24 @@ public partial class PenetrationForm : Form
         }
     }
 
+    private void btnScan_Click(object sender, EventArgs e)
+    {
+        InvokeSafe(scanForUpdateAction_);
+    }
+
+    private void InvokeSafe(Delegate action)
+    {
+        try
+        {
+            action?.DynamicInvoke();
+        }
+        catch (Exception ex)
+        {
+            ex.ShowMessage();
+        }
+    }
+
+
     private void PenetrationForm_FormClosed(object sender, FormClosedEventArgs e)
     {
         onCloseFormAction_?.Invoke();
@@ -188,7 +211,11 @@ public partial class PenetrationForm : Form
 
     private PreviewAction previewAction_;
     private CreateAction createAction_;
+    private ScanForUpdateAction scanForUpdateAction_;
+    private UpdateAction updateAction_;
     private OnCloseFormAction onCloseFormAction_;
     private DataRowsAddedAction dataRowsAddedAction_;
+
+
 }
 }

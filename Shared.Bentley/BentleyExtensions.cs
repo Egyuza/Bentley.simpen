@@ -30,7 +30,6 @@ public static class BentleyExtensions
 
 
 #if V8i
-
     public static bool IsAttachmentOf(this BCOM.ModelReference model, 
         BCOM.ModelReference owner)
     {
@@ -41,9 +40,8 @@ public static class BentleyExtensions
         }
         return false;
     }
-#endif
 
-#if CONNECT
+#elif CONNECT
     public static DPoint3d ToDPoint(this BCOM.Point3d pt)
     {
         return DPoint3d.FromXYZ(pt.X, pt.Y, pt.Z);

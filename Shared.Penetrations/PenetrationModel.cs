@@ -458,14 +458,6 @@ private static void setDataGroupInstance(
         }
     }
 
-
-
-
-
-
-
-
-
     private PenetrDataSource penData_; // TODO переименовать
 
     private Dictionary<IntPtr, PenetrTask> tasks_ = 
