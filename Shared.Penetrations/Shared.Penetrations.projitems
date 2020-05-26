@@ -9,6 +9,7 @@
     <Import_RootNamespace>Embedded.Penetrations.Shared</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)AssemblyVersion.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DiameterType.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PenetrationModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PenetrationVM.cs" />

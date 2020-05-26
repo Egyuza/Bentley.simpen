@@ -12,11 +12,14 @@
     <Compile Include="$(MSBuildThisFileDirectory)BentleyInteropBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ElementHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)BentleyExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)RoundTool.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)sp3d\P3Dbase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)sp3d\P3DEquipment.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)sp3d\P3DHangerPipeSupport.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)sp3d\P3DHangerStdComponent.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)sp3d\Sp3dTask.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TFFormTypeEnum.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)UOR.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)WindowHelper.cs" />
   </ItemGroup>

@@ -33,6 +33,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -41,8 +43,24 @@
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="UIAutomationProvider" />
+    <Reference Include="WindowsBase" />
+    <Reference Include="WindowsFormsIntegration" />
+    <Reference Include="WPFToolkit">
+      <HintPath>..\..\..\..\Program Files (x86)\Bentley\AECOsimBuildingDesigner V8i Ss6\AECOsimBuildingDesigner\assemblies\WPFToolkit.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Xceed.Wpf.Toolkit">
+      <HintPath>..\..\..\..\Program Files (x86)\Bentley\AECOsimBuildingDesigner V8i Ss6\AECOsimBuildingDesigner\assemblies\Xceed.Wpf.Toolkit.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="TestFormWPF.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="TestFormWPF.Designer.cs">
+      <DependentUpon>TestFormWPF.cs</DependentUpon>
+    </Compile>
     <Compile Include="PenetrationForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -55,8 +73,14 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Include="PenetrView.xaml.cs">
+      <DependentUpon>PenetrView.xaml</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="TestFormWPF.resx">
+      <DependentUpon>TestFormWPF.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="PenetrationForm.resx">
       <DependentUpon>PenetrationForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -67,6 +91,19 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <Page Include="PenetrView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Embedded.WPF.Penetrations\Embedded.WPF.Penetrations.csproj">
+      <Project>{74F11097-7855-4AD4-BCF2-DA75B57F90E7}</Project>
+      <Name>Embedded.WPF.Penetrations</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="..\Shared\Shared.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

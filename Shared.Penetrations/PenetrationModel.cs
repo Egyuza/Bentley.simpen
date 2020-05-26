@@ -10,7 +10,9 @@ using TFCOM = Bentley.Interop.TFCom;
 
 using Shared;
 using Shared.Bentley;
-using System.Diagnostics;
+
+using Bentley.Building.DataGroupSystem.Serialization;
+using Bentley.Building.DataGroupSystem;
 
 #if V8i
 using Bentley.MicroStation;
@@ -18,10 +20,10 @@ using Bentley.Internal.MicroStation.Elements;
 using BMI = Bentley.MicroStation.InteropServices;
 
 #elif CONNECT
+using BMI = Bentley.MstnPlatformNET.InteropServices;
 using Bentley.DgnPlatformNET;
 using Bentley.DgnPlatformNET.Elements;
 using Bentley.MstnPlatformNET;
-using BMI = Bentley.MstnPlatformNET.InteropServices;
 
 #endif
 
@@ -142,10 +144,6 @@ public class PenetrationModel : NotifyPropertyChangedBase
     private void Addin_SelectionChangedEvent(
         AddIn sender, AddIn.SelectionChangedEventArgs eventArgs)
     {
- // Element element = null;
-        // Session.Instance.StartUndoGroup();
-        // Session.Instance.EndUndoGroup();
-        
         Dictionary<IntPtr, Element> selectionSet = new Dictionary<IntPtr, Element>();
         uint nums = SelectionSetManager.NumSelected();
         for (uint i = 0; i < nums; ++i)
@@ -180,6 +178,7 @@ public class PenetrationModel : NotifyPropertyChangedBase
                         tasks_.Remove(ptr);
                     }
                 }
+
                 // add new
                 foreach (Element element in selectionSet.Values)
                 {
@@ -241,19 +240,29 @@ public class PenetrationModel : NotifyPropertyChangedBase
         {
             foreach (PenetrTask task in TaskSelection)
             {
-                long diamIndex = DiameterType.Parse(task.DiameterTypeStr).number;
-                PenetrInfo penInfo = 
-                    penData_.getPenInfo(task.FlangesType, diamIndex);
+                PenetrInfo penInfo = penData_.getPenInfo(
+                    task.FlangesType, task.DiameterType.Number);
+                
+        //#if DEBUG
+        //        var cylinder = 
+        //            PenetrHelper.getPenElementWithoutFlanges(task, penInfo);
+
+        //        previewTranCon_.AppendCopyOfElement(cylinder);
+        //        continue;
+        //#endif
 
                 TFCOM.TFFrameList frameList = 
-                    PenetrHelper.createFrameList(task, penInfo);
-
+                    PenetrHelper.createFrameList(task, penInfo, PenetrTask.LevelMain);
+                
                 previewTranCon_.AppendCopyOfElement(
                         frameList.AsTFFrame.Get3DElement());
 
-                var projList = frameList.AsTFFrame.GetProjectionList();                
+                var projList = frameList.AsTFFrame.GetProjectionList();
                 
-                do 
+                if (projList == null) 
+                    continue;
+
+                do
                 {
                     try
                     {
@@ -271,13 +280,106 @@ public class PenetrationModel : NotifyPropertyChangedBase
         {
             // ex.ShowMessage();
         }
-       
     }
 
-    public void create()
+
+    public void addToModel()
     {
         previewTranCon_?.Reset();
-        System.Windows.Forms.MessageBox.Show("TODO create");
+
+        var activeSets = App.ActiveSettings;
+
+        BCOM.Level activeLevel = activeSets.Level;
+        BCOM.LineStyle activeLineStyle = activeSets.LineStyle;
+        int activeLineWeight = activeSets.LineWeight;
+        int activeColor = activeSets.Color;
+
+        var activeModel = App.ActiveModelReference;
+        try
+        {
+            foreach (PenetrTask task in TaskSelection)
+            {
+                PenetrInfo penInfo = penData_.getPenInfo(
+                    task.FlangesType, task.DiameterType.Number);
+
+                
+                if (!checkForIntersects(task, penInfo)) 
+                {   // ПРОВЕРКА НА ПЕРЕСЕЧЕНИЕ!
+                    task.Warnings.Add("Пересечение с другими закладными");
+                    System.Windows.Forms.MessageBox.Show("Пересечение с другими закладными");
+                    continue;
+                }
+
+                TFCOM.TFFrameListClass frameList = 
+                    PenetrHelper.createFrameList(task, penInfo, PenetrTask.LevelMain);
+                
+                PenetrHelper.addProjection(frameList, task, penInfo);
+
+                // TODO видимость контура перфоратора можно в конфиг. переменную
+                PenetrHelper.addPerforator(frameList, 
+                    task, penInfo, PenetrTask.LevelSymb, false);
+
+                PenetrHelper.applyPerforatorInModel(frameList);
+
+                PenetrHelper.addToModel(frameList);
+                
+                BCOM.Element bcomElem;
+                frameList.GetElement(out bcomElem);   
+
+                setDataGroupInstance(bcomElem, task);
+            }
+        }
+        catch (Exception ex)
+        {
+            ex.ShowMessage();
+        }
+        finally
+        {
+            activeSets.Level = activeLevel;
+            activeSets.LineStyle = activeLineStyle;
+            activeSets.LineWeight = activeLineWeight;
+            activeSets.Color = activeColor;
+        }
+    }
+
+
+    /// <summary>
+    /// Проверка на пересечения с другими закладными элементами
+    /// </summary>
+    private bool checkForIntersects(PenetrTask task, PenetrInfo penInfo)
+    {
+        task.scanInfo();
+
+        BCOM.Element penElement = 
+            PenetrHelper.getPenElementWithoutFlanges(task, penInfo);
+
+        IEnumerable<BCOM.Element> intersects =
+            ElementHelper.scanIntersectsInElementRange(penElement,
+                App.ActiveModelReference);
+                    
+        foreach (BCOM.Element intersection in intersects)
+        {
+            if (intersection.IsCompundCell())            
+                return false;            
+        }
+        return true;
+
+        /* // может пригодится:
+         * // Поиск фланцев:
+            foreach (Element element in selectionSet.Values)
+            {
+                if (!element.getElementCOM().IsCellElement())
+                    continue;
+                    
+                var cell = element.getElementCOM().AsCellElement();
+
+                foreach(var solid in cell.getSubElementsRecurse<BCOM.SmartSolidElement>())
+                {
+                    double volume = solid.ComputeVolume();
+                    ;
+                }
+            }         
+         */
     }
 
     public void loadContext()
@@ -299,6 +401,71 @@ public class PenetrationModel : NotifyPropertyChangedBase
         OnPropertyChanged(NP.TaskSelection);
     }
 
+
+private static void setDataGroupInstance(
+        BCOM.Element bcomElement, PenetrTask task)
+    {
+        Element element = ElementHelper.getElement(bcomElement);
+        if (element == null)
+            return;
+        
+        var schemas = DataGroupDocument.Instance.CatalogSchemas.Schemas;
+
+        using (var catalogEditHandle = new CatalogEditHandle(element, true, true))
+        {
+            if (catalogEditHandle == null || 
+                catalogEditHandle.CatalogInstanceName != null)
+            {
+                return;
+            }
+
+            catalogEditHandle.InsertDataGroupCatalogInstance("EmbeddedPart", "Embedded Part");
+            catalogEditHandle.UpdateInstanceDataDefaults();
+            
+            DataGroupProperty code = null;
+            DataGroupProperty name = null;
+
+            foreach (DataGroupProperty property in catalogEditHandle.GetProperties())
+            {
+                if (property?.Xpath == "EmbPart/@PartCode") 
+                    code = property;
+                else if (property?.Xpath == "EmbPart/@CatalogName")
+                    name = property;
+            }
+
+            if (code != null)
+                catalogEditHandle.SetValue(code, task.Code);
+            else {
+                code = new DataGroupProperty("PartCode", task.Code, false, true);
+                //code.SchemaName = "EmbPart";
+                code.Xpath = "EmbPart/@PartCode";
+                catalogEditHandle.Properties.Add(code);
+            }
+            catalogEditHandle.SetValue(code, task.Code);
+
+            if (name != null)
+                catalogEditHandle.SetValue(name, task.Name);
+            else {
+                name = new DataGroupProperty("CatalogName", task.Name, false, true);
+                //name.SchemaName = "EmbPart";
+                name.Xpath = "EmbPart/@CatalogName";
+                catalogEditHandle.Properties.Add(name);
+            }
+            catalogEditHandle.SetValue(name, task.Name);
+            catalogEditHandle.Rewrite((int)BCOM.MsdDrawingMode.Normal);
+
+            // TODO решить проблему вылета при команде Modify DataGroup Instance
+        }
+    }
+
+
+
+
+
+
+
+
+
     private PenetrDataSource penData_; // TODO переименовать
 
     private Dictionary<IntPtr, PenetrTask> tasks_ = 
@@ -308,5 +475,21 @@ public class PenetrationModel : NotifyPropertyChangedBase
     private BCOM.TransientElementContainer previewTranCon_;
 
     private static BCOM.Application App => BMI.Utilities.ComApp;
+
+    private static TFCOM.TFApplication appTF_;
+    private static TFCOM.TFApplication AppTF => 
+        appTF_ ?? (appTF_ = new TFCOM.TFApplicationList().TFApplication);
+
+    // TODO для ОТЛАДКИ:
+    //XmlInstanceSchemaManager modelSchema =
+    //        new XmlInstanceSchemaManager((IntPtr)newElement.ModelReference.MdlModelRefP());
+        
+    //    XmlInstanceApi api = XmlInstanceApi.CreateApi(modelSchema);
+    //    IList<string> instances = api.ReadInstances((IntPtr)newElement.MdlElementRef());
+
+    //    foreach (string inst in instances)
+    //    {
+    //        string instId = XmlInstanceApi.GetInstanceIdFromXmlInstance(inst);   
+    //    }
 }
 }

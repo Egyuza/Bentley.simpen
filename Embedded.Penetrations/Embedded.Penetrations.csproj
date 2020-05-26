@@ -35,6 +35,9 @@
       <HintPath>..\..\..\..\Program Files (x86)\Bentley\AECOsimBuildingDesigner V8i Ss6\AECOsimBuildingDesigner\assemblies\Bentley.Building.DataGroupSystem.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Bentley.Building.DataGroupSystem.CustomTypeDescriptor">
+      <HintPath>..\..\..\..\Program Files (x86)\Bentley\AECOsimBuildingDesigner V8i Ss6\AECOsimBuildingDesigner\assemblies\Bentley.Building.DataGroupSystem.CustomTypeDescriptor.dll</HintPath>
+    </Reference>
     <Reference Include="Bentley.Building.DataGroupSystem.Serialization">
       <HintPath>..\..\..\..\Program Files (x86)\Bentley\AECOsimBuildingDesigner V8i Ss6\AECOsimBuildingDesigner\assemblies\Bentley.Building.DataGroupSystem.Serialization.dll</HintPath>
       <Private>False</Private>

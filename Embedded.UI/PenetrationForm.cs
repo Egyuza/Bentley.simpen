@@ -4,6 +4,8 @@ using System.Windows.Forms;
 using System.Collections.Generic;
 using System.ComponentModel;
 
+using Shared;
+
 namespace Embedded.UI
 {
 
@@ -157,12 +159,26 @@ public partial class PenetrationForm : Form
 
     private void btnPreview_Click(object sender, EventArgs e)
     {
-        previewAction_?.Invoke();
+        try
+        {
+            previewAction_?.Invoke();
+        }
+        catch (Exception ex)
+        {
+            ex.ShowMessage();
+        }        
     }
 
     private void btnAddToModel_Click(object sender, EventArgs e)
     {
-        createAction_?.Invoke();
+        try
+        {
+            createAction_?.Invoke();
+        }
+        catch (Exception ex)
+        {
+            ex.ShowMessage();
+        }
     }
 
     private void PenetrationForm_FormClosed(object sender, FormClosedEventArgs e)

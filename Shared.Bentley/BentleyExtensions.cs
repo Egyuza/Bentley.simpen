@@ -2,24 +2,45 @@
 using System.Collections.Generic;
 using System.Windows.Forms;
 using BCOM = Bentley.Interop.MicroStationDGN;
+using TFCOM = Bentley.Interop.TFCom;
 
 #if V8i
 using BMI = Bentley.MicroStation.InteropServices;
+using Bentley.Internal.MicroStation.Elements;
 #endif
 
 #if CONNECT
 using Bentley.DgnPlatformNET;
 using Bentley.GeometryNET;
 using BMI = Bentley.MstnPlatformNET.InteropServices;
+using Bentley.DgnPlatformNET.Elements;
+using Bentley.MstnPlatformNET;
 #endif
 
 namespace Shared.Bentley
 {
-static class BentleyExtensions
+public static class BentleyExtensions
 {
+
+    public static BCOM.Element createPointElement(this BCOM.Application app)
+    {
+        var zero = app.Point3dZero();
+        return app.CreateLineElement2(null, zero, zero);
+    }
+
 
 #if V8i
 
+    public static bool IsAttachmentOf(this BCOM.ModelReference model, 
+        BCOM.ModelReference owner)
+    {
+        foreach (BCOM.Attachment attach in owner.Attachments)
+        {
+            if (attach.MdlModelRefP() == model.MdlModelRefP())
+                return true;
+        }
+        return false;
+    }
 #endif
 
 #if CONNECT
@@ -45,10 +66,35 @@ static class BentleyExtensions
         return null;
     }
 
+    public static DgnModelRef AsDgnModelRef(this BCOM.ModelReference model)
+    {
+        return DgnModel.GetModelRef((IntPtr)model.MdlModelRefP());
+    }
+        
+
     public static bool IsDgnAttachmentOf(this DgnModel model, DgnModel owner)
     {
         return model.AsDgnAttachmentOf(owner) != null;
     }
+
+    public static bool IsAttachment(this BCOM.ModelReference model)
+    {
+        return true;
+    }
+
+    public static bool IsAttachmentOf(this BCOM.ModelReference model, 
+        BCOM.ModelReference owner)
+    {
+        return model.AsDgnModelRef().AsDgnModel().IsDgnAttachmentOf(
+            owner.AsDgnModelRef().AsDgnModel());
+    }
+
+    public static DMatrix3d ToDMatrix3d(this BCOM.Matrix3d rotation)
+    {
+        return DMatrix3d.FromRows(rotation.RowX.ToDVector(), 
+            rotation.RowY.ToDVector(), rotation.RowZ.ToDVector());
+    }
+
 #endif
 
     public static string ToStringEx(this BCOM.Point3d point)
@@ -67,9 +113,110 @@ static class BentleyExtensions
         return pt;
     }
 
+    public static BCOM.CellElement AsCellElementCOM(this Element element)
+    {
+        long id;
+        #if CONNECT
+            id = element.ElementId;
+        #elif V8i
+            id = element.ElementID;
+        #endif
+
+        return App.ActiveModelReference.GetElementByID(id).AsCellElement();
+    }
+
+    public static bool IsCompundCell(this BCOM.Element element)
+    {
+        TFCOM.TFElementList tfList = AppTF.CreateTFElement();
+        tfList.InitFromElement(element);
+
+        if (tfList.AsTFElement == null)
+            return false;
+
+        int tfType = tfList.AsTFElement.GetApplicationType();
+
+        return tfList.AsTFElement.GetIsCompoundCellType();
+    }
+
+    public static IEnumerable<T> getSubElementsRecurse<T>(
+        this BCOM.CellElement cell) where T : BCOM.Element
+    {
+        var res =  new List<T>();
+        getSubElements_(cell, res);
+        return res;
+    }
+    private static void getSubElements_<T>(
+        BCOM.CellElement cell, List<T> coll) where T : BCOM.Element
+    {
+        BCOM.ElementEnumerator iter = cell.GetSubElements();
+        while (iter.MoveNext())
+        {
+            if (iter.Current is T)
+            {
+                coll.Add((T)iter.Current);
+            }
+            else if (iter.Current.IsCellElement())
+            {
+                getSubElements_<T>(iter.Current.AsCellElement(), coll);
+            }
+        }
+    }
+
+    /// <summary> Оповещение - вывод текста ошибки </summary>
+    public static void Alert(this Exception ex) // TODO   
+    {
+        #if CONNECT
+            // MessageCenter.Instance.ShowErrorMessage(ex.Message, ex.StackTrace, true);
+        #else  
+            // TODO          
+        #endif
+        MessageBox.Show(ex.Message, "Exception", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        
+    }
+    /// <summary> Оповещение - вывод текста ошибки </summary>
+    public static void AlertIfDebug(this Exception ex)
+    {
+        #if DEBUG
+            Alert(ex);
+        #endif
+    }
+
+    public static void AlertIfDebug(string errMessage, string details = null)
+    {
+        #if DEBUG
+            MessageCenter.AddMessage(
+                errMessage, details, BCOM.MsdMessageCenterPriority.Error, true);
+        #endif
+    }
+
+    /// <summary> Оповещение - вывод текста ошибки </summary>
+    public static void Alert(string text)
+    {
+        // todo !  в MessageCenter?
+        #if CONNECT
+            NotificationManager.OpenMessageBox(
+                NotificationManager.MessageBoxType.Ok, text, 
+                NotificationManager.MessageBoxIconType.Critical);
+        #elif V8i
+            MessageBox.Show(text, "Exception", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        #endif
+    }
+
+    private static BCOM.MessageCenter MessageCenter => App.MessageCenter;
+
     private static BCOM.Application App
     {
         get { return BMI.Utilities.ComApp; }
     }
+
+    private static TFCOM.TFApplication _tfApp;
+    private static TFCOM.TFApplication AppTF
+    {
+        get
+        {
+            return _tfApp ?? 
+                (_tfApp = new TFCOM.TFApplicationList().TFApplication);
+        }
+    } 
 }
 }

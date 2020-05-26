@@ -27,6 +27,7 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "Shared.Bentley", "Shared.Be
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		Shared\Shared.projitems*{2c1825d3-6bb5-4340-a921-7c8088ca5167}*SharedItemsImports = 4
 		Shared\Shared.projitems*{4642f70a-accb-42aa-a949-3f0cf1cb5c9a}*SharedItemsImports = 4
 		Shared.Openings\Shared.Openings.projitems*{5074c78e-ec24-473a-84d0-a91472c89e28}*SharedItemsImports = 13
 		Shared\Shared.projitems*{5ea97bce-858d-498f-adcf-372a9fc8de99}*SharedItemsImports = 4

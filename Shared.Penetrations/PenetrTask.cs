@@ -19,49 +19,35 @@ using Shared.Bentley;
 
 namespace Embedded.Penetrations.Shared
 {
-public class PenetrTask
+public class PenetrTask : BentleyInteropBase
 {
-    public const string LEVEL_NAME = "C-EMBP-PNTR";
-    public const string LEVEL_SYMB_NAME = "C-EMB-ANNO";
-    public const string LEVEL_POINT_NAME = "C-EMB-POINT";
-
-    public enum TaskObjectType
+    public enum TaskTypeEnum
     {
         Pipe,
         PipeOld,
         PipeEquipment,
         Flange
     }
+
     public IntPtr elemRefP { get; private set; }
     public long elemId { get; private set; }
-    public IntPtr modelRefP { get; private set; }
+    private IntPtr modelRefP;
+    public BCOM.ModelReference modelRef => 
+        App.MdlGetModelReferenceFromModelRefP((int)modelRefP);
 
-    public string Name
-    {
-        get
-        {
-            return string.Format("T{0}-{1}-{2}",
-                FlangesType, DiameterType.number, Length);
-        }
-    }
+    public string Name => $"T{FlangesType}-{DiameterType.Number}-{LengthCm}";
+
     public long FlangesType { get; set; }
-    public int FlangesCount
-    {
-        get
-        {
-            return FlangesType == 1 ? 1 : FlangesType == 2 ? 2 : 0;
-        }
-    }
+    public int FlangesCount => FlangesType == 1 ? 1 : FlangesType == 2 ? 2 : 0;
 
-    //public int Diametr { get; set; }
+    public DiameterType DiameterType => DiameterType.Parse(diameterTypeStr_);
 
-    private DiameterType DiameterType
-    {
-        get { return DiameterType.Parse(DiameterTypeStr); }
-    }
-    public string DiameterTypeStr { get; set; }
-
-    public int Length { get; set; } // в сантиметрах
+    private readonly string diameterTypeStr_;
+    
+    /// <summary> длина в см </summary>
+    public int LengthCm { get; set; }
+    /// <summary> длина в мм </summary>
+    public int Length => LengthCm * 10;
 
     private BCOM.Vector3d singleFlangeSide_ = App.Vector3dZero();
     /// <summary>
@@ -79,7 +65,12 @@ public class PenetrTask
             singleFlangeSide, App.Vector3dFromXYZ(0, 0, -1), 0.1);
     }
 
-    public string RefPoint1 { get { return Location.ToStringEx();; } }
+    public double getFlangeShift(bool first, double flangeThick)
+    {
+        return (first ? 1 : -1) * (flangeThick / 2 - 1);
+    }
+
+    public string RefPoint1 => Location.ToStringEx();
     public string RefPoint2 { get; private set; }
     public string RefPoint3 { get; private set; }
 
@@ -88,19 +79,22 @@ public class PenetrTask
     public string Oid { get; private set; }
     public string User { get; private set; }
     public string Path { get; private set; }
-    public TaskObjectType TaskType { get; private set; }
+    public TaskTypeEnum TaskType { get; private set; }
 
-    private BCOM.Point3d RawLocation;
+    private BCOM.Point3d rawLocation_;
+    private BCOM.Point3d? projectLocationOnForm_ = null;
 
-    /// <summary> 
-    /// корректируется по проекции на объект
-    /// </summary>
-    public BCOM.Point3d Location { get; private set; }
+    /// <summary> корректируется по проекции на объект </summary>
+    public BCOM.Point3d Location => 
+        projectLocationOnForm_ ?? RoundTool.roundExt(rawLocation_);
     public BCOM.Matrix3d Rotation { get; private set; }
+
+    private UOR uor_;
+    public UOR UOR => uor_ ?? (uor_ = new UOR(modelRef));
 
     public string ErrorText { get; private set; }
 
-    public bool isValid { get { return string.IsNullOrEmpty(ErrorText); } }
+    public bool isValid => string.IsNullOrEmpty(ErrorText);
 
     public List<string> Warnings { get; private set; } = new List<string>();
 
@@ -126,15 +120,13 @@ public class PenetrTask
     {
         long id;
         IntPtr elRef, modelRef;
-        ElementHelper.extractFromElement(element, 
-            out id, out elRef, out modelRef);
+        ElementHelper.extractFromElement(element, out id, out elRef, out modelRef);
         
         elemRefP = elRef;
         modelRefP = modelRef;
         elemId = id;
 
-        P3Dbase data = task.isEquipment() ?
-            (P3Dbase)task.equipment : task.pipe;
+        P3Dbase data = task.isEquipment() ? (P3Dbase)task.equipment : task.pipe;
 
         Oid = data.Oid;
 
@@ -142,38 +134,7 @@ public class PenetrTask
             App.MdlGetModelReferenceFromModelRefP((int)modelRefP);
         BCOM.Element bcomEl = taskModel.GetElementByID(elemId);
 
-        double task_toUOR = taskModel.UORsPerMasterUnit;
-        double task_subPerMaster = taskModel.SubUnitsPerMasterUnit;
-        //double task_unit3 = taskModel.UORsPerStorageUnit;
-        //double task_unit4 = taskModel.UORsPerSubUnit;
-
-        BCOM.ModelReference activeModel = App.ActiveModelReference;
-
-        double toUOR = activeModel.UORsPerMasterUnit;
-        double subPerMaster = activeModel.SubUnitsPerMasterUnit;
-        //double unit3 = activeModel.UORsPerStorageUnit;
-        //double unit4 = activeModel.UORsPerSubUnit;
-
-        BCOM.Matrix3d rot;
-        rot.RowX = App.Point3dFromXYZ(
-            data.OrientationMatrix_x0,
-            data.OrientationMatrix_x1,
-            data.OrientationMatrix_x2);
-        rot.RowX = roundExt(rot.RowX, 5, 10, 0);
-
-        rot.RowY = App.Point3dFromXYZ(
-            data.OrientationMatrix_y0,
-            data.OrientationMatrix_y1,
-            data.OrientationMatrix_y2);
-        rot.RowY = roundExt(rot.RowY, 5, 10, 0);
-
-        rot.RowZ = App.Point3dFromXYZ(
-            data.OrientationMatrix_z0,
-            data.OrientationMatrix_z1,
-            data.OrientationMatrix_z2);
-        rot.RowZ = roundExt(rot.RowZ, 5, 10, 0);
-
-        Rotation = rot;
+        Rotation = data.getRotation();
 
         Code = data.Name.Trim();
         User = data.SP3D_UserLastModified.Trim();
@@ -181,16 +142,25 @@ public class PenetrTask
 
         BCOM.Point3d pt = App.Point3dFromXYZ(
             data.LocationX, data.LocationY, data.LocationZ);
-        RawLocation = App.Point3dScale(pt,
-            taskModel.IsAttachment ? task_subPerMaster : 1);
-        Location = roundExt(RawLocation);
 
-        //RefPoint1 = Location.ToStringEx();
+        rawLocation_ = App.Point3dScale(data.getLocation(),
+            taskModel.IsAttachmentOf(App.ActiveModelReference) ?
+                UOR.subPerMaster : 1);
 
-        this.TaskType = task.isEquipment() ? TaskObjectType.PipeEquipment :
-            task.component?.Description == "PenFlange" ? TaskObjectType.Flange :
-            task.component?.Description == "PntrtPlate-d" ? TaskObjectType.PipeOld :
-            TaskObjectType.Pipe;
+//#if V8i
+//        rawLocation_ = App.Point3dScale(pt,
+//            taskModel.IsAttachment ? UOR.subPerMaster : 1);
+//#elif CONNECT
+//        var actDgnModel = Session.Instance.GetActiveDgnModel();
+//        rawLocation_ = App.Point3dScale(pt, 
+//                element.DgnModel.IsDgnAttachmentOf(actDgnModel) ? 
+//            UOR.subPerMaster : 1);
+//#endif
+
+        this.TaskType = task.isEquipment() ? TaskTypeEnum.PipeEquipment :
+            task.component?.Description == "PenFlange" ? TaskTypeEnum.Flange :
+            task.component?.Description == "PntrtPlate-d" ? TaskTypeEnum.PipeOld :
+            TaskTypeEnum.Pipe;
 
         // разбор типоразмера:
         try
@@ -199,8 +169,8 @@ public class PenetrTask
                 data.Description.TrimStart('T').Split('-');
             FlangesType = int.Parse(parameters[0]);
 
-            DiameterTypeStr = new DiameterType(int.Parse(parameters[1])).ToString();
-            Length = int.Parse(parameters[2]);
+            diameterTypeStr_ = new DiameterType(int.Parse(parameters[1])).ToString();
+            LengthCm = int.Parse(parameters[2]);
         }
         catch (Exception)
         {
@@ -212,7 +182,7 @@ public class PenetrTask
         TFFormsIntersected = new List<Bentley.Interop.TFCom.TFElementList>();
         CompoundsIntersected = new List<Bentley.Interop.TFCom.TFElementList>();
 
-        if (TaskType == TaskObjectType.Pipe)
+        if (TaskType == TaskTypeEnum.Pipe)
             findFlanges();
         else
             findFlangesOld();
@@ -247,7 +217,7 @@ public class PenetrTask
             | /'             |
             !/___> X       __*__ 
         */
-        if (TaskType == PenetrTask.TaskObjectType.PipeEquipment)
+        if (TaskType == PenetrTask.TaskTypeEnum.PipeEquipment)
         {
             /* Ориентация проходки перед применением матрицы поворота задания
              * должна быть вдоль оси  X
@@ -291,7 +261,9 @@ public class PenetrTask
         element.Rotate(App.Point3dZero(), -aboutX, -aboutY, -aboutZ);
     }
 
-
+    /// <summary>
+    /// Поиск фланцев на объекте задания старого типа
+    /// </summary>
     private void findFlangesOld()
     {
         BCOM.ModelReference model =
@@ -313,7 +285,8 @@ public class PenetrTask
         //    App.Transform3dFromMatrix3d(Rotation));        
         //cell.Transform(tran);
 
-        transformToBase(cell, Location);
+        // TODO проверить корректность transform отн. rawLocation_
+        transformToBase(cell, rawLocation_);
 
         var cones = new List<BCOM.ConeElement>();
         collectSubElementsByType(cell, ref cones);
@@ -417,7 +390,8 @@ public class PenetrTask
         //    App.Transform3dFromMatrix3d(Rotation));
         //cell.Transform(tran);
 
-        transformToBase(cell, Location);
+        // TODO проверить корректность transform отн. rawLocation_
+        transformToBase(cell, rawLocation_);
 
         if (FlangesCount != FlangesGeom.Count)
         {
@@ -432,7 +406,8 @@ public class PenetrTask
 
             //flangeEl.Transform(tran);
 
-            transformToBase(flangeEl, Location);
+            // TODO проверить корректность transform отн. rawLocation_
+            transformToBase(flangeEl, rawLocation_);
 
             singleFlangeSide = App.Vector3dSubtractPoint3dPoint3d(
                 ElementHelper.getCenter(flangeEl),
@@ -481,55 +456,27 @@ public class PenetrTask
             (CompoundsIntersected = new List<TFCOM.TFElementList>())).Clear();
 
         BCOM.ModelReference activeModel = App.ActiveModelReference;
-        scanInfo(activeModel);
+        scanInfoPerModel(activeModel);
 
+        // TODO удостовериться в корректности алгоритма относительно входящих
+        // референсов
         foreach (BCOM.Attachment attachment in activeModel.Attachments)
         {
             if (!attachment.DisplayFlag)
                 continue;
 
-            scanInfo(App.MdlGetModelReferenceFromModelRefP(
+            scanInfoPerModel(App.MdlGetModelReferenceFromModelRefP(
                 attachment.MdlModelRefP()));
         }
-
-        //BCOM.ModelReference refModel = 
-        //    App.MdlGetModelReferenceFromModelRefP((int)modelRefP);
-
-        //var models = new List<BCOM.ModelReference>();
-
-        //BCOM.CellElement cell = refModel.GetElementByID(elemId).AsCellElement();
-        //if (cell != null)
-        //{
-        //    // Поиск фланцев
-        //    BCOM.ElementScanCriteria criteria = new BCOM.ElementScanCriteriaClass();
-        //    BCOM.Range3d scanRange = 
-        //        App.Range3dScaleAboutCenter(cell.Range, 1.0);
-
-        //    criteria.IncludeOnlyVisible();
-        //    criteria.IncludeOnlyWithinRange(scanRange);
-
-        //    BCOM.ElementEnumerator res = activeModel.Scan(criteria);
-        //    while((res?.MoveNext()).Value)
-        //    {
-        //        // todo использовать только один тип точек
-        //        TFCOM.TFElementList tfEl = AppTF.CreateTFElement();
-        //        tfEl.InitFromElement(res.Current);
-
-        //        if (tfEl.AsTFElement != null && tfEl.AsTFElement.GetIsCompoundCellType())
-        //        {
-        //            isCompoundExistsInPlace = true;
-        //        }
-        //    }
-        //}
     }
 
-    private void scanInfo(BCOM.ModelReference model)
+    private void scanInfoPerModel(BCOM.ModelReference model)
     {
         BCOM.CellElement cell = getTaskCell();
         if (cell == null)
             return;
 
-        BCOM.ModelReference activeModel = App.ActiveModelReference;
+        //BCOM.ModelReference activeModel = App.ActiveModelReference;
 
         BCOM.ElementScanCriteria criteria = new BCOM.ElementScanCriteriaClass();
         criteria.ExcludeAllTypes();
@@ -537,12 +484,18 @@ public class PenetrTask
         criteria.IncludeType(BCOM.MsdElementType.CellHeader);
 
         BCOM.Range3d scanRange = cell.Range;
-        if (model.IsAttachment)
+
+#if CONNECT
+        // корректировака для версии CONNECT
+        if (cell.ModelReference.IsAttachmentOf(model)) // TODO ПРОВЕРИТЬ 
         {
-            double k = model.UORsPerStorageUnit / activeModel.UORsPerStorageUnit;
-            scanRange.High = App.Point3dScale(scanRange.High, k);
+            // здесь есть различия с V8i:
+            double k = model.UORsPerStorageUnit / cell.ModelReference.UORsPerStorageUnit;
+            scanRange.High = App.Point3dScale(scanRange.High, k);            
             scanRange.Low = App.Point3dScale(scanRange.Low, k);
         }
+#endif
+
         criteria.IncludeOnlyWithinRange(scanRange);
 
         BCOM.ElementEnumerator res = model.Scan(criteria);
@@ -572,10 +525,10 @@ public class PenetrTask
             }
         }
 
-        projectLocationToTFForm(TFFormsIntersected);
+        projectLocationPointOnTFForm(TFFormsIntersected);
     }
 
-    private void projectLocationToTFForm(List<TFCOM.TFElementList> tfForms)
+    private void projectLocationPointOnTFForm(List<TFCOM.TFElementList> tfForms)
     {
         var projPoints = new SortedDictionary<double, BCOM.Point3d>();
 
@@ -587,12 +540,9 @@ public class PenetrTask
         var iter = projPoints.GetEnumerator();
         if (iter.MoveNext())
         {
-            ProjectPoint = iter.Current.Value;
-            Location = iter.Current.Value;
-        }       
+            projectLocationOnForm_ = iter.Current.Value;
+        }
     }
-
-    public BCOM.Point3d ProjectPoint { get; private set; }
 
     private void projectLocationToTFForm(TFCOM.TFElementList tfForm, 
         ref SortedDictionary<double, BCOM.Point3d> projPoints)
@@ -600,7 +550,7 @@ public class PenetrTask
         BCOM.Element element;
         tfForm.AsTFElement.GetElement(out element);
         
-        TFCOM.TFFormRecipeListClass recipeList = new TFCOM.TFFormRecipeListClass();
+        var recipeList = new TFCOM.TFFormRecipeListClass();
         recipeList.InitFromElement(element);
         
         TFCOM.TFBrepList brepList;
@@ -611,83 +561,6 @@ public class PenetrTask
         projPoints.Add(App.Point3dDistance(Location, projPoint), projPoint);
     }
 
-
-    //    /* the different types of top definitions of a form */
-    // #define TF_TOP_SHAPES                        1
-    // #define TF_TOP_PLANE                         2
-    // #define TF_TOP_FIXED_HEIGHT                  3
-    // /* the different types of TriForma elements */
-    // #define TF_NO_TF_ELM                         0
-    // #define TF_OLD_TYPE_EXTRUSION_FORM         999
-    // #define TF_FREE_FORM_ELM                    31  /* a TF free form */
-    // #define TF_LINEAR_FORM_ELM                  32  /* a TF linear form */
-    // #define TF_LINEAR_ELM                       33  /* a MicroStation line, linestring, arc, curve or complex linestring */
-    // #define TF_SHAPE_ELM                        34  /* a MicroStation shape, ellipse or complex shape */
-    // #define TF_CELL_ELM                         35  /* a MicroStation cell or shared cell instance with a TF partname */
-    // #define TF_COMPOUND_CELL_ELM                36  /* a TF compound cell */
-    // #define TF_ROOM_SHAPE_ELM                   37  /* a TF shape belonging to a room */
-    // #define TF_ROOM_ELM                         38  /* a TF room element */
-    // #define TF_LINE_STRING_FORM_ELM             39  /* a TF linestring form */
-    // #define TF_SURFACE_ELM                      40  /* a MicroStation surface element, bspline surface, cone or solid element */
-    // #define TF_MS_CELL_ELM                      41  /* a MicroStation cell or shared cell instance without a TF partname */
-    // #define TF_SLAB_FORM_ELM                    42  /* a TF slab form */
-    // #define TF_BLOB_FORM_ELM                    43  /* a TF blob form */
-    // #define TF_ARC_FORM_ELM                     44  /* a TF Arc form */
-    // #define TF_SMOOTH_FORM_ELM                  45  /* a TF Smooth Free Form form */
-    // #define TF_PATH_FORM_ELM                    46  /* a TF path form */
-    // #define TF_MORPH_FORM_ELM                   47  /* a TF Morph form */
-    // #define TF_COMPOUND_FORM_ELM                48  /* a TF compound form */
-    // #define TF_PART_TAG_ELM                     50  /* a MS tag with part info attached */
-    // 
-    // #define TF_CC_INT_DOOR_ELM                  51  /* a TF internal door (compound cell) */
-    // #define TF_CC_EXT_DOOR_ELM                  52  /* a TF external door (compound cell) */
-    // #define TF_CC_INT_WINDOW_ELM                53  /* a TF internal window (compound cell) */
-    // #define TF_CC_EXT_WINDOW_ELM                54  /* a TF external window (compound cell) */
-    // #define TF_CC_INT_DOOR_AND_WINDOW_ELM       55  /* a TF internal door and window (compound cell) */
-    // #define TF_CC_EXT_DOOR_AND_WINDOW_ELM       56  /* a TF external door and window (compound cell) */
-    // #define TF_CC_STAIR_ELM                     57  /* a TF stair (compound cell) */
-    // #define TF_CC_GRID_ELM                      58  /* a TF grid (compound cell) */
-    // #define TF_ADFCELL_ELM                      59  /* a persistent triforma ADF model (subtypes: TF_PAZCELL_ELM, TF_RFACELL_ELM) */
-    // 
-    // #define TF_EBREP_ELM                        60    /* embedded breps */
-    // #define TF_STRUCTURAL_ELM                   61  /* a TF structural (based on free form) */
-    // #define TF_MESH_ELM                         62  /* a TF Mesh Element */
-    // #define TF_STRUCTSMOOTH_ELM                 63  /* a TF structural (based on smooth form) */
-    // #define TF_STRUCTPATH_ELM                   64  /* a TF structural (based on path form) */
-    // #define TF_STRUCTTAPER_ELM                  65
-    // #define TF_CEILING_ELM                      66  /* a TF ceiling */
-    // #define TF_MECHANICAL_ELM                   67  /* a TF mechanical */
-    // #define TF_FEATURE_SOLID_ELM                68  /* a MicroStation Feature Solid */
-    // #define TF_STAIR_ELM                        69  /* a TriForma Stair Cell */
-    // #define TF_FLIGHT_ELM                       70  /* a TriForma Stair Flight Cell */
-    // #define TF_TREAD_ELM                        71  /* a TriForma Stair Tread Cell */
-    // #define TF_RISER_ELM                        72  /* a TriForma Stair Riser Cell */
-    // #define TF_LANDING_ELM                      73  /* a TriForma Stair Landing Cell */
-    // #define TF_STRINGER_ELM                     74  /* a TriForma Stair Stringer Cell */
-    // #define TF_STAIRANNOTATION_ELM              75  /* a TriForma Stair Annotation Cell */
-    // #define TF_SPACE_ELM                        76  /* a Space */
-    // #define TF_RAILING_ELM                      77  /* a Railing */
-    // #define TF_HORIZONTALRAIL_ELM               78  /* a GuardRail (member of Railing)*/
-    // #define TF_POST_ELM                         79  /* a Post (member of Railing) */
-    // #define TF_BALUSTER_ELM                     80  /* a Baluster (member of Railing) */
-    // #define TF_SHARED_COMPOUND_CELL_ELM         81  // SharedFrameHandler
-    // #define TF_SHARED_ADFCELL_ELM               82  // SharedAdfCellHandler
-    // #define TF_ROOF_ELM                         83  /* a TriForma Roof Cell */
-    // #define TF_RAILINGENDS_ELM                  84  /* a Baluster (member of Railing) */
-    // #define TF_GRID_SYSTEM_ELM                  85  // TFColumnGridHandler
-    // #define TF_RFACELL_ELM                      86  // PA-Cell with label subtype RFACELL_ELEMENT
-    // #define TF_PAZCELL_ELM                      87  // traditional PA-Cell
-    // 
-    // #define NUM_QUANTIFIED_TYPES                88  /* last # type of TriForma element + 1 */
-
-    enum TFFormTypeEnum
-    {
-        TF_FREE_FORM_ELM = 31,
-        TF_LINEAR_FORM_ELM = 32,
-        TF_SLAB_FORM_ELM = 42,
-        TF_SMOOTH_FORM_ELM = 45
-    }
-
     private bool isAvaliableTFFromType(int tftype)
     {
         if (!Enum.IsDefined(typeof(TFFormTypeEnum), tftype))
@@ -695,10 +568,10 @@ public class PenetrTask
 
         switch ((TFFormTypeEnum)tftype)
         {
-            case TFFormTypeEnum.TF_FREE_FORM_ELM: // TF_FREE_FORM_ELM
-            case TFFormTypeEnum.TF_LINEAR_FORM_ELM: // TF_LINEAR_FORM_ELM
-            case TFFormTypeEnum.TF_SLAB_FORM_ELM: // TF_SLAB_FORM_ELM
-            case TFFormTypeEnum.TF_SMOOTH_FORM_ELM: // TF_SMOOTH_FORM_ELM
+            case TFFormTypeEnum.TF_FREE_FORM_ELM:
+            case TFFormTypeEnum.TF_LINEAR_FORM_ELM:
+            case TFFormTypeEnum.TF_SLAB_FORM_ELM:
+            case TFFormTypeEnum.TF_SMOOTH_FORM_ELM:
                 return true;
         }
         return false;
@@ -752,45 +625,27 @@ public class PenetrTask
         return false;
     }
 
+
+    public override string ToString() => Name;
+
+    public static BCOM.Level LevelMain => ElementHelper.getOrCreateLevel(LEVEL_NAME);
+    public static BCOM.Level LevelSymb => ElementHelper.getOrCreateLevel(LEVEL_SYMB_NAME);
+    public static BCOM.Level LevelFlangeSymb => ElementHelper.getOrCreateLevel(LEVEL_FLANGE_SYMB_NAME);
+    public static BCOM.Level LevelRefPoint => ElementHelper.getOrCreateLevel(LEVEL_POINT_NAME);
+
     /// <summary>
-    /// Функция кратного округления из оригинального simpen Л.Вибе
+    /// смещение плоскости фланца относительно плоскости стены,
+    /// для лучшей видимости фланца
     /// </summary>
-    long roundExt(double val, int digs = -1, double snap = 5, int shft = 0)
-    {
-        double dv;
-        dv = val * Math.Pow(snap, digs);
-        dv = Math.Floor(dv + 0.55555555555555 - (0.111111111111111 * shft));
-        dv = dv / Math.Pow(snap, digs);
-        return Convert.ToInt64(dv);
-    }
+    public const double FLANGE_SHIFT = 1.0; // TODO можно ли сделать мешьше - 0.02
 
-    BCOM.Point3d roundExt(BCOM.Point3d pt, int digs = -1, double snap = 5, int shft = 0)
-    {
-        BCOM.Point3d res;
-        res.X = roundExt(pt.X, digs, snap, shft);
-        res.Y = roundExt(pt.Y, digs, snap, shft);
-        res.Z = roundExt(pt.Z, digs, snap, shft);
-        return res;
-    }
+    public const string DG_CATALOG_TYPE = "EmbeddedPart";
+    public const string DG_CATALOG_INSTANCE = "Embedded Part";
+    public const string DG_SCHEMA_NAME = "EmbPart";
 
-    public override string ToString()
-    {
-        return Name;
-    }
-
-    private static BCOM.Application App
-    {
-        get { return BMI.Utilities.ComApp; }
-    }
-
-    private static TFCOM.TFApplication _tfApp;
-    private static TFCOM.TFApplication AppTF
-    {
-        get
-        {
-            return _tfApp ?? 
-                (_tfApp = new TFCOM.TFApplicationList().TFApplication);
-        }
-    }
+    private const string LEVEL_NAME = "C-EMBP-PNTR";
+    private const string LEVEL_SYMB_NAME = "C-EMB-ANNO";
+    private const string LEVEL_FLANGE_SYMB_NAME = "C-EMB-FLANGE";
+    private const string LEVEL_POINT_NAME = "C-EMB-POINT";
 }
 }

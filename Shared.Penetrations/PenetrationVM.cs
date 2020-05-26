@@ -73,7 +73,7 @@ public class PenetrationVM
             return;
         }
         form_ = new PenetrationForm();
-        form_.Text = "Проходки" /* TODO версия*/ 
+        form_.Text = $"Проходки v{AssemblyVersion.VersionStr}" 
             + (isDebugMode_ ? " [DEBUG]" : string.Empty);
 
         if (!isDebugMode_ && !penModel_.isProjectDefined)
@@ -91,7 +91,7 @@ public class PenetrationVM
 
         form_.setDataRowsAddedAction(rowsAdded);
         form_.setPreviewAction(penModel_.preview);
-        form_.setCreateAction(penModel_.create);
+        form_.setCreateAction(penModel_.addToModel);
         form_.setOnCloseFormAction (penModel_.clearContext);
     }
 
@@ -109,8 +109,7 @@ public class PenetrationVM
             DiameterType matchValue = null;
             foreach (DiameterType diamType in diameters)
             {        
-                if (diamType.number == 
-                    DiameterType.Parse(task.DiameterTypeStr).number)
+                if (diamType.Equals(task.DiameterType))
                 {
                     matchValue = diamType;
                 }

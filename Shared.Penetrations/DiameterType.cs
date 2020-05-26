@@ -4,33 +4,27 @@ namespace Embedded.Penetrations.Shared
 {
 public class DiameterType : IComparable<DiameterType>
 {
-    public long number { get; set; }
-    private float diameter;
-    private float thickness;
+    public long Number { get; private set; }
 
-    public string typeSize
-    {
-        get { return string.Format("{0}x{1}", diameter, thickness); }
-    }
+    /// <summary> "Типоразмер" проходки </summary>
+    public string TypeSize => string.Format("{0}x{1}", diameter_, thickness_);
 
     public DiameterType(long number)
     {
-        this.number = number;
-        diameter =
-        thickness = 0;
+        this.Number = number;
+        diameter_ =
+        thickness_ = 0;
     }
 
     public DiameterType(long number, float diameter, float thickness)
     {
-        this.number = number;
-        this.diameter = diameter;
-        this.thickness = thickness;
+        this.Number = number;
+        this.diameter_ = diameter;
+        this.thickness_ = thickness;
     }
 
-    public int CompareTo(DiameterType other)
-    {
-        return number.CompareTo(other.number);
-    }
+    public int CompareTo(DiameterType other) => Number.CompareTo(other.Number);
+    public override int GetHashCode() => (int)Number;
 
     public override bool Equals(object obj)
     {
@@ -39,15 +33,13 @@ public class DiameterType : IComparable<DiameterType>
         return base.Equals(obj);
     }
 
-    public override int GetHashCode()
+    public bool Equals(DiameterType obj)
     {
-        return (int)number;
+        return this.CompareTo(obj) == 0;
     }
 
-    public override string ToString()
-    {
-        return string.Format("{0} ({1})", number, typeSize);
-    }
+    public override string ToString() => 
+        string.Format("{0} ({1})", Number, TypeSize);
 
     public static DiameterType Parse(string text)
     {
@@ -59,6 +51,8 @@ public class DiameterType : IComparable<DiameterType>
 
         return new DiameterType(number, diameter, thickness);
     }
-}
 
+    private float diameter_;
+    private float thickness_;
+}
 }

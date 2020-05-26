@@ -26,7 +26,7 @@ using Shared.Bentley.sp3d;
 
 namespace Shared.Bentley
 {
-class ElementHelper
+static class ElementHelper
 {
 #if V8i
     public static bool isElementSp3dTask(Element element, out Sp3dTask task)
@@ -273,7 +273,7 @@ class ElementHelper
         return getElementCOM(elem);
     }
 
-    public static BCOM.Element getElementCOM(Element element)
+    public static BCOM.Element getElementCOM(this Element element)
     {
         var modelRef = App.MdlGetModelReferenceFromModelRefP(
             (long)element.GetNativeDgnModelRef());
@@ -281,16 +281,25 @@ class ElementHelper
     }
 #endif
 
-    public static BCOM.LineElement createCrossRound(
-        ref  BCOM.Point3d origin, double diameter)
+    public static BCOM.Element createPoint(BCOM.Point3d? origin = null)
     {
-        BCOM.Point3d[] verts = { origin, origin, origin, origin, origin };
+        var center = origin.HasValue ? origin.Value : App.Point3dZero();
+        return App.CreateLineElement2(null, center, center);
+    }
+
+    public static BCOM.LineElement createCrossRound(
+        double diameter, BCOM.Point3d? origin = null)
+    {
+        BCOM.Point3d center = 
+            origin.HasValue ? origin.Value : App.Point3dZero();
+
+        BCOM.Point3d[] verts = { center, center, center, center, center };
         double k = diameter/2 * Math.Cos(Math.PI/4);
         verts[0].X = -k;
         verts[0].Y = -k;
         verts[1].X = k;
         verts[1].Y = k;
-        verts[2] = origin;
+        verts[2] = center;
         verts[3] = verts[0];
         verts[3].Y *= -1;
         verts[4] = verts[1];
@@ -299,17 +308,18 @@ class ElementHelper
     }
 
     public static BCOM.ArcElement createCircle(
-        ref  BCOM.Point3d origin, double diameter)
+        double diameter, BCOM.Point3d? origin = null)
     {
+        BCOM.Point3d center = 
+            origin.HasValue ? origin.Value : App.Point3dZero();
+
         var rot = App.Matrix3dIdentity();        
         //return App.CreateEllipseElement2(null, origin, 
         //    diameter/2, diameter/2, rot, BCOM.MsdFillMode.NotFilled);  
             
-       return App.CreateArcElement2(null, origin, diameter/2, diameter/2, 
+       return App.CreateArcElement2(null, center, diameter/2, diameter/2, 
         rot, 0, Math.PI *2);
     }
-
-
 
     public static BCOM.LineElement getElementRangeBox(BCOM.Element el)
     {
@@ -421,6 +431,47 @@ class ElementHelper
     //{
     //    return getLevel(name) ?? App.ActiveSettings.Level;
     //}
+
+
+    /// <summary>
+    /// Поиск пересечений с элементами по диапазону заданного элемента в
+    /// в пространстве заданной модели
+    /// </summary>
+    public static IEnumerable<BCOM.Element> scanIntersectsInElementRange(
+        BCOM.Element element, BCOM.ModelReference model = null)
+    {
+        model = model ?? App.ActiveModelReference;
+
+        BCOM.ElementScanCriteria criteria = new BCOM.ElementScanCriteriaClass();
+        criteria.ExcludeAllTypes();
+        criteria.ExcludeNonGraphical();
+        criteria.IncludeType(BCOM.MsdElementType.CellHeader);
+
+        BCOM.Range3d scanRange = getElementScanRange(element, model);
+
+        criteria.IncludeOnlyWithinRange(scanRange);
+        return model.Scan(criteria).BuildArrayFromContents();
+    }
+
+    public static BCOM.Range3d getElementScanRange(
+        BCOM.Element element, BCOM.ModelReference model = null)
+    {
+        BCOM.Range3d scanRange = element.Range;
+        
+#if CONNECT
+        // корректировака для версии CONNECT
+        if (element.ModelReference.IsAttachmentOf(model))
+        {
+            // здесь есть различия с V8i: // TODO проверить
+            double k = model.UORsPerStorageUnit / 
+                element.ModelReference.UORsPerStorageUnit;
+            scanRange.High = App.Point3dScale(scanRange.High, k);            
+            scanRange.Low = App.Point3dScale(scanRange.Low, k);
+        }
+#endif
+        return scanRange;
+    }
+
 
     public static void setSymbologyByLevel(BCOM.Element element)
     {
