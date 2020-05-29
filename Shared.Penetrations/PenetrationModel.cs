@@ -109,6 +109,20 @@ public class PenetrationModel : NotifyPropertyChangedBase
             {
                 Element element = ElementHelper.getElement(eventArgs);
 
+
+        #if DEBUG
+                BCOM.Element comEl = ElementHelper.getElementCOM(element);;
+
+                if (comEl.IsCompundCell())
+                {
+                    var cell = comEl.AsCellElement();
+                    var pointEl = ElementHelper.createPoint(cell.Origin);
+                    pointEl.Level.ElementLineWeight = 10;
+
+                    previewTranCon_.AppendCopyOfElement(pointEl);
+                }
+        #endif
+
                 PenetrTask task;
                 if (PenetrTask.getFromElement(element, out task))
                 {
@@ -153,7 +167,8 @@ public class PenetrationModel : NotifyPropertyChangedBase
 
             if (StatusInt.Success ==
                 SelectionSetManager.GetElement(i, ref element, ref modelRef) &&
-                element.ElementType == MSElementType.CellHeader)
+                element.ElementType == MSElementType.CellHeader &&
+                !selectionSet.ContainsKey(element.GetNativeElementRef()))
             {
                 selectionSet.Add(element.GetNativeElementRef(), element);
             }
@@ -182,6 +197,22 @@ public class PenetrationModel : NotifyPropertyChangedBase
                 // add new
                 foreach (Element element in selectionSet.Values)
                 {
+
+        #if DEBUG
+                BCOM.Element comEl = ElementHelper.getElementCOM(element);
+
+                if (comEl.IsCompundCell())
+                {
+                    var cell = comEl.AsCellElement();
+
+                    var cross = ElementHelper.createCrossRound(10, cell.Origin);
+                    var pointEl = ElementHelper.createCircle(10, cell.Origin);
+
+                    previewTranCon_.AppendCopyOfElement(pointEl);
+                    previewTranCon_.AppendCopyOfElement(cross);
+                }
+        #endif
+
                     IntPtr elementRef = element.GetNativeElementRef();
                     PenetrTask task;
                     if (PenetrTask.getFromElement(element, out task) &&
@@ -344,7 +375,8 @@ public class PenetrationModel : NotifyPropertyChangedBase
 
 
     /// <summary>
-    /// Проверка на пересечения с другими закладными элементами
+    /// Проверка на пересечения с другими закладными элементами.
+    /// TRUE - если проверка пройдена
     /// </summary>
     private bool checkForIntersects(PenetrTask task, PenetrInfo penInfo)
     {
@@ -359,27 +391,43 @@ public class PenetrationModel : NotifyPropertyChangedBase
                     
         foreach (BCOM.Element intersection in intersects)
         {
-            if (intersection.IsCompundCell())            
-                return false;            
+            if (intersection.IsPenetrationCell())
+            {
+                var body = getBodyWithOutFlanges(intersection.AsCellElement());
+
+                var contrIntersects = 
+                    ElementHelper.scanIntersectsInElementRange( body, 
+                        App.ActiveModelReference);
+
+                BCOM.Range3d res = App.Range3dInit();
+                if (App.Range3dIntersect2(ref res, body.Range, penElement.Range))
+                {
+                    return false;
+                }                
+            }
+            else if (intersection.IsCompundCell())
+            {
+                return false;
+            }
         }
         return true;
+    }
 
-        /* // может пригодится:
-         * // Поиск фланцев:
-            foreach (Element element in selectionSet.Values)
+    private BCOM.SmartSolidElement getBodyWithOutFlanges(BCOM.CellElement penCell)
+    {
+        BCOM.SmartSolidElement body = null;
+        
+        double maxVolume = 0.0;
+        foreach(var solid in penCell.getSubElementsRecurse<BCOM.SmartSolidElement>())
+        {
+            double volume = solid.ComputeVolume();
+            if (volume > maxVolume)
             {
-                if (!element.getElementCOM().IsCellElement())
-                    continue;
-                    
-                var cell = element.getElementCOM().AsCellElement();
-
-                foreach(var solid in cell.getSubElementsRecurse<BCOM.SmartSolidElement>())
-                {
-                    double volume = solid.ComputeVolume();
-                    ;
-                }
-            }         
-         */
+                body = solid;
+                maxVolume = volume;
+            }
+        }
+        return body;
     }
 
     public void loadContext()

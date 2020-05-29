@@ -710,6 +710,16 @@ public static class PenetrHelper
 
 #endif
 
+    public static bool IsPenetrationCell(this BCOM.Element element)
+    {
+        if (!element.IsCompundCell())
+            return false;
+
+        var cell = element.AsCellElement();
+        return cell.Name == PenetrTask.CELL_NAME || 
+            cell.Name == PenetrTask.CELL_NAME_OLD;
+    }
+
     static BCOM.Application App
     {
         get { return BMI.Utilities.ComApp; }

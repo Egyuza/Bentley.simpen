@@ -295,15 +295,26 @@ static class ElementHelper
 
         BCOM.Point3d[] verts = { center, center, center, center, center };
         double k = diameter/2 * Math.Cos(Math.PI/4);
-        verts[0].X = -k;
-        verts[0].Y = -k;
-        verts[1].X = k;
-        verts[1].Y = k;
+        //verts[0].X = -k;
+        //verts[0].Y = -k;
+        //verts[1].X = k;
+        //verts[1].Y = k;
+        //verts[2] = center;
+        //verts[3] = verts[0];
+        //verts[3].Y *= -1;
+        //verts[4] = verts[1];
+        //verts[4].Y *= -1;
+
+        verts[0].X -= k;
+        verts[0].Y -= k;
+        verts[1].X += k;
+        verts[1].Y += k;
         verts[2] = center;
         verts[3] = verts[0];
-        verts[3].Y *= -1;
+        verts[3].Y += 2*k;
         verts[4] = verts[1];
-        verts[4].Y *= -1;
+        verts[4].Y -= 2*k;
+
         return App.CreateLineElement1(null, verts);
     }
 
@@ -473,12 +484,31 @@ static class ElementHelper
     }
 
 
-    public static void setSymbologyByLevel(BCOM.Element element)
+    public static void setSymbologyByLevel(BCOM.Element element) // legacy
     {
-        element.LineStyle = App.ByLevelLineStyle();
-        element.LineWeight = App.ByLevelLineWeight();
-        element.Color = App.ByLevelColor();
+        bool dirty = false;
+        setSymbologyByLevel(element, ref dirty);
     }
+
+    public static void setSymbologyByLevel(BCOM.Element element, ref bool dirty)
+    {
+        if (element.LineStyle != App.ByLevelLineStyle())
+        {
+            dirty = true;
+            element.LineStyle = App.ByLevelLineStyle();
+        }
+        if (element.LineWeight != App.ByLevelLineWeight())
+        {
+            dirty = true;
+            element.LineWeight = App.ByLevelLineWeight();
+        }
+        if (element.Color != App.ByLevelColor())
+        {
+            dirty = true;
+            element.Color = App.ByLevelColor();
+        }        
+    }
+
     private static BCOM.Application App
     {
         get { return BMI.Utilities.ComApp; }
