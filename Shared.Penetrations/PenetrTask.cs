@@ -35,6 +35,12 @@ public class PenetrTask : BentleyInteropBase
     public BCOM.ModelReference modelRef => 
         App.MdlGetModelReferenceFromModelRefP((int)modelRefP);
 
+    public BCOM.Attachment getAttachment() => 
+        modelRef.AsAttachment(App.ActiveModelReference);
+    
+    public BCOM.Element getElement() => 
+        ElementHelper.getElementCOM(elemRefP, modelRefP);
+
     public string Name => $"T{FlangesType}-{DiameterType.Number}-{LengthCm}";
 
     public long FlangesType { get; set; }

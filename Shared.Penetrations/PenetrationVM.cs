@@ -99,6 +99,30 @@ public class PenetrationVM
         form_.setScanForUpdateAction(updateModel_.scanForUpdate);
         form_.setUpdateAction(updateModel_.update);
 
+        form_.dgvCreationTasks.SelectionChanged += DgvCreationTasks_SelectionChanged;
+        form_.dgvCreationTasks.CellMouseDoubleClick += DgvCreationTasks_CellMouseDoubleClick;
+    }
+
+
+    private void DgvCreationTasks_SelectionChanged(object sender, EventArgs e)
+    {
+        var selection = new List<PenetrTask>();
+        foreach(DataGridViewRow row in form_.dgvCreationTasks.SelectedRows)
+        {
+            var task = (PenetrTask)row.DataBoundItem;
+            if (task != null)
+            {
+                selection.Add(task);
+            }
+        }
+        penModel_.changeSelection(selection);
+    }
+    private void DgvCreationTasks_CellMouseDoubleClick(object sender, DataGridViewCellMouseEventArgs e)
+    {
+        PenetrTask task = 
+            (PenetrTask)form_.dgvCreationTasks.Rows[e.RowIndex].DataBoundItem;
+
+        penModel_.focusToTaskElement(task);
     }
 
     private void rowsAdded(IEnumerable<DataGridViewRow> rows)

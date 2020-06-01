@@ -76,7 +76,7 @@ static class ViewHelper
         public int optionPadding2;
     };
 
-    public static void zoomToElement(Element element)
+    public static void zoomToElement(this Element element)
     {
         View view = getActiveView();
 

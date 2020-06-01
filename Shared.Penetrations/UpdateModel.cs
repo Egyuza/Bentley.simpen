@@ -6,7 +6,7 @@ using Bentley.Interop.MicroStationDGN;
 using Bentley.Interop.TFCom;
 
 using Shared.Bentley;
-
+using System.Windows.Forms;
 
 namespace Embedded.Penetrations.Shared
 {
@@ -23,10 +23,16 @@ class UpdateModel : BentleyInteropBase
     //    throw new NotImplementedException();
     //}
 
-    public void scanForUpdate()
-    {
+    private Dictionary<ModelReference, List<TFFrameListClass>> updateColl_;
 
-    /* TODO
+
+    public void scanForUpdate(TreeView treeView) // TODO без TreeView
+    {
+        updateColl_ = updateColl_ ?? 
+            new Dictionary<ModelReference, List<TFFrameListClass>>();
+        updateColl_.Clear();
+
+        /* TODO
         Поиск:
         - по имени Cell;
         - по CatalogGroupName 
@@ -36,86 +42,121 @@ class UpdateModel : BentleyInteropBase
         scanCriteria.ExcludeNonGraphical();
         scanCriteria.IncludeOnlyVisible();        
 
-        var changeList = new List<CellElement>();
+        scanRecurse(App.ActiveModelReference, scanCriteria, false);
 
-        foreach (string cellName in new string[] 
-            {PenetrTask.CELL_NAME, PenetrTask.CELL_NAME_OLD})
+        treeView.Nodes.Clear();
+
+        foreach (var pair in updateColl_)
         {
-            scanCriteria.IncludeOnlyCell(cellName);
+            ModelReference model = pair.Key;
+            List<TFFrameListClass> updateList = pair.Value;
 
-            ElementEnumerator iter = App.ActiveModelReference.Scan(scanCriteria);
-            iter.Reset();
-            while (iter.MoveNext())
+            TreeNode node = 
+                treeView.Nodes.Add(model.Name + $" ({updateList.Count})");
+            foreach (TFFrameListClass frame in updateList)
             {
-                if (!iter.Current.IsCellElement() && !iter.Current.IsCompundCell())
-                    continue;
-
-                changeList.Add(iter.Current.AsCellElement());                
-            }                 
+                Element element = frame.Get3DElement();
+                node.Nodes.Add(element.ID.ToString());
+            }
         }
-
-        update();
     }
 
     public void update()
     {
+        updateColl_.Clear();
+
         ElementScanCriteria scanCriteria = new ElementScanCriteriaClass();
         scanCriteria.ExcludeNonGraphical();
-        scanCriteria.IncludeOnlyVisible();        
+        scanCriteria.IncludeOnlyVisible();  
 
-        var changeList = new List<CellElement>();
+        scanRecurse(App.ActiveModelReference, scanCriteria, true);
+
+        // TODO запустить progressBar
+
+        foreach (var pair in updateColl_)
+        {
+            ModelReference model = pair.Key;
+            List<TFFrameListClass> updateList = pair.Value;
+
+            foreach (TFFrameListClass frame in updateList)
+            {
+                AppTF.ModelReferenceRewriteFrameList(model, frame);
+            }
+        }      
+    }
+
+    private void scanRecurse(ModelReference model, ElementScanCriteria criteria,
+        bool updateImidiatly)
+    {
+        if (updateColl_.ContainsKey(model))
+            return;
+
+        var updateList = new List<TFFrameListClass>();
 
         foreach (string cellName in new string[] 
             {PenetrTask.CELL_NAME, PenetrTask.CELL_NAME_OLD})
         {
-            scanCriteria.IncludeOnlyCell(cellName);
+            criteria.IncludeOnlyCell(cellName);
 
-            ElementEnumerator iter = App.ActiveModelReference.Scan(scanCriteria);
+            ElementEnumerator iter = App.ActiveModelReference.Scan(criteria);
             iter.Reset();
             while (iter.MoveNext())
             {
                 if (!iter.Current.IsCellElement() && !iter.Current.IsCompundCell())
                     continue;
-            
-                CellElement cell = iter.Current.AsCellElement();
 
                 bool dirty = false;
 
-                //if (cell.ID != 319836)
-                //{
-                //    //System.Windows.Forms.MessageBox.Show(cell.ID.ToString() +
-                //    //    "\n" + cell.Origin.ToStringEx());
-                    
-                //    continue;
-                //}
+                CellElement cell = iter.Current.AsCellElement();     
+                TFFrameListClass frameList = new TFFrameListClass();
 
-                TFFrameListClass frameList = new TFFrameListClass();                
-                
-                if (cellName.Equals(PenetrTask.CELL_NAME))
+                try
                 {
-                    frameList.InitFromElement(cell);
-                    process(frameList, ref dirty);
+                    if (cellName.Equals(PenetrTask.CELL_NAME))
+                    {
+                        frameList.InitFromElement(cell);
+                        process(frameList, ref dirty, updateImidiatly);
+                    }
+                    else if (cellName.Equals(PenetrTask.CELL_NAME_OLD))
+                    {
+                        processOld(ref cell, ref dirty, updateImidiatly); // CELL  
+                        frameList.InitFromElement(cell); // FRAME
+                        processOld(frameList, ref dirty, updateImidiatly);  
+                    }
                 }
-                else if (cellName.Equals(PenetrTask.CELL_NAME_OLD))
+                catch (Exception) 
                 {
-                    // 1. Cell
-                    processOld(ref cell, ref dirty);
-                    // 2. Frame           
-                    frameList.InitFromElement(cell);
-                    processOld(frameList, ref dirty);  
+                    // TODO log exception 
                 }
 
                 if (dirty)
                 {
-                    AppTF.ModelReferenceRewriteFrameList(
-                       App.ActiveModelReference, frameList);
-                }
+                    updateList.Add(frameList);
+                    //AppTF.ModelReferenceRewriteFrameList(
+                    //   App.ActiveModelReference, frameList);
+                }            
             }                 
         }
-        scanCriteria = null;
+
+        if (updateList.Count > 0)
+        {
+            updateColl_.Add(model, updateList);
+        }
+
+        foreach (Attachment attachment in model.Attachments)
+        {
+            if (!attachment.IsActive || !attachment.IsMissingFile || !attachment.IsMissingModel)
+                return;
+
+            ModelReference modelRef = 
+                App.MdlGetModelReferenceFromModelRefP(attachment.MdlModelRefP());
+            scanRecurse(modelRef, criteria, updateImidiatly);
+        }
     }
 
-    public void process(TFFrameListClass frameList, ref bool dirty)
+
+
+    public void process(TFFrameListClass frameList, ref bool dirty, bool updateImidiatly)
     {
         // smartsolids раскладываются на примитивы: окружности, линии
 
@@ -128,7 +169,7 @@ class UpdateModel : BentleyInteropBase
         }
     }
 
-    public void processOld(TFFrameListClass frame, ref bool dirty)
+    public void processOld(TFFrameListClass frame, ref bool dirty, bool updateImidiatly)
     {
         // TODO необходимо полностью обновить старые проходки,
         // т.к. нужно назначить правильные Level всем элементам проходки
@@ -144,15 +185,19 @@ class UpdateModel : BentleyInteropBase
         if (!hasRefPoint(projList))
         {
             dirty = true;
-            Point3d origin = frame.Get3DElement().AsCellElement().Origin;
-            PenetrHelper.addProjectionToFrame(frame,
-                ElementHelper.createPoint(origin),
-                "refPoint",
-                PenetrTask.LevelRefPoint);
+
+            if (updateImidiatly)
+            {
+                Point3d origin = frame.Get3DElement().AsCellElement().Origin;
+                PenetrHelper.addProjectionToFrame(frame,
+                    ElementHelper.createPoint(origin),
+                    "refPoint",
+                    PenetrTask.LevelRefPoint);
+            }
         }
     }
 
-    public void processOld(ref /* ref - важно */ CellElement cell, ref bool dirty)
+    public void processOld(ref /* ref - важно */ CellElement cell, ref bool dirty, bool updateImidiatly)
     {
         // TODO необходимо полностью обновить старые проходки,
         // т.к. нужно назначить правильные Level всем элементам проходки
@@ -179,7 +224,7 @@ class UpdateModel : BentleyInteropBase
                 temp.Level = levelBody;               
             }
             ElementHelper.setSymbologyByLevel(temp, ref cellDirty);
-            if (cellDirty)
+            if (updateImidiatly && cellDirty)
             {
                 temp.Rewrite(); // ! важно
                 cell.ReplaceCurrentElement(temp);

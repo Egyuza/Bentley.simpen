@@ -263,6 +263,49 @@ public class PenetrationModel : NotifyPropertyChangedBase
 
     public bool isProjectDefined => penData_.ProjectId != 0;
 
+
+    public void changeSelection(IEnumerable<PenetrTask> selection)
+    {
+        selectionTranCon_?.Reset();
+
+        foreach (PenetrTask task in selection)
+        {
+            BCOM.ModelReference modelRef = task.modelRef;
+            BCOM.View view = ViewHelper.getActiveView();
+
+            var taskUOR = new UOR(task.modelRef);
+            var activeUOR = new UOR(App.ActiveModelReference);
+
+            List<long> itemsIds = new List<long> {task.elemId};
+            // добавляем фланцы:
+            foreach (PenetrTaskFlange flangeTask in task.FlangesGeom) 
+            {
+                itemsIds.Add(flangeTask.elemId);
+            }
+
+            foreach (long id in itemsIds)
+            {
+                BCOM.Element temp = modelRef.GetElementByID(id).Clone();
+                temp.Color = 2; // зелёный
+                temp.LineWeight = 5;
+
+            #if CONNECT
+                // для версии CONNECT требуется поправка
+                // в V8i возмоно она производится автоматически
+                BCOM.Attachment attachment = task.getAttachment();
+                temp.Transform(attachment.GetReferenceToMasterTransform());
+            #endif
+
+                selectionTranCon_.AppendCopyOfElement(temp);
+            }
+        }
+    }
+
+    public void focusToTaskElement(PenetrTask task)
+    {
+        ViewHelper.zoomToElement(task.getElement());
+    }
+
     public void preview()
     {
         previewTranCon_.Reset();
@@ -312,8 +355,7 @@ public class PenetrationModel : NotifyPropertyChangedBase
             // ex.ShowMessage();
         }
     }
-
-
+    
     public void addToModel()
     {
         previewTranCon_?.Reset();
@@ -334,8 +376,9 @@ public class PenetrationModel : NotifyPropertyChangedBase
                     task.FlangesType, task.DiameterType.Number);
 
                 
-                if (!checkForIntersects(task, penInfo)) 
-                {   // ПРОВЕРКА НА ПЕРЕСЕЧЕНИЕ!
+                if (!checkForIntersects(task, penInfo)) // ! ВАЖНО
+                {   // TODO ПРОВЕРКА НА ПЕРЕСЕЧЕНИЕ!
+
                     task.Warnings.Add("Пересечение с другими закладными");
                     System.Windows.Forms.MessageBox.Show("Пересечение с другими закладными");
                     continue;
@@ -450,7 +493,7 @@ public class PenetrationModel : NotifyPropertyChangedBase
     }
 
 
-private static void setDataGroupInstance(
+    private static void setDataGroupInstance(
         BCOM.Element bcomElement, PenetrTask task)
     {
         Element element = ElementHelper.getElement(bcomElement);

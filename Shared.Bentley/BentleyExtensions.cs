@@ -33,12 +33,21 @@ public static class BentleyExtensions
     public static bool IsAttachmentOf(this BCOM.ModelReference model, 
         BCOM.ModelReference owner)
     {
+        return model.AsAttachment(owner) != null;
+    }
+
+    public static BCOM.Attachment AsAttachment(this BCOM.ModelReference model, 
+        BCOM.ModelReference owner = null)
+    {
+        owner = owner ?? App.ActiveModelReference;
+
         foreach (BCOM.Attachment attach in owner.Attachments)
         {
+            // равенство работает только для версии V8i
             if (attach.MdlModelRefP() == model.MdlModelRefP())
-                return true;
+                return attach;
         }
-        return false;
+        return null;
     }
 
 #elif CONNECT
@@ -75,12 +84,30 @@ public static class BentleyExtensions
         return model.AsDgnAttachmentOf(owner) != null;
     }
 
-    public static bool IsAttachment(this BCOM.ModelReference model)
+    public static BCOM.Attachment AsAttachment(this BCOM.ModelReference model, 
+        BCOM.ModelReference owner = null)
     {
-        return true;
+        owner = owner ?? App.ActiveModelReference;
+
+        foreach (BCOM.Attachment attach in owner.Attachments)
+        {
+            //if (attach.IsMissingFile || attach.IsMissingModel)
+            //    continue;
+            try 
+            {
+                // attach.DesignFile в некоторых случаях выбрасывает ошибку
+                // attach.IsMissingFile - не помогает
+                if (attach.DesignFile.MdlModelRefP() == model.MdlModelRefP())
+                {
+                    return attach;
+                }
+            }
+            catch (Exception) {}
+        }
+        return null;
     }
 
-    public static bool IsAttachmentOf(this BCOM.ModelReference model, 
+    public static bool IsAttachmentOf(this BCOM.ModelReference model,
         BCOM.ModelReference owner)
     {
         return model.AsDgnModelRef().AsDgnModel().IsDgnAttachmentOf(
