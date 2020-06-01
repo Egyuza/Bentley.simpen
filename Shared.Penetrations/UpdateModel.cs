@@ -206,8 +206,6 @@ class UpdateModel : BentleyInteropBase
 
         // TODO формализовать список обновлений через Enum
 
-        Level levelBody = PenetrTask.LevelMain;
-
         int change = 0;
         bool cellDirty = false;
 
@@ -218,10 +216,25 @@ class UpdateModel : BentleyInteropBase
             if (!temp.IsGraphical || temp.Level == null)
                 continue;
 
-            if (temp.Level?.ID != levelBody.ID)
+            Level requiredLevel;
+
+            if (temp.IsLineElement() && temp.AsLineElement().SegmentsCount > 1)
+            {
+                requiredLevel = PenetrTask.LevelSymb;
+            }
+            else if (temp.Type == MsdElementType.Ellipse) /*перфоратор*/
+            {
+                requiredLevel = PenetrTask.LevelSymb;
+            }
+            else
+            {
+                requiredLevel = PenetrTask.LevelMain;
+            }
+
+            if (temp.Level?.ID != requiredLevel.ID)
             {
                 cellDirty = true;
-                temp.Level = levelBody;               
+                temp.Level = requiredLevel;               
             }
             ElementHelper.setSymbologyByLevel(temp, ref cellDirty);
             if (updateImidiatly && cellDirty)
