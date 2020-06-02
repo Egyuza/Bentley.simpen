@@ -46,10 +46,9 @@ public class PenetrTask : BentleyInteropBase
     public long FlangesType { get; set; }
     public int FlangesCount => FlangesType == 1 ? 1 : FlangesType == 2 ? 2 : 0;
 
-    public DiameterType DiameterType => DiameterType.Parse(diameterTypeStr_);
-
-    private readonly string diameterTypeStr_;
-    
+    public string DiameterTypeStr {get; set;}
+    public DiameterType DiameterType => DiameterType.Parse(DiameterTypeStr);
+        
     /// <summary> длина в см </summary>
     public int LengthCm { get; set; }
     /// <summary> длина в мм </summary>
@@ -175,7 +174,7 @@ public class PenetrTask : BentleyInteropBase
                 data.Description.TrimStart('T').Split('-');
             FlangesType = int.Parse(parameters[0]);
 
-            diameterTypeStr_ = new DiameterType(int.Parse(parameters[1])).ToString();
+            DiameterTypeStr = new DiameterType(int.Parse(parameters[1])).ToString();
             LengthCm = int.Parse(parameters[2]);
         }
         catch (Exception)

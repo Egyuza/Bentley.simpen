@@ -8,7 +8,7 @@ namespace Embedded.Penetrations.Shared
     {
         private static Version version_;
         public static Version Version => 
-            version_ = version_ ?? new Version(2, 9, 1);
+            version_ = version_ ?? new Version(2, 9, 2);
         public static string VersionStr =>
             $"{Version.Major}.{Version.Minor}.{Version.Build}";
     }
