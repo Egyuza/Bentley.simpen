@@ -1,6 +1,8 @@
 ﻿using System;
 using Bentley.MstnPlatformNET;
 
+using shared = Shared;
+
 namespace Embedded.Penetrations.Cn
 {
 [AddInAttribute(MdlTaskID = "Embedded.Penetrations.Cn")]
@@ -14,6 +16,7 @@ public sealed class Addin : Bentley.MstnPlatformNET.AddIn
 
     protected override int Run(string[] commandLine)
     {
+        shared.Logger.Log.Info("старт приложения");
         return 0;
     }
 

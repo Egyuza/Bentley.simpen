@@ -53,7 +53,7 @@ public class PenetrDataSource
     long catalogId_ = 0L;
     long depId_ = 0L;
 
-    private void refresh() 
+    public void refresh() 
     {   // логика взята из оригинального simpen от Л.Вибе        
         data_ = new DataTable();
 
@@ -77,6 +77,9 @@ public class PenetrDataSource
         projId_ = wspace.IsConfigurationVariableDefined("EMBDB_PROJECT_ID") ?
             long.Parse(wspace.ConfigurationVariableValue("EMBDB_PROJECT_ID")) : 
             0L;
+
+        Logger.Log.Debug($"ID проекта ='{projId_}', если '0' - проект не определён");
+
         // offtake project id
         // 0 - no project
 
@@ -94,14 +97,15 @@ public class PenetrDataSource
             server, db, user, pwd);
             
         SqlConnection connection = null;
-
         try
         {
             connection = new SqlConnection(connectionString);
+            Logger.Log.Info($"установка сеанса связи с БД: server='{server}', db='{db}'");
             connection.Open();
         }
-        catch (SqlException)
+        catch (SqlException ex)
         {
+            Logger.Log.Error($"нет связи с БД", ex);
             if (connection != null)
             {
                 connection.Close();
@@ -131,23 +135,42 @@ public class PenetrDataSource
                 connBldr.Password = connBldr.UserID;
 
                 connection = new SqlConnection(connBldr.ToString());
-                connection.Open();
+                Logger.Log.Info($"установка сеанса связи с резервной БД: server='{passServer}', db='{db}'");
+
+                try
+                {
+                    connection.Open();
+                }
+                catch (Exception ex)
+                {
+                    Logger.Log.Error($"нет связи с БД", ex);
+                    throw;
+                }
             }
 
-            string sql = string.Format("select top 1 * from {0}usr" + 
-                " where usrLogin = '{1}' order by usrID desc", 
-                linked, userName_);
-            using (SqlDataReader reader = 
-                new SqlCommand(sql, connection).ExecuteReader())
+            Logger.Log.Debug("чтение из БД userId, catalogId, depId");
             {
-                if (reader != null && reader.HasRows)
+                string sql = string.Format("select top 1 * from {0}usr" + 
+                    " where usrLogin = '{1}' order by usrID desc", 
+                    linked, userName_);
+                using (SqlDataReader reader = 
+                    new SqlCommand(sql, connection).ExecuteReader())
                 {
-                    DataTable dt = new DataTable();
-                    dt.Load(reader);
+                    if (reader != null && reader.HasRows)
+                    {
+                        DataTable dt = new DataTable();
+                        dt.Load(reader);
 
-                    userId_ = dt.Rows[0].Field<long>("usrID");
-                    catalogId_ = dt.Rows[0].Field<long?>("usrCatalogID") ?? 0L;
-                    depId_ = dt.Rows[0].Field<long>("depID");
+                        userId_ = dt.Rows[0].Field<long>("usrID");
+                        catalogId_ = dt.Rows[0].Field<long?>("usrCatalogID") ?? 0L;
+                        depId_ = dt.Rows[0].Field<long>("depID");
+
+                        Logger.Log.Debug("[OK]");
+                    }
+                    else
+                    {
+                        Logger.Log.Debug("[FAIL]");
+                    }
                 }
             }
 
@@ -163,20 +186,27 @@ public class PenetrDataSource
                 // todo caption project
                 resHasRows = reader.HasRows;
             }
-
             if (!resHasRows)
             {
                 depId_ = 0;
-            }
-            
-            data_.Clear();
-            using (SqlDataReader reader = new SqlCommand(
-                string.Format("select * from {0}view_pendiam2", linked), 
-                connection).ExecuteReader())
+            }            
+
+            Logger.Log.Debug("чтение из БД талбицы типоразмеров проходок");
             {
-                if (reader != null && reader.HasRows)
+                data_.Clear();
+                using (SqlDataReader reader = new SqlCommand(
+                    string.Format("select * from {0}view_pendiam2", linked), 
+                    connection).ExecuteReader())
                 {
-                    data_.Load(reader);
+                    if (reader != null && reader.HasRows)
+                    {
+                        data_.Load(reader);
+                        Logger.Log.Debug("[OK]");
+                    }
+                    else
+                    {
+                        Logger.Log.Debug("[FAIL]");
+                    }
                 }
             }
 
@@ -209,12 +239,14 @@ public class PenetrDataSource
         }
         catch (Exception ex)
         {
+            Logger.Log.Error($"ошибка чтения данных из БД", ex);
             MessageBox.Show(ex.Message);
         }
         finally
         {
             if (connection != null)
             {
+                Logger.Log.Info($"закрываем сессию с БД");
                 connection.Close();
                 connection.Dispose();
             }

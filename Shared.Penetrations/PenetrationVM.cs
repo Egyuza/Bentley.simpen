@@ -6,10 +6,11 @@ using System.Windows.Forms;
 using Embedded.UI;
 
 using Shared.Bentley;
+using Shared;
 
 namespace Embedded.Penetrations.Shared
 {
-public class PenetrationVM
+public class PenetrationVM : BentleyInteropBase
 {
     private static PenetrationVM instance_;    
     private static bool isDebugMode_;
@@ -21,12 +22,7 @@ public class PenetrationVM
         Bentley.MicroStation.AddIn addin, string unparsed)
     {
         addin_ = addin;
-        isDebugMode_ = unparsed == null ? 
-            false : unparsed.Equals("DEBUG", StringComparison.OrdinalIgnoreCase);
-
-        instance_ = instance_ ?? new PenetrationVM(new PenetrationModel(addin));
-        instance_.loadContext();
-        return instance_;
+        return loadInstace(new PenetrationModel(addin), unparsed);
     }
 #elif CONNECT
     private static Bentley.MstnPlatformNET.AddIn addin_;
@@ -34,14 +30,45 @@ public class PenetrationVM
         Bentley.MstnPlatformNET.AddIn addin, string unparsed)
     {
         addin_ = addin;
-        isDebugMode_ = unparsed == null ? 
-            false : unparsed.Equals("DEBUG", StringComparison.OrdinalIgnoreCase);
+        return loadInstace(new PenetrationModel(addin), unparsed);
+    }
+#endif
 
-        instance_ = instance_ ?? new PenetrationVM(new PenetrationModel(addin));
+    private static PenetrationVM loadInstace(
+        PenetrationModel penModel, string unparsed)
+    {
+        var options = new List<string> (unparsed?.ToUpper().Split(' '));
+
+        var wspace = App.ActiveWorkspace;
+        if (wspace.IsConfigurationVariableDefined("AEP_EMB_PEN_LOG_FOLDER"))
+        {
+            Logger.setLogFolder(
+                wspace.ConfigurationVariableValue("AEP_EMB_PEN_LOG_FOLDER"));
+        }
+        if (wspace.IsConfigurationVariableDefined("AEP_EMB_PEN_LOG"))
+        {
+            Logger.IsActive = bool.Parse(
+                wspace.ConfigurationVariableValue("AEP_EMB_PEN_LOG"));
+        }
+        // доп.
+        if (options.Contains("LOG"))
+        {
+            Logger.IsActive = true;
+        }
+
+        Logger.Log.Info(new string('=', 22) + " LOAD " + new string('=', 22));
+
+        isDebugMode_ = options.Contains("DEBUG");
+        if (isDebugMode_)
+        {
+            Logger.Log.Info("запущено в DEBUG режиме");
+        }        
+
+        instance_ = instance_ ?? new PenetrationVM(penModel);
         instance_.loadContext();
         return instance_;
     }
-#endif
+
 
     public void loadContext()
     {
@@ -102,7 +129,6 @@ public class PenetrationVM
         form_.dgvCreationTasks.SelectionChanged += DgvCreationTasks_SelectionChanged;
         form_.dgvCreationTasks.CellMouseDoubleClick += DgvCreationTasks_CellMouseDoubleClick;
     }
-
 
     private void DgvCreationTasks_SelectionChanged(object sender, EventArgs e)
     {

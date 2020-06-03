@@ -12,6 +12,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)BentleyInteropBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ElementHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)BentleyExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Logger.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)RoundTool.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)sp3d\P3Dbase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)sp3d\P3DEquipment.cs" />

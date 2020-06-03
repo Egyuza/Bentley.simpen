@@ -50,6 +50,8 @@ public class PenetrationModel : NotifyPropertyChangedBase
         return penData_.getFlangeNumbersSort();
     }
 
+    public bool IsDatasourceRefreshRequired {get; set;}
+
     private PenetrationModel()
     {
         penData_ = new PenetrDataSource();
@@ -293,7 +295,10 @@ public class PenetrationModel : NotifyPropertyChangedBase
                 // для версии CONNECT требуется поправка
                 // в V8i возмоно она производится автоматически
                 BCOM.Attachment attachment = task.getAttachment();
-                temp.Transform(attachment.GetReferenceToMasterTransform());
+                if (attachment != null)
+                {
+                    temp.Transform(attachment.GetReferenceToMasterTransform());
+                }
             #endif
 
                 selectionTranCon_.AppendCopyOfElement(temp);
