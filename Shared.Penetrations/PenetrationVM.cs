@@ -22,7 +22,7 @@ public class PenetrationVM : BentleyInteropBase
         Bentley.MicroStation.AddIn addin, string unparsed)
     {
         addin_ = addin;
-        return loadInstace(new PenetrationModel(addin), unparsed);
+        return loadInstace(new GroupByTaskModel(addin), unparsed);
     }
 #elif CONNECT
     private static Bentley.MstnPlatformNET.AddIn addin_;
@@ -30,12 +30,12 @@ public class PenetrationVM : BentleyInteropBase
         Bentley.MstnPlatformNET.AddIn addin, string unparsed)
     {
         addin_ = addin;
-        return loadInstace(new PenetrationModel(addin), unparsed);
+        return loadInstace(new GroupByTaskModel(addin), unparsed);
     }
 #endif
 
     private static PenetrationVM loadInstace(
-        PenetrationModel penModel, string unparsed)
+        GroupByTaskModel penModel, string unparsed)
     {
         var options = new List<string> (unparsed?.ToUpper().Split(' '));
 
@@ -72,15 +72,16 @@ public class PenetrationVM : BentleyInteropBase
 
     public void loadContext()
     {
-        penModel_.loadContext();
+        groupModel_.loadContext();
     }
 
-    private PenetrationVM(PenetrationModel model)
+    private PenetrationVM(GroupByTaskModel model)
     {
-        penModel_ = model;
-        penModel_.PropertyChanged += PenModel__PropertyChanged;
+        groupModel_ = model;
+        groupModel_.PropertyChanged += PenModel__PropertyChanged;
 
         updateModel_ = new UpdateModel();
+        singleModel_ = new SingleModel();
 
         initializeForm();
     }
@@ -105,26 +106,65 @@ public class PenetrationVM : BentleyInteropBase
         form_.Text = $"Проходки v{AssemblyVersion.VersionStr}" 
             + (isDebugMode_ ? " [DEBUG]" : string.Empty);
 
-        if (!isDebugMode_ && !penModel_.isProjectDefined)
+        if (groupModel_.isProjectDefined)
         {
-            form_.setStatusText(
-                "Проект не определён - создание проходок не доступно");
-            form_.setReadOnly();
+            // TODO определять имя проекта по его id
+            form_.setStatusProject(groupModel_.ProjectId.ToString());
+        }
+        else
+        {
+            form_.setStatusProject(null);
+
+            if (isDebugMode_)
+            {
+                form_.setStatusText("создание проходок доступно в DEBUG режиме");
+            }
+            else
+            {
+                form_.setStatusText("создание проходок не доступно");
+                form_.setReadOnly();
+            }
         }
 
         form_.setColumns(getColumns_());
 
-        form_.setDataSource_Create(penModel_.TaskSelection);
+        form_.setDataSource_Create(groupModel_.TaskSelection);
         form_.setBinding("lblSelectionCount", "Text",
-            penModel_, PenetrationModel.NP.SelectionCount);
+            groupModel_, nameof(groupModel_.SelectionCount), 
+            BindinUpdateMode.ControlOnly);
 
         form_.setDataRowsAddedAction(rowsAdded);
-        form_.setPreviewAction(penModel_.preview);
-        form_.setCreateAction(penModel_.addToModel);
-        form_.setOnCloseFormAction (penModel_.clearContext);
+        form_.setPreviewAction(groupModel_.preview);
+        form_.setCreateAction(groupModel_.addToModel);
+        form_.setOnCloseFormAction (groupModel_.clearContext);
 
         form_.setScanForUpdateAction(updateModel_.scanForUpdate);
         form_.setUpdateAction(updateModel_.update);
+        form_.setStartPrimitiveAction(singleModel_.startPrimitive);
+
+        //Single
+
+        PenetrationForm.setBinding(form_.txtKKS, "Text",
+            singleModel_.UserTask, nameof(singleModel_.UserTask.KKS), 
+            BindinUpdateMode.SourceOnly);
+
+        PenetrationForm.setBinding(form_.txtTypeSize, "Text",
+            singleModel_, nameof(singleModel_.TypeSize),
+            BindinUpdateMode.ControlOnly); 
+
+        PenetrationForm.setBinding(form_.txtLength, "Text",
+            singleModel_.UserTask, nameof(singleModel_.UserTask.LengthCm),
+            BindinUpdateMode.Both); 
+
+        form_.setSingleSelecteFlangeType(singleModel_.setFlangeType);
+        form_.setSingleSelecteDiameterType(singleModel_.setDiameterType);
+        form_.setSingleSelecteLength(singleModel_.setLength);
+
+        form_.cbxDiameter.DataSource = singleModel_.CurrentDiameters;
+        form_.cbxFlanges.DataSource = 
+            PenetrDataSource.Instance.getFlangeNumbersSort();
+        form_.cbxFlanges.SelectedIndex = 0;
+        form_.cbxDiameter.SelectedIndex = 0;
 
         form_.dgvCreationTasks.SelectionChanged += DgvCreationTasks_SelectionChanged;
         form_.dgvCreationTasks.CellMouseDoubleClick += DgvCreationTasks_CellMouseDoubleClick;
@@ -132,23 +172,23 @@ public class PenetrationVM : BentleyInteropBase
 
     private void DgvCreationTasks_SelectionChanged(object sender, EventArgs e)
     {
-        var selection = new List<PenetrTask>();
+        var selection = new List<PenetrVueTask>();
         foreach(DataGridViewRow row in form_.dgvCreationTasks.SelectedRows)
         {
-            var task = (PenetrTask)row.DataBoundItem;
+            var task = (PenetrVueTask)row.DataBoundItem;
             if (task != null)
             {
                 selection.Add(task);
             }
         }
-        penModel_.changeSelection(selection);
+        groupModel_.changeSelection(selection);
     }
     private void DgvCreationTasks_CellMouseDoubleClick(object sender, DataGridViewCellMouseEventArgs e)
     {
-        PenetrTask task = 
-            (PenetrTask)form_.dgvCreationTasks.Rows[e.RowIndex].DataBoundItem;
+        PenetrVueTask task = 
+            (PenetrVueTask)form_.dgvCreationTasks.Rows[e.RowIndex].DataBoundItem;
 
-        penModel_.focusToTaskElement(task);
+        groupModel_.focusTaskElement(task);
     }
 
     private void rowsAdded(IEnumerable<DataGridViewRow> rows)
@@ -158,9 +198,9 @@ public class PenetrationVM : BentleyInteropBase
             var comboCell = 
                 row.Cells[ColumnName.DIAMETER] as DataGridViewComboBoxCell;
 
-            PenetrTask task = (PenetrTask)row.DataBoundItem;
+            PenetrVueTask task = (PenetrVueTask)row.DataBoundItem;
 
-            var diameters = penModel_.getDiametersList(task);
+            var diameters = groupModel_.getDiametersList(task);
             var diamStrList = new List<string>();
             DiameterType matchValue = null;
             foreach (DiameterType diamType in diameters)
@@ -168,15 +208,24 @@ public class PenetrationVM : BentleyInteropBase
                 if (diamType.Equals(task.DiameterType))
                 {
                     matchValue = diamType;
+                    Logger.Log.Debug(
+                        $"Найден диаметр в таблице диаметров: {diamType}" + 
+                        $" для задания '{task}'");
                 }
                 diamStrList.Add(diamType.ToString());
             }
             
             comboCell.DataSource = diamStrList;
             if (matchValue != null) {
+                Logger.Log.Debug($"Установка диаметра: {matchValue}");
                 comboCell.Value = matchValue.ToString();
             }
             else {
+                Logger.Log.Debug(
+                    $"невалиное значение диаметра '{task.DiameterType}'" + 
+                    $" для задания '{task}'" + 
+                    $"\n валидные занчения: {diameters.ToStringEx()}");                
+
                 comboCell.ErrorText = "невалидное значение диаметра";
             }
         }
@@ -204,7 +253,7 @@ public class PenetrationVM : BentleyInteropBase
         cmboxColumn.DataPropertyName = "FlangesType";
         cmboxColumn.Name = ColumnName.FLANGES;
         cmboxColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
-        cmboxColumn.DataSource = penModel_.getFlangeNumbersSort();
+        cmboxColumn.DataSource = groupModel_.getFlangeNumbersSort();
         columns.Add(cmboxColumn);
         
         column = new DataGridViewComboBoxColumn();
@@ -229,8 +278,9 @@ public class PenetrationVM : BentleyInteropBase
         return columns;
     }
 
-    private PenetrationModel penModel_;
+    private GroupByTaskModel groupModel_;
     private UpdateModel updateModel_;
+    private SingleModel singleModel_;
     private PenetrationForm form_;
 
 }

@@ -94,7 +94,7 @@ class UpdateModel : BentleyInteropBase
         var updateList = new List<TFFrameListClass>();
 
         foreach (string cellName in new string[] 
-            {PenetrTask.CELL_NAME, PenetrTask.CELL_NAME_OLD})
+            {PenetrVueTask.CELL_NAME, PenetrVueTask.CELL_NAME_OLD})
         {
             criteria.IncludeOnlyCell(cellName);
 
@@ -112,12 +112,12 @@ class UpdateModel : BentleyInteropBase
 
                 try
                 {
-                    if (cellName.Equals(PenetrTask.CELL_NAME))
+                    if (cellName.Equals(PenetrVueTask.CELL_NAME))
                     {
                         frameList.InitFromElement(cell);
                         process(frameList, ref dirty, updateImidiatly);
                     }
-                    else if (cellName.Equals(PenetrTask.CELL_NAME_OLD))
+                    else if (cellName.Equals(PenetrVueTask.CELL_NAME_OLD))
                     {
                         processOld(ref cell, ref dirty, updateImidiatly); // CELL  
                         frameList.InitFromElement(cell); // FRAME
@@ -192,7 +192,7 @@ class UpdateModel : BentleyInteropBase
                 PenetrHelper.addProjectionToFrame(frame,
                     ElementHelper.createPoint(origin),
                     "refPoint",
-                    PenetrTask.LevelRefPoint);
+                    PenetrVueTask.LevelRefPoint);
             }
         }
     }
@@ -220,15 +220,15 @@ class UpdateModel : BentleyInteropBase
 
             if (temp.IsLineElement() && temp.AsLineElement().SegmentsCount > 1)
             {
-                requiredLevel = PenetrTask.LevelSymb;
+                requiredLevel = PenetrVueTask.LevelSymb;
             }
             else if (temp.Type == MsdElementType.Ellipse) /*перфоратор*/
             {
-                requiredLevel = PenetrTask.LevelSymb;
+                requiredLevel = PenetrVueTask.LevelSymb;
             }
             else
             {
-                requiredLevel = PenetrTask.LevelMain;
+                requiredLevel = PenetrVueTask.LevelMain;
             }
 
             if (temp.Level?.ID != requiredLevel.ID)

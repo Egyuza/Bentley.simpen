@@ -404,6 +404,20 @@ static class ElementHelper
         }
     }
 
+    public static BCOM.TextStyle getTextStyle(string name)
+    {
+        BCOM.TextStyles styles = App.ActiveDesignFile.TextStyles;
+        
+        try
+        {
+            return styles[name];
+        }
+        catch (Exception)
+        {
+            return App.ActiveSettings.TextStyle;
+        }
+    }
+
     //public static BCOM.Level getLevel(string name)
     //{
     //    BCOM.Levels levels = App.ActiveDesignFile.Levels;
@@ -483,7 +497,6 @@ static class ElementHelper
         return scanRange;
     }
 
-
     public static void setSymbologyByLevel(BCOM.Element element) // legacy
     {
         bool dirty = false;
@@ -507,6 +520,11 @@ static class ElementHelper
             dirty = true;
             element.Color = App.ByLevelColor();
         }        
+    }
+
+    public static double getActiveAnnotationScale()
+    {
+        return App.ActiveModelReference.GetSheetDefinition().AnnotationScaleFactor;
     }
 
     private static BCOM.Application App

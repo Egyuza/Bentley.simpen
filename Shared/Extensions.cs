@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Windows.Forms;
 
 namespace Shared
 {
 static class Extensions
 {
-    public static void ShowMessage(this Exception ex)
+    public static void ShowMessage(this Exception ex, string text = null)
     {
-        MessageBox.Show(ex.Message, "Exception", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        text = text == null ? ex.Message : text + $"\nException: {ex.Message}";
+        MessageBox.Show(text, "Exception", MessageBoxButtons.OK, MessageBoxIcon.Error);
     }
 
     public static double ToDouble(this float value)
@@ -34,5 +36,20 @@ static class Extensions
         }
         return false;
     }
+
+    public static string ToStringEx<T>(this IList<T> list)
+    {
+        if (list == null)
+            return "null";
+
+        var builder = new StringBuilder("{");
+        foreach (T item in list)
+        {
+            builder.Append($"'{item.ToString()}', ");
+        }
+        builder.Append("}");
+        return builder.ToString();
+    }
+
 }
 }

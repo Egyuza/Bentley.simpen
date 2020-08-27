@@ -11,13 +11,19 @@
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)AssemblyVersion.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DiameterType.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)PenetrationModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GroupByTaskModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)PenetrLeaderInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)PenetrLocateCmd.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PenetrationVM.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PenetrDataSource.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PenetrHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PenetrInfo.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)PenetrTask.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)PenetrLeaderPrimitiveCmd.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)PenetrUserTask.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)PenetrVueTask.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PenetrTaskFlange.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)PenetrPrimitiveCmd.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SingleModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)UpdateModel.cs" />
   </ItemGroup>
 </Project>

@@ -12,5 +12,10 @@ static class Keyins
         //WindowHelper.show(new PenetrForm(), "pen_id");
         PenetrationVM.getInstance(Addin.Instance, unparsed).showForm();
     }
+
+    public static void drawLeader(string unparsed)
+    {
+        PenetrLocateCmd.StartCommand();
+    }
 }
 }

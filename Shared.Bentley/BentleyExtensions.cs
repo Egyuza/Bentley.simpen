@@ -128,6 +128,11 @@ public static class BentleyExtensions
         Math.Round(point.X, 0), Math.Round(point.Y, 0), Math.Round(point.Z, 0));
     }
 
+    public static bool EqualsPoint(this BCOM.Point3d lhs, BCOM.Point3d rhs)
+    {
+        return lhs.X == rhs.X && lhs.Y == rhs.Y && lhs.Z == rhs.Z;
+    }
+
     public static BCOM.Point3d shift(this BCOM.Point3d p3d, 
         double dX = 0.0, double dY = 0.0, double dZ = 0.0)
     {
@@ -226,6 +231,18 @@ public static class BentleyExtensions
             MessageBox.Show(text, "Exception", MessageBoxButtons.OK, MessageBoxIcon.Error);
         #endif
     }
+
+
+    public static double getHeight(this BCOM.Range3d range)
+    {
+        return (range.High.Y - range.Low.Y);
+    }
+
+    public static double getWidth(this BCOM.Range3d range)
+    {
+        return (range.High.X - range.Low.X);
+    }
+
 
     private static BCOM.MessageCenter MessageCenter => App.MessageCenter;
 

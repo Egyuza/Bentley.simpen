@@ -95,7 +95,7 @@ public static class PenetrHelper
         //        return frameList;
         //    }
 
-    public static BCOM.Element getPenElementWithoutFlanges(PenetrTask task, PenetrInfo penInfo)
+    public static BCOM.Element getPenElementWithoutFlanges(PenetrVueTask task, PenetrInfo penInfo)
     {
         UOR uor = new UOR(task.modelRef);
         double pipeOutsideDiam = uor.convertToMaster(penInfo.pipeDiameterOutside);
@@ -105,7 +105,7 @@ public static class PenetrHelper
     }
 
     public static TFCOM.TFFrameListClass createFrameList(
-        PenetrTask task, PenetrInfo penInfo, BCOM.Level level)
+        PenetrVueTask task, PenetrInfo penInfo, BCOM.Level level)
     {
         task.scanInfo();
         
@@ -202,12 +202,116 @@ public static class PenetrHelper
             frameList.AsTFFrame.Add3DElement(elem);
         }
 
-        frameList.AsTFFrame.SetName(PenetrTask.CELL_NAME); // ранее было 'EmbeddedPart'
+        frameList.AsTFFrame.SetName(PenetrVueTask.CELL_NAME); // ранее было 'EmbeddedPart'
         return frameList;
     }
 
+
+    public static TFCOM.TFFrameListClass createFrameList(
+        PenetrUserTask task, PenetrInfo penInfo, BCOM.Level level)
+    {
+        var taskUOR = new UOR(App.ActiveModelReference);
+
+        double pipeInsideDiam = penInfo.pipeDiameterInside / taskUOR.activeSubPerMaster;
+        double pipeOutsideDiam = penInfo.pipeDiameterOutside / taskUOR.activeSubPerMaster;
+
+        double flangeInsideDiam = penInfo.flangeDiameterInside / taskUOR.activeSubPerMaster;
+        double flangeOutsideDiam = penInfo.flangeDiameterOutside / taskUOR.activeSubPerMaster;
+        double flangeThick = penInfo.flangeThick / taskUOR.activeSubPerMaster;
+
+        double length = task.LengthCm *10 / taskUOR.activeSubPerMaster;
+
+        var solids = App.SmartSolid;
+
+        /*
+            ! длина трубы меньше размера проходки на толщину фланца
+            ! ЕСЛИ ФЛАНЕЦ ЕСТЬ
+        */
+
+        double delta = task.FlangesCount == 0 ? 0 : 
+            task.FlangesCount * flangeThick / 2;        
+
+        BCOM.SmartSolidElement cylindrInside =
+            solids.CreateCylinder(null, pipeInsideDiam / 2, length - delta);
+
+        BCOM.SmartSolidElement cylindrOutside =
+            solids.CreateCylinder(null, pipeOutsideDiam / 2, length - delta);
+        
+        var cylindr = solids.SolidSubtract(cylindrOutside, cylindrInside);
+
+        var elements = new Dictionary<BCOM.Element, double>();
+
+        {
+            double shift  = task.FlangesCount == 1 ? delta : 0;
+            shift *= 1;
+            elements.Add(cylindr, (length + shift)/2);
+        }        
+
+        // Фланцы:
+        for (int i = 0; i < task.FlangesCount; ++i)
+        {
+            BCOM.SmartSolidElement flangeCylindr = solids.SolidSubtract(
+                solids.CreateCylinder(null, flangeOutsideDiam / 2, flangeThick), 
+                solids.CreateCylinder(null, pipeOutsideDiam / 2, flangeThick));            
+            
+            double shift = 0;
+            if (task.FlangesCount == 1)
+            {
+                //bool isNearest = App.Vector3dEqualTolerance(task.singleFlangeSide,
+                //    App.Vector3dFromXYZ(0, 0, -1), 0.1); // 0.001
+                
+                bool isNearest = true;
+
+                // 0.5 - для видимости фланцев на грани стены/плиты 
+                shift = isNearest ?
+                        0.0    + flangeThick / 2 - 1: // 0.02:
+                        length - flangeThick / 2 + 1; // 0.02;
+            }
+            else
+            {
+                shift = i == 0 ? 0.0 : length;               
+                // для самих фланцев:
+                // 0.5 - для видимости фланцев на грани стены/плиты 
+                shift += Math.Pow(-1, i) * (flangeThick/2 - 1); //0.02);
+            }
+            elements.Add(flangeCylindr, shift);
+        }
+         
+        BCOM.Transform3d taskTran = App.Transform3dFromMatrix3d(task.Rotation);
+        
+        //double aboutX, aboutY, aboutZ;
+        //task.getCorrectiveAngles(out aboutX, out aboutY, out aboutZ);
+
+        TFCOM.TFFrameListClass frameList = new TFCOM.TFFrameListClass();
+
+        foreach (var pair in elements)
+        {
+            BCOM.Element elem = pair.Key;
+            double shift = pair.Value;
+            
+            elem.Color = 0; // TODO
+            BCOM.Point3d offset = App.Point3dAddScaled(
+                App.Point3dZero(), App.Point3dFromXYZ(0, 0, 1), shift);
+            elem.Move(offset);
+
+            //elem.Rotate(App.Point3dZero(), aboutX, aboutY, aboutZ);
+            
+            elem.Transform(taskTran);
+            elem.Move(task.Location);
+
+            elem.Level = level;
+            ElementHelper.setSymbologyByLevel(elem);
+
+            frameList.AsTFFrame.Add3DElement(elem);
+        }
+
+        frameList.AsTFFrame.SetName(PenetrVueTask.CELL_NAME); // ранее было 'EmbeddedPart'
+        return frameList;
+    }
+
+
     public static void addProjection(
-        TFCOM.TFFrameList frame, PenetrTask task, PenetrInfo penInfo)
+        TFCOM.TFFrameList frame, PenetrVueTask task, PenetrInfo penInfo)
     {
         var taskUOR = new UOR(task.modelRef);
 
@@ -221,32 +325,32 @@ public static class PenetrHelper
 
         App.Point3dZero();
         addProjectionToFrame(frame, ElementHelper.createCrossRound(pipeInsideDiam)
-            .transformByTask(task), "cross", PenetrTask.LevelSymb);
+            .transformByTask(task), "cross", PenetrVueTask.LevelSymb);
         addProjectionToFrame(frame, ElementHelper.createCircle(pipeInsideDiam)
-            .transformByTask(task), "circle", PenetrTask.LevelSymb);
+            .transformByTask(task), "circle", PenetrVueTask.LevelSymb);
         addProjectionToFrame(frame, ElementHelper.createCrossRound(pipeInsideDiam)
-            .transformByTask(task, shiftZ: length), "cross", PenetrTask.LevelSymb);
+            .transformByTask(task, shiftZ: length), "cross", PenetrVueTask.LevelSymb);
         addProjectionToFrame(frame, ElementHelper.createCircle(pipeInsideDiam)
-            .transformByTask(task, shiftZ: length), "circle", PenetrTask.LevelSymb);
+            .transformByTask(task, shiftZ: length), "circle", PenetrVueTask.LevelSymb);
         if (task.FlangesCount > 0)
         {
             addProjectionToFrame(frame, ElementHelper.createCircle(flangeOutsideDiam).
-                transformByTask(task, 0.0, 0.0, -PenetrTask.FLANGE_SHIFT), 
-                "flange", PenetrTask.LevelFlangeSymb);
+                transformByTask(task, 0.0, 0.0, -PenetrVueTask.FLANGE_SHIFT), 
+                "flange", PenetrVueTask.LevelFlangeSymb);
 
             if (task.FlangesCount == 2)
             {
                 addProjectionToFrame(frame, ElementHelper.createCircle(flangeOutsideDiam).
-                    transformByTask(task, 0.0, 0.0, length + PenetrTask.FLANGE_SHIFT), 
-                    "flange", PenetrTask.LevelFlangeSymb);
+                    transformByTask(task, 0.0, 0.0, length + PenetrVueTask.FLANGE_SHIFT), 
+                    "flange", PenetrVueTask.LevelFlangeSymb);
             }
         }
         addProjectionToFrame(frame, ElementHelper.createPoint().transformByTask(task), 
-            "refPoint", PenetrTask.LevelRefPoint);
+            "refPoint", PenetrVueTask.LevelRefPoint);
     }
 
     public static void addPerforator (TFCOM.TFFrameList frameList, 
-        PenetrTask task, PenetrInfo penInfo, BCOM.Level levelSymb, bool isVisible)
+        PenetrVueTask task, PenetrInfo penInfo, BCOM.Level levelSymb, bool isVisible)
     {
         var taskUOR = new UOR(task.modelRef);
 
@@ -350,7 +454,7 @@ public static class PenetrHelper
         }
     }
 
-    public static T transformByTask<T>(this T element, PenetrTask task,
+    public static T transformByTask<T>(this T element, PenetrVueTask task,
             double shiftX = 0.0, double shiftY = 0.0, double shiftZ = 0.0)
         where T : BCOM.Element
     {
@@ -716,8 +820,8 @@ public static class PenetrHelper
             return false;
 
         var cell = element.AsCellElement();
-        return cell.Name == PenetrTask.CELL_NAME || 
-            cell.Name == PenetrTask.CELL_NAME_OLD;
+        return cell.Name == PenetrVueTask.CELL_NAME || 
+            cell.Name == PenetrVueTask.CELL_NAME_OLD;
     }
 
     static BCOM.Application App

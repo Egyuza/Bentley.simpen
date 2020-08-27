@@ -37,8 +37,18 @@ internal static class WindowHelper
         }
         else
         {
-            m_window = winMngr.DockPanel(form, id,
-                form.Text, DockLocation.Floating); // здесь вызов Frm_Load  
+            try
+            {
+                m_window = winMngr.DockPanel(form, id,
+                    form.Text, DockLocation.Floating); // здесь вызов Frm_Load          
+                
+            }
+            catch (System.Exception ex)
+            {
+                ex.ShowMessage();
+                return;
+            }
+
             cache.Add(form, m_window);
 
             form.FormClosed += Form_FormClosed;  

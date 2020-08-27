@@ -80,12 +80,12 @@ public static class Logger
         layout.ActivateOptions();
         FileAppender fileAppender = new FileAppender
         {
-            Threshold = Level.All
-            , Layout = layout
-            , File = filePath
-            , Encoding = Encoding.UTF8
-            , AppendToFile = false
-            , ImmediateFlush = true
+            Threshold = Level.All,
+            Layout = layout,
+            File = filePath,
+            Encoding = Encoding.UTF8,
+            AppendToFile = true,
+            ImmediateFlush = true,
         };
         fileAppender.ActivateOptions();
         return fileAppender;

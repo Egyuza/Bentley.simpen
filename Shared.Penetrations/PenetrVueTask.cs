@@ -19,7 +19,7 @@ using Shared.Bentley;
 
 namespace Embedded.Penetrations.Shared
 {
-public class PenetrTask : BentleyInteropBase
+public class PenetrVueTask : BentleyInteropBase
 {
     public enum TaskTypeEnum
     {
@@ -28,7 +28,6 @@ public class PenetrTask : BentleyInteropBase
         PipeEquipment,
         Flange
     }
-
     public IntPtr elemRefP { get; private set; }
     public long elemId { get; private set; }
     private IntPtr modelRefP;
@@ -121,7 +120,36 @@ public class PenetrTask : BentleyInteropBase
     public List<TFCOM.TFElementList> TFFormsIntersected { get; private set; }
     public List<TFCOM.TFElementList> CompoundsIntersected { get; private set; }
 
-    private PenetrTask(Element element, Sp3dTask task)
+
+    public static PenetrVueTask getByParameters(
+        BCOM.Point3d location, long flangeType, int lengthCm)
+    {
+        return new PenetrVueTask(location, flangeType, lengthCm);
+    }
+
+    public static bool getFromElement(Element element, out PenetrVueTask penTask)
+    {
+        Sp3dTask task = null;
+        penTask = null;
+
+        if (!ElementHelper.isElementSp3dTask(element, out task) ||
+            !(task.isPipe() || task.isPipeOld() || task.isEquipment()))
+        {
+            return false;
+        }
+
+        penTask = new PenetrVueTask(element, task);
+        return true;
+    }
+
+    private PenetrVueTask(BCOM.Point3d location, long flangeType, int lengthCm)
+    {
+        rawLocation_ = location;
+        this.FlangesType = flangeType;
+        this.LengthCm = lengthCm;
+    }
+
+    private PenetrVueTask(Element element, Sp3dTask task)
     {
         long id;
         IntPtr elRef, modelRef;
@@ -222,7 +250,7 @@ public class PenetrTask : BentleyInteropBase
             | /'             |
             !/___> X       __*__ 
         */
-        if (TaskType == PenetrTask.TaskTypeEnum.PipeEquipment)
+        if (TaskType == PenetrVueTask.TaskTypeEnum.PipeEquipment)
         {
             /* Ориентация проходки перед применением матрицы поворота задания
              * должна быть вдоль оси  X
@@ -580,21 +608,6 @@ public class PenetrTask : BentleyInteropBase
                 return true;
         }
         return false;
-    }
-
-    public static bool getFromElement(Element element, out PenetrTask penTask)
-    {
-        Sp3dTask task = null;
-        penTask = null;
-
-        if (!ElementHelper.isElementSp3dTask(element, out task) ||
-            !(task.isPipe() || task.isPipeOld() || task.isEquipment()))
-        {
-            return false;
-        }
-
-        penTask = new PenetrTask(element, task);
-        return true;
     }
 
     public bool getTFFormThickness(out double thickness)

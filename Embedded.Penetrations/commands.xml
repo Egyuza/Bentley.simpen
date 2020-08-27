@@ -9,12 +9,14 @@
 
     <SubKeyinTables>
         <KeyinTable ID="Commands">
-            <Keyword CommandWord="PENETRATIONS"/>       
-        </KeyinTable>   
+            <Keyword CommandWord="PENETRATIONS"/>
+            <Keyword CommandWord="LEADER"/>
+        </KeyinTable>
     </SubKeyinTables>
     
     <KeyinHandlers>
-        <KeyinHandler Keyin="EMBEDDED PENETR" Function="Embedded.Penetrations.Keyins.showForm"/>
+        <KeyinHandler Keyin="EMBEDDED PENETRATIONS" Function="Embedded.Penetrations.Keyins.showForm"/>
+        <KeyinHandler Keyin="EMBEDDED LEADER" Function="Embedded.Penetrations.Keyins.drawLeader"/>
     </KeyinHandlers>
 
 </KeyinTree>

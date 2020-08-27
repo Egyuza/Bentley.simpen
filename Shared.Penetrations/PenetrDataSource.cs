@@ -32,13 +32,19 @@ public class PenetrDataSource
     //{
     //    return new PenetrData();
     //}
-    public PenetrDataSource() 
+
+    private static PenetrDataSource instance_;
+
+    public static PenetrDataSource Instance => 
+        instance_ ?? (instance_ = new PenetrDataSource());
+
+    private PenetrDataSource() 
     {
         refresh();
     }
 
     public long ProjectId { get { return projId_; } }
-    string ProjectName
+    string ProjectName // TODO 
     {
         get
         {
@@ -77,8 +83,6 @@ public class PenetrDataSource
         projId_ = wspace.IsConfigurationVariableDefined("EMBDB_PROJECT_ID") ?
             long.Parse(wspace.ConfigurationVariableValue("EMBDB_PROJECT_ID")) : 
             0L;
-
-        Logger.Log.Debug($"ID проекта ='{projId_}', если '0' - проект не определён");
 
         // offtake project id
         // 0 - no project
@@ -191,6 +195,9 @@ public class PenetrDataSource
                 depId_ = 0;
             }            
 
+            Logger.Log.Debug($"ID проекта ='{projId_}', если '0' - проект не определён");
+            Logger.Log.Debug($"depID ='{depId_}'");
+
             Logger.Log.Debug("чтение из БД талбицы типоразмеров проходок");
             {
                 data_.Clear();
@@ -201,7 +208,7 @@ public class PenetrDataSource
                     if (reader != null && reader.HasRows)
                     {
                         data_.Load(reader);
-                        Logger.Log.Debug("[OK]");
+                        Logger.Log.Debug($"[OK] {data_.Rows.Count} типоразмеров");
                     }
                     else
                     {
@@ -209,6 +216,9 @@ public class PenetrDataSource
                     }
                 }
             }
+
+
+
 
             //if (projId > 0)
             //{
@@ -262,6 +272,8 @@ public class PenetrDataSource
             OrderBy(x => x.Field<long>("diamNumber")).
             ThenByDescending(x => x.Field<float>("pipeDiam")).
             ThenByDescending(x => x.Field<float>("pipeThick"));
+
+        Logger.Log.Debug($"для projId='{projId_}' и depId='{depId_}' найдено {dataRows.Count()} типоразмеров");
 
         var list = new List<DiameterType>();
 

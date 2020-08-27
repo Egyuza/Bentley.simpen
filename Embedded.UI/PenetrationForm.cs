@@ -9,12 +9,24 @@ using Shared;
 namespace Embedded.UI
 {
 
+public enum BindinUpdateMode
+{
+    ControlOnly,
+    SourceOnly,
+    Both
+}
+
 public partial class PenetrationForm : Form
 {
     public delegate void PreviewAction();
     public delegate void CreateAction();
     public delegate void ScanForUpdateAction(TreeView treeView);
     public delegate void UpdateAction();
+    public delegate void StartPrimitiveAction();
+    public delegate void SingleSelectFlangeTypeAction(long flangeType);
+    public delegate void SingleSelectDiameterTypeAction(object diameterType);
+    public delegate void SingleSelectLengthAction(int length);    
+
     public delegate void OnCloseFormAction();
     public delegate void DataRowsAddedAction(IEnumerable<DataGridViewRow> rows);
 
@@ -68,18 +80,49 @@ public partial class PenetrationForm : Form
     //    //trvUpdate.DataSource = new BindingSource(bindList, null);
     //}
 
-    public void setBinding(string controlName, string controlProperty,
-        object dataSource, string dataMember)
+    public void setBinding(string controlName, string controlPropertyName,
+        object dataSource, string dataSourceMember, BindinUpdateMode bindingMode)
     {
         try
         {
-            findControl(controlName, this).DataBindings.Add(
-                new Binding(controlProperty, dataSource, dataMember));
+            setBinding(findControl(controlName, this), controlPropertyName,
+                dataSource, dataSourceMember, bindingMode);
         }
         catch (Exception ex)
         {
-            MessageBox.Show(ex.Message, "Binding error", 
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
+            ex.ShowMessage();
+        }
+    }
+
+    public static void setBinding(Control control, string controlPropertyName,
+        object dataSource, string dataSourceMember, BindinUpdateMode bindingMode)
+    {       
+        try
+        {
+            var binding = new Binding(
+                controlPropertyName, dataSource, dataSourceMember);
+             
+            switch (bindingMode)
+            {
+            case BindinUpdateMode.ControlOnly:
+                binding.ControlUpdateMode = ControlUpdateMode.OnPropertyChanged;
+                binding.DataSourceUpdateMode = DataSourceUpdateMode.Never;
+                break;
+            case BindinUpdateMode.SourceOnly:
+                binding.ControlUpdateMode = ControlUpdateMode.Never;
+                binding.DataSourceUpdateMode = DataSourceUpdateMode.OnPropertyChanged;
+                break;
+            default:
+                binding.DataSourceUpdateMode = DataSourceUpdateMode.OnPropertyChanged;
+                binding.ControlUpdateMode = ControlUpdateMode.OnPropertyChanged;             
+                break;
+            }
+
+            control.DataBindings.Add(binding);
+        }
+        catch (Exception ex)
+        {
+            ex.ShowMessage();
         }
     }
 
@@ -99,10 +142,24 @@ public partial class PenetrationForm : Form
         return res;
     }
 
+    public void setStatusProject(string projectName)
+    {
+        if (string.IsNullOrEmpty(projectName))
+        {
+            statusProject.Text = "Не определён";
+            statusProject.ForeColor = System.Drawing.Color.Red;
+        }
+        else
+        {
+            statusProject.Text = projectName;
+            statusProject.ForeColor = System.Drawing.Color.Black;
+        }        
+    }
+
     public void setStatusText(string text)
     {
-        lblStatus.Text = text;
-        lblStatus.Visible = !string.IsNullOrEmpty(text);
+        statusInfo.Text = text;
+        statusInfo.Visible = !string.IsNullOrEmpty(text);
     }
 
     public void setReadOnly()
@@ -130,6 +187,25 @@ public partial class PenetrationForm : Form
     public void setUpdateAction(UpdateAction action)
     {
         updateAction_ = action;
+    }
+
+    public void setStartPrimitiveAction(StartPrimitiveAction action)
+    {
+        startPrimitiveAction_ = action;
+    }
+
+    public void setSingleSelecteFlangeType(SingleSelectFlangeTypeAction action)
+    {
+        singleSelectFlangeTypeAction_ = action;
+    }
+    public void setSingleSelecteDiameterType(SingleSelectDiameterTypeAction action)
+    {
+        singleSelectDiameterTypeAction_ = action;
+    }
+
+    public void setSingleSelecteLength(SingleSelectLengthAction action)
+    {
+        singleSelectLengthAction_ = action;
     }
 
     public void setDataRowsAddedAction(DataRowsAddedAction action)
@@ -184,6 +260,11 @@ public partial class PenetrationForm : Form
         btnScan_Click(btnScan, e);
     }
 
+    private void btnStartPrimitive_Click(object sender, EventArgs e)
+    {
+        InvokeSafe(startPrimitiveAction_);
+    }
+
     private void PenetrationForm_FormClosed(object sender, FormClosedEventArgs e)
     {
         InvokeSafe(onCloseFormAction_);
@@ -205,7 +286,31 @@ public partial class PenetrationForm : Form
     private CreateAction createAction_;
     private ScanForUpdateAction scanForUpdateAction_;
     private UpdateAction updateAction_;
+    private StartPrimitiveAction startPrimitiveAction_;
+    private SingleSelectFlangeTypeAction singleSelectFlangeTypeAction_;
+    private SingleSelectDiameterTypeAction singleSelectDiameterTypeAction_;
+    private SingleSelectLengthAction singleSelectLengthAction_;
     private OnCloseFormAction onCloseFormAction_;
     private DataRowsAddedAction dataRowsAddedAction_;
+
+    private void dgvCreationTasks_CellContentClick(object sender, DataGridViewCellEventArgs e)
+    {
+
+    }
+
+    private void cbxFlanges_SelectedValueChanged(object sender, EventArgs e)
+    {
+        InvokeSafe(singleSelectFlangeTypeAction_, cbxFlanges.SelectedValue);
+    }
+
+    private void cbxDiameter_SelectedValueChanged(object sender, EventArgs e)
+    {
+        InvokeSafe(singleSelectDiameterTypeAction_, cbxDiameter.SelectedValue);
+    }
+
+    private void txtLength_TextChanged(object sender, EventArgs e)
+    {
+        InvokeSafe(singleSelectLengthAction_, int.Parse(txtLength.Text));
+    }
 }
 }

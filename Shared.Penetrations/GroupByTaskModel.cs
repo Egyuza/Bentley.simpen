@@ -29,7 +29,7 @@ using Bentley.MstnPlatformNET;
 
 namespace Embedded.Penetrations.Shared
 {
-public class PenetrationModel : NotifyPropertyChangedBase
+public class GroupByTaskModel : NotifyPropertyChangedBase
 {
     public new class NP : NotifyPropertyChangedBase.NP
     {
@@ -38,10 +38,10 @@ public class PenetrationModel : NotifyPropertyChangedBase
             SelectionCount = "SelectionCount";
     }
 
-    public BindingList<PenetrTask> TaskSelection {get; private set;} 
+    public BindingList<PenetrVueTask> TaskSelection {get; private set;} 
     public int SelectionCount => TaskSelection.Count;
 
-    public IList<DiameterType> getDiametersList(PenetrTask task)
+    public IList<DiameterType> getDiametersList(PenetrVueTask task)
     {
         return penData_.getDiameters(task.FlangesType);
     }
@@ -52,10 +52,10 @@ public class PenetrationModel : NotifyPropertyChangedBase
 
     public bool IsDatasourceRefreshRequired {get; set;}
 
-    private PenetrationModel()
+    private GroupByTaskModel()
     {
-        penData_ = new PenetrDataSource();
-        TaskSelection = new BindingList<PenetrTask>();
+        penData_ = PenetrDataSource.Instance;
+        TaskSelection = new BindingList<PenetrVueTask>();
         signOnNotify(NP.SelectionCount, NP.TaskSelection);
 
         BCOM.Point3d zero = App.Point3dZero();
@@ -79,7 +79,7 @@ public class PenetrationModel : NotifyPropertyChangedBase
 
 #if V8i
     Bentley.MicroStation.AddIn addin_;
-    public PenetrationModel(Bentley.MicroStation.AddIn addin) : this()
+    public GroupByTaskModel(Bentley.MicroStation.AddIn addin) : this()
     {
         addin_ = addin;
         addin_.SelectionChangedEvent += Addin_SelectionChangedEvent;
@@ -125,9 +125,10 @@ public class PenetrationModel : NotifyPropertyChangedBase
                 }
         #endif
 
-                PenetrTask task;
-                if (PenetrTask.getFromElement(element, out task))
+                PenetrVueTask task;
+                if (PenetrVueTask.getFromElement(element, out task))
                 {
+                    Logger.Log.Info($"Выбор объекта заадния {task.ToString()}");
                     if (tasks_.ContainsKey(element.ElementRef))
                     {
                         TaskSelection.Remove(tasks_[element.ElementRef]);
@@ -151,7 +152,7 @@ public class PenetrationModel : NotifyPropertyChangedBase
 
 #elif CONNECT
     Bentley.MstnPlatformNET.AddIn addin_;
-    public PenetrationModel(Bentley.MstnPlatformNET.AddIn addin) : this()
+    public GroupByTaskModel(Bentley.MstnPlatformNET.AddIn addin) : this()
     {
         addin_ = addin;
         addin_.SelectionChangedEvent += Addin_SelectionChangedEvent;
@@ -199,27 +200,28 @@ public class PenetrationModel : NotifyPropertyChangedBase
                 // add new
                 foreach (Element element in selectionSet.Values)
                 {
-
+                
         #if DEBUG
-                BCOM.Element comEl = ElementHelper.getElementCOM(element);
+                //BCOM.Element comEl = ElementHelper.getElementCOM(element);
 
-                if (comEl.IsCompundCell())
-                {
-                    var cell = comEl.AsCellElement();
+                //if (comEl.IsCompundCell())
+                //{
+                //    var cell = comEl.AsCellElement();
 
-                    var cross = ElementHelper.createCrossRound(10, cell.Origin);
-                    var pointEl = ElementHelper.createCircle(10, cell.Origin);
+                //    var cross = ElementHelper.createCrossRound(10, cell.Origin);
+                //    var pointEl = ElementHelper.createCircle(10, cell.Origin);
 
-                    previewTranCon_.AppendCopyOfElement(pointEl);
-                    previewTranCon_.AppendCopyOfElement(cross);
-                }
+                //    previewTranCon_.AppendCopyOfElement(pointEl);
+                //    previewTranCon_.AppendCopyOfElement(cross);
+                //}
         #endif
 
                     IntPtr elementRef = element.GetNativeElementRef();
-                    PenetrTask task;
-                    if (PenetrTask.getFromElement(element, out task) &&
+                    PenetrVueTask task;
+                    if (PenetrVueTask.getFromElement(element, out task) &&
                         !tasks_.ContainsKey(elementRef))
                     {
+                        Logger.Log.Info($"Выбор объекта заадния {task.ToString()}");
                         tasks_.Add(elementRef, task);
                         TaskSelection.Add(task);
                     }
@@ -242,8 +244,8 @@ public class PenetrationModel : NotifyPropertyChangedBase
             {
                 foreach (Element element in selectionSet.Values)
                 {
-                    PenetrTask task;
-                    if (PenetrTask.getFromElement(element, out task))
+                    PenetrVueTask task;
+                    if (PenetrVueTask.getFromElement(element, out task))
                     {
                         tasks_.Add(element.GetNativeElementRef(), task);
                         TaskSelection.Add(task);
@@ -265,12 +267,13 @@ public class PenetrationModel : NotifyPropertyChangedBase
 
     public bool isProjectDefined => penData_.ProjectId != 0;
 
+    public long ProjectId => penData_.ProjectId;
 
-    public void changeSelection(IEnumerable<PenetrTask> selection)
+    public void changeSelection(IEnumerable<PenetrVueTask> selection)
     {
         selectionTranCon_?.Reset();
 
-        foreach (PenetrTask task in selection)
+        foreach (PenetrVueTask task in selection)
         {
             BCOM.ModelReference modelRef = task.modelRef;
             BCOM.View view = ViewHelper.getActiveView();
@@ -306,7 +309,7 @@ public class PenetrationModel : NotifyPropertyChangedBase
         }
     }
 
-    public void focusToTaskElement(PenetrTask task)
+    public void focusTaskElement(PenetrVueTask task)
     {
         ViewHelper.zoomToElement(task.getElement());
     }
@@ -317,7 +320,7 @@ public class PenetrationModel : NotifyPropertyChangedBase
 
         try
         {
-            foreach (PenetrTask task in TaskSelection)
+            foreach (PenetrVueTask task in TaskSelection)
             {
                 PenetrInfo penInfo = penData_.getPenInfo(
                     task.FlangesType, task.DiameterType.Number);
@@ -331,7 +334,7 @@ public class PenetrationModel : NotifyPropertyChangedBase
         //#endif
 
                 TFCOM.TFFrameList frameList = 
-                    PenetrHelper.createFrameList(task, penInfo, PenetrTask.LevelMain);
+                    PenetrHelper.createFrameList(task, penInfo, PenetrVueTask.LevelMain);
                 
                 previewTranCon_.AppendCopyOfElement(
                         frameList.AsTFFrame.Get3DElement());
@@ -375,7 +378,7 @@ public class PenetrationModel : NotifyPropertyChangedBase
         var activeModel = App.ActiveModelReference;
         try
         {
-            foreach (PenetrTask task in TaskSelection)
+            foreach (PenetrVueTask task in TaskSelection)
             {
                 PenetrInfo penInfo = penData_.getPenInfo(
                     task.FlangesType, task.DiameterType.Number);
@@ -390,13 +393,13 @@ public class PenetrationModel : NotifyPropertyChangedBase
                 }
 
                 TFCOM.TFFrameListClass frameList = 
-                    PenetrHelper.createFrameList(task, penInfo, PenetrTask.LevelMain);
+                    PenetrHelper.createFrameList(task, penInfo, PenetrVueTask.LevelMain);
                 
                 PenetrHelper.addProjection(frameList, task, penInfo);
 
                 // TODO видимость контура перфоратора можно в конфиг. переменную
                 PenetrHelper.addPerforator(frameList, 
-                    task, penInfo, PenetrTask.LevelSymb, false);
+                    task, penInfo, PenetrVueTask.LevelSymb, false);
 
                 PenetrHelper.applyPerforatorInModel(frameList);
 
@@ -420,13 +423,12 @@ public class PenetrationModel : NotifyPropertyChangedBase
             activeSets.Color = activeColor;
         }
     }
-
-
+    
     /// <summary>
     /// Проверка на пересечения с другими закладными элементами.
     /// TRUE - если проверка пройдена
     /// </summary>
-    private bool checkForIntersects(PenetrTask task, PenetrInfo penInfo)
+    private bool checkForIntersects(PenetrVueTask task, PenetrInfo penInfo)
     {
         task.scanInfo();
 
@@ -497,9 +499,11 @@ public class PenetrationModel : NotifyPropertyChangedBase
         OnPropertyChanged(NP.TaskSelection);
     }
 
-
+    /// <summary>
+    /// Заполнение у элемента проходки свойств DataGroup
+    /// </summary>
     private static void setDataGroupInstance(
-        BCOM.Element bcomElement, PenetrTask task)
+        BCOM.Element bcomElement, PenetrVueTask task)
     {
         Element element = ElementHelper.getElement(bcomElement);
         if (element == null)
@@ -556,8 +560,8 @@ public class PenetrationModel : NotifyPropertyChangedBase
 
     private PenetrDataSource penData_; // TODO переименовать
 
-    private Dictionary<IntPtr, PenetrTask> tasks_ = 
-        new Dictionary<IntPtr, PenetrTask>();
+    private Dictionary<IntPtr, PenetrVueTask> tasks_ = 
+        new Dictionary<IntPtr, PenetrVueTask>();
 
     private BCOM.TransientElementContainer selectionTranCon_;
     private BCOM.TransientElementContainer previewTranCon_;
