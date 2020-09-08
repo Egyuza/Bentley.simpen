@@ -40,10 +40,17 @@ public class PenetrVueTask : BentleyInteropBase
     public BCOM.Element getElement() => 
         ElementHelper.getElementCOM(elemRefP, modelRefP);
 
-    public string Name => $"T{FlangesType}-{DiameterType.Number}-{LengthCm}";
+    public string Name => $"T{PenCode}-{DiameterType.Number}-{LengthCm}";
 
-    public long FlangesType { get; set; }
-    public int FlangesCount => FlangesType == 1 ? 1 : FlangesType == 2 ? 2 : 0;
+    public string PenCode { get; private set; }
+
+    public long FlangesType
+    {
+        get { return PenetrInfo.getFlangesType(PenCode); }
+        set { PenCode = PenetrInfo.getPenCode(value); }
+    }
+        
+    public int FlangesCount => FlangesType == 1 ? 1 : FlangesType == 2 ? 2 : 0; // TODO для "4"
 
     public string DiameterTypeStr {get; set;}
     public DiameterType DiameterType => DiameterType.Parse(DiameterTypeStr);
@@ -199,9 +206,8 @@ public class PenetrVueTask : BentleyInteropBase
         try
         {
             string[] parameters =
-                data.Description.TrimStart('T').Split('-');
-            FlangesType = int.Parse(parameters[0]);
-
+                data.Description.TrimStart('T').Split('-');            
+            PenCode = parameters[0]; // до ввода фиброцементного типа проходок FlangesType = int.Parse(parameters[0]);
             DiameterTypeStr = new DiameterType(int.Parse(parameters[1])).ToString();
             LengthCm = int.Parse(parameters[2]);
         }

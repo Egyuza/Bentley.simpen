@@ -312,7 +312,8 @@ public class PenetrDataSource
                 row.Field<float>("pipeDiam").ToDouble(), 
                 row.Field<float>("pipeThick").ToDouble(), 
                 row.Field<double>("flangeWidth"),
-                row.Field<double>("flangeThick"));
+                row.Field<double>("flangeThick"),
+                row.Field<string>("penCode"));
     }
 
     private static BCOM.Application App

@@ -168,6 +168,9 @@ public class PenetrationVM : BentleyInteropBase
 
         form_.dgvCreationTasks.SelectionChanged += DgvCreationTasks_SelectionChanged;
         form_.dgvCreationTasks.CellMouseDoubleClick += DgvCreationTasks_CellMouseDoubleClick;
+
+        
+        form_.tabControl1.TabPages.RemoveAt(0); // TODO временно до отладки и ввода в работу        
     }
 
     private void DgvCreationTasks_SelectionChanged(object sender, EventArgs e)

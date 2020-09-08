@@ -45,7 +45,7 @@ public partial class PenetrationForm : Form
             dgvCreationTasks.AutoSize = false;
 
             dgvCreationTasks.RowsAdded += DgvFields_RowsAdded;
-            dgvCreationTasks.DataError += DgvFields_DataError;
+            dgvCreationTasks.DataError += DgvFields_DataError;  
         }
 
         { // ОБНОВЛЕНИЕ:
