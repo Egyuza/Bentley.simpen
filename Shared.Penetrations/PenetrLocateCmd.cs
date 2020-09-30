@@ -4,15 +4,14 @@ using TFCOM = Bentley.Interop.TFCom;
 
 using Bentley.Building.DataGroupSystem.Serialization;
 using Bentley.Building.DataGroupSystem;
-using Bentley.Internal.MicroStation.Elements;
 using Shared.Bentley;
 using System.Collections.Generic;
 
 #if V8i
 using BMI = Bentley.MicroStation.InteropServices;
-#endif
-
-#if CONNECT
+using Bentley.Internal.MicroStation.Elements;
+#elif CONNECT
+using Bentley.DgnPlatformNET.Elements;
 using BMI = Bentley.MstnPlatformNET.InteropServices;
 #endif
 

@@ -384,13 +384,13 @@ public class GroupByTaskModel : NotifyPropertyChangedBase
                     task.FlangesType, task.DiameterType.Number);
 
                 
-                if (!checkForIntersects(task, penInfo)) // ! ВАЖНО
-                {   // TODO ПРОВЕРКА НА ПЕРЕСЕЧЕНИЕ!
+                //if (!checkForIntersects(task, penInfo)) // ! ВАЖНО
+                //{   // TODO ПРОВЕРКА НА ПЕРЕСЕЧЕНИЕ!
 
-                    task.Warnings.Add("Пересечение с другими закладными");
-                    System.Windows.Forms.MessageBox.Show("Пересечение с другими закладными");
-                    continue;
-                }
+                //    task.Warnings.Add("Пересечение с другими закладными");
+                //    System.Windows.Forms.MessageBox.Show("Пересечение с другими закладными");
+                //    continue;
+                //}
 
                 TFCOM.TFFrameListClass frameList = 
                     PenetrHelper.createFrameList(task, penInfo, PenetrVueTask.LevelMain);

@@ -76,7 +76,7 @@ public class PenetrLeaderPrimitiveCmd : BCOM.IPrimitiveCommandEvents
                 1/ElementHelper.getActiveAnnotationScale());
 
             // ! перед добавлением в модель
-            mdlCell_setIsAnnotation(leader.MdlElementDescrP(), 1); 
+            mdlCell_setIsAnnotation((int)leader.MdlElementDescrP(), 1); 
             //leader.AsCellElement().ScaleUniform();
            
 

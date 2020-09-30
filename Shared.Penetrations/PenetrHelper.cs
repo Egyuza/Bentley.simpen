@@ -228,6 +228,8 @@ public static class PenetrHelper
             ! ЕСЛИ ФЛАНЕЦ ЕСТЬ
         */
 
+        // BCOM.Element template = App.createPointElement();
+
         double delta = task.FlangesCount == 0 ? 0 : 
             task.FlangesCount * flangeThick / 2;        
 
