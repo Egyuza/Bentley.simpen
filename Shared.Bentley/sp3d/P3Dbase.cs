@@ -66,19 +66,22 @@ public class P3Dbase : BentleyInteropBase
             OrientationMatrix_x0,
             OrientationMatrix_x1,
             OrientationMatrix_x2);
-        rot.RowX = RoundTool.roundExt(rot.RowX, 5, 10, 0);
+        //rot.RowX = RoundTool.roundExt(rot.RowX, 5, 10, 0);
+        rot.RowX = RoundTool.roundExt(rot.RowX, 0.00001);
 
         rot.RowY = App.Point3dFromXYZ(
             OrientationMatrix_y0,
             OrientationMatrix_y1,
             OrientationMatrix_y2);
-        rot.RowY = RoundTool.roundExt(rot.RowY, 5, 10, 0);
+        rot.RowY = RoundTool.roundExt(rot.RowY, 0.00001);
+        //rot.RowY = RoundTool.roundExt(rot.RowY, 5, 10, 0);
 
         rot.RowZ = App.Point3dFromXYZ(
             OrientationMatrix_z0,
             OrientationMatrix_z1,
             OrientationMatrix_z2);
-        rot.RowZ = RoundTool.roundExt(rot.RowZ, 5, 10, 0);
+        rot.RowZ = RoundTool.roundExt(rot.RowZ, 0.00001);
+        //rot.RowZ = RoundTool.roundExt(rot.RowZ, 5, 10, 0);
 
         return rot;
     }

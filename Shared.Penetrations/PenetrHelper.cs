@@ -154,6 +154,7 @@ public static class PenetrHelper
                 solids.CreateCylinder(null, pipeOutsideDiam / 2, flangeThick));            
             
             double shift = 0;
+
             if (task.FlangesCount == 1)
             {
                 bool isNearest = App.Vector3dEqualTolerance(task.singleFlangeSide,
@@ -161,15 +162,16 @@ public static class PenetrHelper
                 
                 // 0.5 - для видимости фланцев на грани стены/плиты 
                 shift = isNearest ?
-                        0.0    + flangeThick / 2 - 1: // 0.02:
-                        length - flangeThick / 2 + 1; // 0.02;
+                        0.0    + flangeThick / 2 - task.FlangeWallOffset:
+                        length - flangeThick / 2 + task.FlangeWallOffset;
             }
             else
             {
                 shift = i == 0 ? 0.0 : length;               
                 // для самих фланцев:
-                // 0.5 - для видимости фланцев на грани стены/плиты 
-                shift += Math.Pow(-1, i) * (flangeThick/2 - 1); //0.02);
+                
+                
+                shift += Math.Pow(-1, i) * (flangeThick/2 - task.FlangeWallOffset); //0.02);
             }
             elements.Add(flangeCylindr, shift);
         }
@@ -337,13 +339,13 @@ public static class PenetrHelper
         if (task.FlangesCount > 0)
         {
             addProjectionToFrame(frame, ElementHelper.createCircle(flangeOutsideDiam).
-                transformByTask(task, 0.0, 0.0, -PenetrVueTask.FLANGE_SHIFT), 
+                transformByTask(task, 0.0, 0.0, -task.FlangeWallOffset), 
                 "flange", PenetrVueTask.LevelFlangeSymb);
 
             if (task.FlangesCount == 2)
             {
                 addProjectionToFrame(frame, ElementHelper.createCircle(flangeOutsideDiam).
-                    transformByTask(task, 0.0, 0.0, length + PenetrVueTask.FLANGE_SHIFT), 
+                    transformByTask(task, 0.0, 0.0, length + task.FlangeWallOffset), 
                     "flange", PenetrVueTask.LevelFlangeSymb);
             }
         }

@@ -96,8 +96,8 @@ public class PenetrVueTask : BentleyInteropBase
     private BCOM.Point3d? projectLocationOnForm_ = null;
 
     /// <summary> корректируется по проекции на объект </summary>
-    public BCOM.Point3d Location => 
-        projectLocationOnForm_ ?? RoundTool.roundExt(rawLocation_);
+    public BCOM.Point3d Location => projectLocationOnForm_ ?? 
+        RoundTool.roundExt(rawLocation_, /* 5 мм */ 5 / UOR.activeSubPerMaster);
     public BCOM.Matrix3d Rotation { get; private set; }
 
     private UOR uor_;
@@ -660,8 +660,9 @@ public class PenetrVueTask : BentleyInteropBase
     /// <summary>
     /// смещение плоскости фланца относительно плоскости стены,
     /// для лучшей видимости фланца
+    /// отступ 0.5 мм
     /// </summary>
-    public const double FLANGE_SHIFT = 1.0; // TODO можно ли сделать мешьше - 0.02
+    public double FlangeWallOffset => 1.0 / UOR.activeSubPerMaster; // TODO можно ли сделать мешьше - 0.02
 
     public const string CELL_NAME = "Penetration";
     public const string CELL_NAME_OLD = "EmbeddedPart";

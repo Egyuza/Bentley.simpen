@@ -85,6 +85,8 @@ public class GroupByTaskModel : NotifyPropertyChangedBase
         addin_.SelectionChangedEvent += Addin_SelectionChangedEvent;
     }
 
+    private AddIn.SelectionChangedEventArgs.ActionKind lastSelectionAction_;
+
     private void Addin_SelectionChangedEvent(
         AddIn sender, AddIn.SelectionChangedEventArgs eventArgs)
     {
@@ -94,6 +96,7 @@ public class GroupByTaskModel : NotifyPropertyChangedBase
             {
             case AddIn.SelectionChangedEventArgs.ActionKind.SetEmpty:
                 tasks_.Clear();
+                tasksBuf_.Clear();
                 previewTranCon_.Reset();
                 TaskSelection.Clear();
                 break;
@@ -111,9 +114,8 @@ public class GroupByTaskModel : NotifyPropertyChangedBase
             {
                 Element element = ElementHelper.getElement(eventArgs);
 
-
         #if DEBUG
-                BCOM.Element comEl = ElementHelper.getElementCOM(element);;
+                BCOM.Element comEl = ElementHelper.getElementCOM(element);
 
                 if (comEl.IsCompundCell())
                 {
@@ -126,20 +128,35 @@ public class GroupByTaskModel : NotifyPropertyChangedBase
         #endif
 
                 PenetrVueTask task;
-                if (PenetrVueTask.getFromElement(element, out task))
+                if (PenetrVueTask.getFromElement(element, out task) &&
+                    !tasks_.ContainsKey(element.ElementRef))
                 {
-                    Logger.Log.Info($"Выбор объекта заадния {task.ToString()}");
-                    if (tasks_.ContainsKey(element.ElementRef))
-                    {
-                        TaskSelection.Remove(tasks_[element.ElementRef]);
-                        tasks_.Remove(element.ElementRef);
-                    }
+                    tasksBuf_.Add(element.ElementRef, task);
                     tasks_.Add(element.ElementRef, task);
-                    TaskSelection.Add(task);
                 }
                 break;
             }
+            case AddIn.SelectionChangedEventArgs.ActionKind.SetChanged:
+            {
+                if (lastSelectionAction_ != 
+                    AddIn.SelectionChangedEventArgs.ActionKind.New)
+                {
+                    break;
+                }
+                
+                TaskSelection.RaiseListChangedEvents = false;
+                foreach (PenetrVueTask task in tasksBuf_.Values)
+                {
+                    Logger.Log.Info($"Выбор объекта заадния {task.ToString()}");
+                    TaskSelection.Add(task);
+                }
+                tasksBuf_.Clear();
+                TaskSelection.RaiseListChangedEvents = true;
+                break;
             }
+            }
+
+            lastSelectionAction_ = eventArgs.Action;
             TaskSelection.ResetBindings();
             OnPropertyChanged(NP.TaskSelection);
         }
@@ -198,6 +215,7 @@ public class GroupByTaskModel : NotifyPropertyChangedBase
                 }
 
                 // add new
+                TaskSelection.RaiseListChangedEvents = false;
                 foreach (Element element in selectionSet.Values)
                 {
                 
@@ -226,6 +244,9 @@ public class GroupByTaskModel : NotifyPropertyChangedBase
                         TaskSelection.Add(task);
                     }
                 }
+                
+                TaskSelection.RaiseListChangedEvents = true;
+
                 break;
             }
             case 7: // ActionKind.Remove
@@ -242,6 +263,7 @@ public class GroupByTaskModel : NotifyPropertyChangedBase
             }
             case 5: // ActionKind.New:
             {
+                TaskSelection.RaiseListChangedEvents = false;
                 foreach (Element element in selectionSet.Values)
                 {
                     PenetrVueTask task;
@@ -250,10 +272,12 @@ public class GroupByTaskModel : NotifyPropertyChangedBase
                         tasks_.Add(element.GetNativeElementRef(), task);
                         TaskSelection.Add(task);
                     }
-                }
+                }                
+                TaskSelection.RaiseListChangedEvents = true;
                 break;
             }
             }
+            
             TaskSelection.ResetBindings();
             OnPropertyChanged(NP.TaskSelection);
         }
@@ -562,6 +586,8 @@ public class GroupByTaskModel : NotifyPropertyChangedBase
 
     private Dictionary<IntPtr, PenetrVueTask> tasks_ = 
         new Dictionary<IntPtr, PenetrVueTask>();
+    private Dictionary<IntPtr, PenetrVueTask> tasksBuf_ = 
+        new Dictionary<IntPtr, PenetrVueTask>();    
 
     private BCOM.TransientElementContainer selectionTranCon_;
     private BCOM.TransientElementContainer previewTranCon_;

@@ -122,10 +122,12 @@ public static class BentleyExtensions
 
 #endif
 
+    private static string toStringPointDelimeter(double value) => 
+        value.ToString().Replace(',','.');
+
     public static string ToStringEx(this BCOM.Point3d point)
     {
-        return string.Format("{0}, {1}, {2}", 
-        Math.Round(point.X, 0), Math.Round(point.Y, 0), Math.Round(point.Z, 0));
+        return $"{toStringPointDelimeter(point.X)}, {toStringPointDelimeter(point.Y)}, {toStringPointDelimeter(point.Z)}";
     }
 
     public static bool EqualsPoint(this BCOM.Point3d lhs, BCOM.Point3d rhs)
