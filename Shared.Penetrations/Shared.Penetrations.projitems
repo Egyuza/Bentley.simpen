@@ -12,6 +12,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)AssemblyVersion.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DiameterType.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GroupByTaskModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IPenetrTask.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)PenetrTaskBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PenetrLeaderInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PenetrLocateCmd.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PenetrationVM.cs" />

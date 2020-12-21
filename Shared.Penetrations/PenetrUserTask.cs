@@ -1,23 +1,30 @@
 ﻿using Shared.Bentley;
 using System;
-using System.Collections.Generic;
-using System.Text;
-
-using BCOM = Bentley.Interop.MicroStationDGN;
-using TFCOM = Bentley.Interop.TFCom;
+using Bentley.Interop.MicroStationDGN;
 
 namespace Embedded.Penetrations.Shared
 {
-public class PenetrUserTask : BentleyInteropBase
+public class PenetrUserTask : PenetrTaskBase
 {
-    public string KKS {get; set;}
-    public long FlangesType {get; set;}
-    public DiameterType DiameterType {get; set;}
-    public int LengthCm {get; set;} // в см, кратно 5 мм
-    public BCOM.Point3d Location {get; set;}
+    public PenetrUserTask() : base()
+    {
+        
+    }
 
-    public BCOM.Matrix3d Rotation {get; set;} = App.Matrix3dZero();
+    public override Point3d CorrectiveAngles => IsManualRotateMode 
+        ? App.Point3dFromXYZ(App.Radians(userAngleX), 
+            App.Radians(userAngleY), App.Radians(userAngleZ)) 
+        : App.Point3dZero();
+    
+    public double userAngleX { get; set; }
+    public double userAngleY { get; set; }
+    public double userAngleZ { get; set; }
 
-    public int FlangesCount => FlangesType == 1 ? 1 : FlangesType == 2 ? 2 : 0;
+    public bool IsManualRotateMode { get; set; }
+
+    public bool IsAutoLength { get; set; }
+
+    public override UOR UOR => UOR.getForActiveModel();
+
 }
 }

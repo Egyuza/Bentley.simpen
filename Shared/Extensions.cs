@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
 namespace Shared
@@ -49,6 +50,12 @@ static class Extensions
         }
         builder.Append("}");
         return builder.ToString();
+    }
+
+    public static bool IsMatch(this string text, string regexp)
+    {
+        var reg = new Regex(regexp);
+        return reg.IsMatch(text);
     }
 
 }

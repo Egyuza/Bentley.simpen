@@ -19,7 +19,7 @@ using Shared.Bentley;
 
 namespace Embedded.Penetrations.Shared
 {
-public class PenetrVueTask : BentleyInteropBase
+public class PenetrVueTask : BentleyInteropBase, IPenetrTask
 {
     public enum TaskTypeEnum
     {
@@ -31,11 +31,11 @@ public class PenetrVueTask : BentleyInteropBase
     public IntPtr elemRefP { get; private set; }
     public long elemId { get; private set; }
     private IntPtr modelRefP;
-    public BCOM.ModelReference modelRef => 
+    public BCOM.ModelReference ModelRef => 
         App.MdlGetModelReferenceFromModelRefP((int)modelRefP);
 
     public BCOM.Attachment getAttachment() => 
-        modelRef.AsAttachment(App.ActiveModelReference);
+        ModelRef.AsAttachment(App.ActiveModelReference);
     
     public BCOM.Element getElement() => 
         ElementHelper.getElementCOM(elemRefP, modelRefP);
@@ -52,6 +52,9 @@ public class PenetrVueTask : BentleyInteropBase
         
     public int FlangesCount => FlangesType == 1 ? 1 : FlangesType == 2 ? 2 : 0; // TODO для "4"
 
+    public double FlangeWallOffset => 
+        1.0 / UOR.activeSubPerMaster; // TODO можно ли сделать мешьше - 0.02
+
     public string DiameterTypeStr {get; set;}
     public DiameterType DiameterType => DiameterType.Parse(DiameterTypeStr);
         
@@ -64,18 +67,16 @@ public class PenetrVueTask : BentleyInteropBase
     /// <summary>
     /// расположение фланца, если он один
     /// </summary>
-    public BCOM.Vector3d singleFlangeSide
+    public BCOM.Vector3d SingleFlangeSide
     {
         get { return (singleFlangeSide_ = App.Vector3dNormalize(singleFlangeSide_)); }
-        set { singleFlangeSide_ = value; }
+        private set { singleFlangeSide_ = value; }
     }
 
-    public bool isSingleFlangeFirst()
-    {
-        return App.Vector3dEqualTolerance(
-            singleFlangeSide, App.Vector3dFromXYZ(0, 0, -1), 0.1);
-    }
-
+    public bool IsSingleFlangeFirst => App.Vector3dEqualTolerance(
+        SingleFlangeSide, App.Vector3dFromXYZ(0, 0, -1), 0.1);
+    
+    
     public double getFlangeShift(bool first, double flangeThick)
     {
         return (first ? 1 : -1) * (flangeThick / 2 - 1);
@@ -100,8 +101,12 @@ public class PenetrVueTask : BentleyInteropBase
         RoundTool.roundExt(rawLocation_, /* 5 мм */ 5 / UOR.activeSubPerMaster);
     public BCOM.Matrix3d Rotation { get; private set; }
 
+    private BCOM.Point3d? correctiveAngles_;
+    public BCOM.Point3d CorrectiveAngles => correctiveAngles_.HasValue 
+        ? correctiveAngles_.Value : (correctiveAngles_ = getCorrectiveAngles()).Value ;
+
     private UOR uor_;
-    public UOR UOR => uor_ ?? (uor_ = new UOR(modelRef));
+    public UOR UOR => uor_ ?? (uor_ = new UOR(ModelRef));
 
     public string ErrorText { get; private set; }
 
@@ -156,7 +161,7 @@ public class PenetrVueTask : BentleyInteropBase
         this.LengthCm = lengthCm;
     }
 
-    private PenetrVueTask(Element element, Sp3dTask task)
+    private PenetrVueTask(Element element, Sp3dTask task) 
     {
         long id;
         IntPtr elRef, modelRef;
@@ -245,9 +250,11 @@ public class PenetrVueTask : BentleyInteropBase
         return cell;
     }
 
-    public void getCorrectiveAngles(out double aboutX, out double aboutY, out double aboutZ)
+    private BCOM.Point3d getCorrectiveAngles()
     {   
-        aboutZ = 0;
+        BCOM.Point3d angles;
+
+        angles.Z = 0;
 
         /*        
         Ориентация тела построения solid - вдоль оси Z
@@ -266,8 +273,8 @@ public class PenetrVueTask : BentleyInteropBase
                 !___> X       |         |
             */
 
-            aboutX = 0;
-            aboutY = Math.PI/2;
+            angles.X = 0;
+            angles.Y = Math.PI/2;
             //rawVector = Addin.App.Point3dFromXYZ(1, 0, 0);
         }
         else
@@ -280,24 +287,23 @@ public class PenetrVueTask : BentleyInteropBase
                 !___> X        __*__
             */
 
-            aboutX = -Math.PI/2;
-            aboutY = 0;
+            angles.X = -Math.PI/2;
+            angles.Y = 0;
             //rawVector = Addin.App.Point3dFromXYZ(0, 1, 0);
         }
+        return angles;
     }
 
     private void transformToBase(BCOM.Element element, BCOM.Point3d origin)
     {
-        double aboutX, aboutY, aboutZ;
-        getCorrectiveAngles(out aboutX, out aboutY, out aboutZ);
-
         // инвертируем трансформацию:
         if (App.Matrix3dHasInverse(Rotation))
         {
             BCOM.Transform3d tran = App.Transform3dFromMatrix3d(Rotation);
             element.Transform(App.Transform3dInverse(tran));
-        }       
-        element.Rotate(App.Point3dZero(), -aboutX, -aboutY, -aboutZ);
+        }
+        var angles = CorrectiveAngles;
+        element.Rotate(App.Point3dZero(), -angles.X, -angles.Y, -angles.Z);
     }
 
     /// <summary>
@@ -308,7 +314,7 @@ public class PenetrVueTask : BentleyInteropBase
         BCOM.ModelReference model =
             App.MdlGetModelReferenceFromModelRefP((int)modelRefP);
 
-        singleFlangeSide = App.Vector3dZero();
+        SingleFlangeSide = App.Vector3dZero();
 
         // Todo из правильной модели
         BCOM.CellElement cell = model.GetElementByID(elemId).AsCellElement();
@@ -357,7 +363,7 @@ public class PenetrVueTask : BentleyInteropBase
 
         if (geomFlangesCount == 1)
         { // 1 фланец, определяем вектор с какой стороны фланец относительно центра
-            singleFlangeSide = App.Vector3dSubtractPoint3dPoint3d(
+            SingleFlangeSide = App.Vector3dSubtractPoint3dPoint3d(
                 ElementHelper.getCenter(cones[2]),
                 ElementHelper.getCenter(cones[0]));
         }
@@ -365,7 +371,7 @@ public class PenetrVueTask : BentleyInteropBase
         {
             // базовая ориентация при построении
             // фланец совпадает с Точкой установки
-            singleFlangeSide = App.Vector3dFromXYZ(0, 0, -1);
+            SingleFlangeSide = App.Vector3dFromXYZ(0, 0, -1);
         }
 
         if (FlangesCount != geomFlangesCount)
@@ -448,13 +454,13 @@ public class PenetrVueTask : BentleyInteropBase
             // TODO проверить корректность transform отн. rawLocation_
             transformToBase(flangeEl, rawLocation_);
 
-            singleFlangeSide = App.Vector3dSubtractPoint3dPoint3d(
+            SingleFlangeSide = App.Vector3dSubtractPoint3dPoint3d(
                 ElementHelper.getCenter(flangeEl),
                 ElementHelper.getCenter(cell));
         }
         else
         {
-            singleFlangeSide = App.Vector3dFromXYZ(0, 0, -1);
+            SingleFlangeSide = App.Vector3dFromXYZ(0, 0, -1);
         }
     }
 
@@ -652,28 +658,5 @@ public class PenetrVueTask : BentleyInteropBase
 
     public override string ToString() => Name;
 
-    public static BCOM.Level LevelMain => ElementHelper.getOrCreateLevel(LEVEL_NAME);
-    public static BCOM.Level LevelSymb => ElementHelper.getOrCreateLevel(LEVEL_SYMB_NAME);
-    public static BCOM.Level LevelFlangeSymb => ElementHelper.getOrCreateLevel(LEVEL_FLANGE_SYMB_NAME);
-    public static BCOM.Level LevelRefPoint => ElementHelper.getOrCreateLevel(LEVEL_POINT_NAME);
-
-    /// <summary>
-    /// смещение плоскости фланца относительно плоскости стены,
-    /// для лучшей видимости фланца
-    /// отступ 0.5 мм
-    /// </summary>
-    public double FlangeWallOffset => 1.0 / UOR.activeSubPerMaster; // TODO можно ли сделать мешьше - 0.02
-
-    public const string CELL_NAME = "Penetration";
-    public const string CELL_NAME_OLD = "EmbeddedPart";
-
-    public const string DG_CATALOG_TYPE = "EmbeddedPart";
-    public const string DG_CATALOG_INSTANCE = "Embedded Part";
-    public const string DG_SCHEMA_NAME = "EmbPart";
-
-    private const string LEVEL_NAME = "C-EMBP-PNTR";
-    private const string LEVEL_SYMB_NAME = "C-EMB-ANNO";
-    private const string LEVEL_FLANGE_SYMB_NAME = "C-EMB-FLANGE";
-    private const string LEVEL_POINT_NAME = "C-EMB-POINT";
 }
 }

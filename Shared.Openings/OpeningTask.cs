@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Shared.Openings
+namespace Embedded.Openings.Shared
 {
 public class OpeningTask
 {

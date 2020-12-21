@@ -12,6 +12,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)CustomException.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Extensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)NotifyPropertyChangedBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)WinFormExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)XmlSerializer.cs" />
   </ItemGroup>
   <ItemGroup>

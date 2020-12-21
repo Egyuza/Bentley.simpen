@@ -26,5 +26,10 @@ public class UOR : BentleyInteropBase
     }
 
     public double convertToMaster(double value) => value/activeSubPerMaster;
+
+    public static UOR getForActiveModel()
+    {
+        return new UOR(App.ActiveModelReference);
+    }
 }
 }

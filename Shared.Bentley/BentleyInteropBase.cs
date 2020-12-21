@@ -31,6 +31,10 @@ public abstract class BentleyInteropBase
             return _tfApp ?? 
                 (_tfApp = new TFCOM.TFApplicationList().TFApplication);
         }
-    } 
+    }
+
+    protected readonly static BCOM.Point3d XAxis = App.Point3dFromXYZ(1, 0, 0);
+    protected readonly static BCOM.Point3d YAxis = App.Point3dFromXYZ(0, 1, 0);
+    protected readonly static BCOM.Point3d ZAxis = App.Point3dFromXYZ(0, 0, 1);
 }
 }

@@ -7,8 +7,8 @@
     <ProjectGuid>{2C1825D3-6BB5-4340-A921-7C8088CA5167}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Embedded.UI</RootNamespace>
-    <AssemblyName>Embedded.UI</AssemblyName>
+    <RootNamespace>Embedded.Penetrations.UI</RootNamespace>
+    <AssemblyName>Embedded.Penetrations.UI</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile>
@@ -55,17 +55,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-    <Compile Include="TestFormWPF.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="TestFormWPF.Designer.cs">
-      <DependentUpon>TestFormWPF.cs</DependentUpon>
-    </Compile>
     <Compile Include="PenetrationForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -78,42 +67,24 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
-    <Compile Include="PenetrView.xaml.cs">
-      <DependentUpon>PenetrView.xaml</DependentUpon>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <EmbeddedResource Include="TestFormWPF.resx">
-      <DependentUpon>TestFormWPF.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="PenetrationForm.resx">
       <DependentUpon>PenetrationForm.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
   </ItemGroup>
-  <ItemGroup>
-    <Page Include="PenetrView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Embedded.WPF.Penetrations\Embedded.WPF.Penetrations.csproj">
-      <Project>{74F11097-7855-4AD4-BCF2-DA75B57F90E7}</Project>
-      <Name>Embedded.WPF.Penetrations</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="..\Shared\Shared.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>copy /y "$(TargetDir)*.dll" "c:\aecosim_ss6\AECOsimBuildingDesigner\assemblies\OIM\*"</PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

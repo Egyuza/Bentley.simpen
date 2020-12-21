@@ -299,10 +299,10 @@ public class GroupByTaskModel : NotifyPropertyChangedBase
 
         foreach (PenetrVueTask task in selection)
         {
-            BCOM.ModelReference modelRef = task.modelRef;
+            BCOM.ModelReference modelRef = task.ModelRef;
             BCOM.View view = ViewHelper.getActiveView();
 
-            var taskUOR = new UOR(task.modelRef);
+            var taskUOR = new UOR(task.ModelRef);
             var activeUOR = new UOR(App.ActiveModelReference);
 
             List<long> itemsIds = new List<long> {task.elemId};
@@ -358,7 +358,7 @@ public class GroupByTaskModel : NotifyPropertyChangedBase
         //#endif
 
                 TFCOM.TFFrameList frameList = 
-                    PenetrHelper.createFrameList(task, penInfo, PenetrVueTask.LevelMain);
+                    PenetrHelper.createFrameList(task, penInfo, PenetrTaskBase.LevelMain);
                 
                 previewTranCon_.AppendCopyOfElement(
                         frameList.AsTFFrame.Get3DElement());
@@ -392,60 +392,45 @@ public class GroupByTaskModel : NotifyPropertyChangedBase
     {
         previewTranCon_?.Reset();
 
-        var activeSets = App.ActiveSettings;
-
-        BCOM.Level activeLevel = activeSets.Level;
-        BCOM.LineStyle activeLineStyle = activeSets.LineStyle;
-        int activeLineWeight = activeSets.LineWeight;
-        int activeColor = activeSets.Color;
-
-        var activeModel = App.ActiveModelReference;
-        try
-        {
+        PenetrHelper.runAddToModelAction(() => {
             foreach (PenetrVueTask task in TaskSelection)
             {
                 PenetrInfo penInfo = penData_.getPenInfo(
                     task.FlangesType, task.DiameterType.Number);
 
-                
-                //if (!checkForIntersects(task, penInfo)) // ! ВАЖНО
-                //{   // TODO ПРОВЕРКА НА ПЕРЕСЕЧЕНИЕ!
-
-                //    task.Warnings.Add("Пересечение с другими закладными");
-                //    System.Windows.Forms.MessageBox.Show("Пересечение с другими закладными");
-                //    continue;
-                //}
-
-                TFCOM.TFFrameListClass frameList = 
-                    PenetrHelper.createFrameList(task, penInfo, PenetrVueTask.LevelMain);
-                
-                PenetrHelper.addProjection(frameList, task, penInfo);
-
-                // TODO видимость контура перфоратора можно в конфиг. переменную
-                PenetrHelper.addPerforator(frameList, 
-                    task, penInfo, PenetrVueTask.LevelSymb, false);
-
-                PenetrHelper.applyPerforatorInModel(frameList);
-
-                PenetrHelper.addToModel(frameList);
-                
-                BCOM.Element bcomElem;
-                frameList.GetElement(out bcomElem);   
-
-                setDataGroupInstance(bcomElem, task);
+                PenetrHelper.addToModel(task, penInfo);
             }
-        }
-        catch (Exception ex)
-        {
-            ex.ShowMessage();
-        }
-        finally
-        {
-            activeSets.Level = activeLevel;
-            activeSets.LineStyle = activeLineStyle;
-            activeSets.LineWeight = activeLineWeight;
-            activeSets.Color = activeColor;
-        }
+        });
+
+        //var activeSets = App.ActiveSettings;
+
+        //BCOM.Level activeLevel = activeSets.Level;
+        //BCOM.LineStyle activeLineStyle = activeSets.LineStyle;
+        //int activeLineWeight = activeSets.LineWeight;
+        //int activeColor = activeSets.Color;
+
+        //var activeModel = App.ActiveModelReference;
+        //try
+        //{
+        //    foreach (PenetrVueTask task in TaskSelection)
+        //    {
+        //        PenetrInfo penInfo = penData_.getPenInfo(
+        //            task.FlangesType, task.DiameterType.Number);
+                
+        //        PenetrHelper.addToModel(task, penInfo);
+        //    }
+        //}
+        //catch (Exception ex)
+        //{
+        //    ex.ShowMessage();
+        //}
+        //finally
+        //{
+        //    activeSets.Level = activeLevel;
+        //    activeSets.LineStyle = activeLineStyle;
+        //    activeSets.LineWeight = activeLineWeight;
+        //    activeSets.Color = activeColor;
+        //}
     }
     
     /// <summary>
@@ -521,65 +506,6 @@ public class GroupByTaskModel : NotifyPropertyChangedBase
         TaskSelection.Clear();
         TaskSelection.ResetBindings();
         OnPropertyChanged(NP.TaskSelection);
-    }
-
-    /// <summary>
-    /// Заполнение у элемента проходки свойств DataGroup
-    /// </summary>
-    private static void setDataGroupInstance(
-        BCOM.Element bcomElement, PenetrVueTask task)
-    {
-        Element element = ElementHelper.getElement(bcomElement);
-        if (element == null)
-            return;
-        
-        var schemas = DataGroupDocument.Instance.CatalogSchemas.Schemas;
-
-        using (var catalogEditHandle = new CatalogEditHandle(element, true, true))
-        {
-            if (catalogEditHandle == null || 
-                catalogEditHandle.CatalogInstanceName != null)
-            {
-                return;
-            }
-
-            catalogEditHandle.InsertDataGroupCatalogInstance("EmbeddedPart", "Embedded Part");
-            catalogEditHandle.UpdateInstanceDataDefaults();
-            
-            DataGroupProperty code = null;
-            DataGroupProperty name = null;
-
-            foreach (DataGroupProperty property in catalogEditHandle.GetProperties())
-            {
-                if (property?.Xpath == "EmbPart/@PartCode") 
-                    code = property;
-                else if (property?.Xpath == "EmbPart/@CatalogName")
-                    name = property;
-            }
-
-            if (code != null)
-                catalogEditHandle.SetValue(code, task.Code);
-            else {
-                code = new DataGroupProperty("PartCode", task.Code, false, true);
-                //code.SchemaName = "EmbPart";
-                code.Xpath = "EmbPart/@PartCode";
-                catalogEditHandle.Properties.Add(code);
-            }
-            catalogEditHandle.SetValue(code, task.Code);
-
-            if (name != null)
-                catalogEditHandle.SetValue(name, task.Name);
-            else {
-                name = new DataGroupProperty("CatalogName", task.Name, false, true);
-                //name.SchemaName = "EmbPart";
-                name.Xpath = "EmbPart/@CatalogName";
-                catalogEditHandle.Properties.Add(name);
-            }
-            catalogEditHandle.SetValue(name, task.Name);
-            catalogEditHandle.Rewrite((int)BCOM.MsdDrawingMode.Normal);
-
-            // TODO решить проблему вылета при команде Modify DataGroup Instance
-        }
     }
 
     private PenetrDataSource penData_; // TODO переименовать

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Text;
 using System.Windows.Forms;
-using Embedded.UI;
+using Embedded.Penetrations.UI;
 
 using Shared.Bentley;
 using Shared;
@@ -138,23 +138,43 @@ public class PenetrationVM : BentleyInteropBase
         form_.setCreateAction(groupModel_.addToModel);
         form_.setOnCloseFormAction (groupModel_.clearContext);
 
-        form_.setScanForUpdateAction(updateModel_.scanForUpdate);
-        form_.setUpdateAction(updateModel_.update);
+
         form_.setStartPrimitiveAction(singleModel_.startPrimitive);
+        form_.setStartDefaultAction(singleModel_.startDefaultCommand);
 
-        //Single
+        form_.setScanForUpdateAction(updateModel_.scanForUpdate);
+        form_.setUpdateAction(updateModel_.runUpdate);
+        form_.setUpdateNodeDoubleClickAction(updateModel_.updateNodeDoubleClick);
 
-        PenetrationForm.setBinding(form_.txtKKS, "Text",
-            singleModel_.UserTask, nameof(singleModel_.UserTask.KKS), 
-            BindinUpdateMode.SourceOnly);
+        ///
+        /// Single =========================
+        ///
+        var userTask = singleModel_.UserTask;
 
-        PenetrationForm.setBinding(form_.txtTypeSize, "Text",
-            singleModel_, nameof(singleModel_.TypeSize),
-            BindinUpdateMode.ControlOnly); 
+        form_.btnStartPrimitive.setBinding("Enabled",
+            singleModel_, nameof(singleModel_.IsCodeValid), BindinUpdateMode.ControlOnly);
 
-        PenetrationForm.setBinding(form_.txtLength, "Text",
-            singleModel_.UserTask, nameof(singleModel_.UserTask.LengthCm),
-            BindinUpdateMode.Both); 
+        form_.txtKKS.setBinding("Text",
+            singleModel_, nameof(singleModel_.Code), BindinUpdateMode.SourceOnly);
+
+        form_.txtTypeSize.setBinding("Text",
+            singleModel_, nameof(singleModel_.TypeSize), BindinUpdateMode.ControlOnly); 
+
+        form_.txtRefPoint.setBinding("Text",
+            singleModel_, nameof(singleModel_.RefPointString), BindinUpdateMode.ControlOnly);
+
+        form_.txtLength.setBinding("Text",
+            singleModel_, nameof(singleModel_.LengthCm));
+
+        form_.chbxAutoLength.setBinding("Checked",
+            userTask, nameof(userTask.IsAutoLength), BindinUpdateMode.SourceOnly);
+
+        form_.chbxManualRotate.setBinding("Checked",
+            userTask, nameof(userTask.IsManualRotateMode), BindinUpdateMode.SourceOnly);
+
+        form_.numAngleX.setBinding("Value", userTask, nameof(userTask.userAngleX));
+        form_.numAngleY.setBinding("Value", userTask, nameof(userTask.userAngleY));
+        form_.numAngleZ.setBinding("Value", userTask, nameof(userTask.userAngleZ));
 
         form_.setSingleSelecteFlangeType(singleModel_.setFlangeType);
         form_.setSingleSelecteDiameterType(singleModel_.setDiameterType);
@@ -168,9 +188,10 @@ public class PenetrationVM : BentleyInteropBase
 
         form_.dgvCreationTasks.SelectionChanged += DgvCreationTasks_SelectionChanged;
         form_.dgvCreationTasks.CellMouseDoubleClick += DgvCreationTasks_CellMouseDoubleClick;
-
-        
-        form_.tabControl1.TabPages.RemoveAt(0); // TODO временно до отладки и ввода в работу        
+                
+        #if DEBUG
+            // form_.tabControl1.TabPages.RemoveAt(0); // TODO временно до отладки и ввода в работу        
+        #endif
     }
 
     private void DgvCreationTasks_SelectionChanged(object sender, EventArgs e)

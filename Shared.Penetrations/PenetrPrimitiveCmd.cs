@@ -12,15 +12,18 @@ using BMI = Bentley.MicroStation.InteropServices;
 using BMI = Bentley.MstnPlatformNET.InteropServices;
 #endif
 
-
-
 namespace Embedded.Penetrations.Shared
 {
-public class PenetrPrimitiveCmd : BCOM.IPrimitiveCommandEvents
+public class PenetrPrimitiveCmd : BentleyInteropBase, BCOM.IPrimitiveCommandEvents
 {   
     internal static void StartCommand(SingleModel singleModel)
     {
         app_.CommandState.StartPrimitive(new PenetrPrimitiveCmd(singleModel));
+    }
+
+    internal static void StartDefaultCommand()
+    {
+        app_.CommandState.StartDefaultCommand();
     }
 
     public PenetrPrimitiveCmd(SingleModel singleModel)
@@ -32,14 +35,16 @@ public class PenetrPrimitiveCmd : BCOM.IPrimitiveCommandEvents
     {
         BCOM.LocateCriteria lc = app_.CommandState.CreateLocateCriteria(false);
         //lc.ExcludeAllTypes();
-        //lc.IncludeType(BCOM.MsdElementType.CellHeader);        
+        //lc.IncludeType(BCOM.MsdElementType.Shape);
+        //lc.IncludeType(BCOM.MsdElementType.ComplexShape);
+
         app_.CommandState.SetLocateCriteria(lc);
 
         app_.CommandState.EnableAccuSnap();
         app_.CommandState.ElementDisplayEnabled = true;
         app_.CommandState.StartDynamics();
 
-        ensureLocateEnabled = true;
+        ensureLocateEnabledRequired_ = true;
 
         // позво
         app_.SetCExpressionValue("userPrefsP->smartGeomFlags.locateSurfaces", 4);
@@ -52,71 +57,145 @@ public class PenetrPrimitiveCmd : BCOM.IPrimitiveCommandEvents
 
     public void DataPoint(ref BCOM.Point3d Point, BCOM.View View)
     {
-        //throw new NotImplementedException();
+        PenetrUserTask userTask;
+        if (!processInput(out userTask, ref Point, View))
+            return;   
+        
+        PenetrInfo penInfo = PenetrDataSource.Instance.getPenInfo(
+            userTask.FlangesType, 
+            userTask.DiameterType.Number);
+                
+        PenetrHelper.runAddToModelAction(() => { 
+            PenetrHelper.addToModel(userTask, penInfo);
+        });
     }
 
-    private bool ensureLocateEnabled = true;
-
-    public void Dynamics(
-        ref BCOM.Point3d Point, BCOM.View View, BCOM.MsdDrawingMode DrawMode)
+    public void Dynamics(ref BCOM.Point3d Point, BCOM.View View, 
+        BCOM.MsdDrawingMode DrawMode)
     {
-        if (ensureLocateEnabled)
-        {   // ! unblock Locate
-            ensureLocateEnabled = false;
-            app_.CommandState.StopDynamics();
+        PenetrUserTask userTask;
+        if (!processInput(out userTask, ref Point, View))
+            return;
 
-            app_.CommandState.LocateElement(ref Point, View, true);
-            app_.CommandState.GetHitPath();
+        PenetrInfo penInfo = PenetrDataSource.Instance.getPenInfo(
+            userTask.FlangesType, 
+            userTask.DiameterType.Number);
 
-            app_.CommandState.StartDynamics();
-        }
+        var frameList = PenetrHelper.createFrameList(
+            userTask, penInfo, PenetrTaskBase.LevelMain);
 
-        var locEl = app_.CommandState.LocateElement(ref Point, View, true);
-        var hitPath = app_.CommandState.GetHitPath();
-        if (hitPath != null)
+        var el = frameList.AsTFFrame.Get3DElement();
+        el.Redraw(DrawMode);
+        
+    }
+
+    private bool processInput(out PenetrUserTask userTask, 
+        ref BCOM.Point3d Point, BCOM.View View)
+    {
+        BCOM.Point3d point = Point;
+        ensureLocateEnabled(ref point, View);
+
+        userTask = singleModel_.UserTask;
+
+        if (string.IsNullOrEmpty(userTask.Code))
+            return false;
+
+        BCOM.HitPath hitPath = App.CommandState.GetHitPath();
+        if (!userTask.IsManualRotateMode && hitPath != null)
         {
-            string kks = singleModel_.UserTask.KKS;
-            ;
+            BCOM.Element firstHitElem = hitPath.GetElementAt(1);
+            //int type1 = (int)firstHitElem.Type;
+
+            if (firstHitElem.IsPlanarElement())
+            {
+                userTask.Rotation = App.Matrix3dFromRotationBetweenVectors(
+                    ZAxis, firstHitElem.AsPlanarElement().Normal);
+            }
+            else 
+            {
+                // TODO обход по поверхностям
+            }
         }
 
-        BCOM.Point3d hitPoint = Point; // app_.CommandState.GetHitPoint();
-
-        singleModel_.UserTask.Location = Point;
-
-        if (!hitPoint.EqualsPoint(app_.Point3dZero()))
+        if (userTask.IsAutoLength)
         {
-            PenetrInfo penInfo = PenetrDataSource.Instance.getPenInfo(
-                singleModel_.UserTask.FlangesType, 
-                singleModel_.UserTask.DiameterType.Number);
+            double thickness = 0.0;
 
-            var frame = PenetrHelper.createFrameList(
-                singleModel_.UserTask, penInfo, PenetrVueTask.LevelMain);
+            BCOM.Element locEl = app_.CommandState.LocateElement(ref Point, View, true);
 
-            //BCOM.Element element = frame.Get3DElement();
-            //element.Redraw(DrawMode);
+            if (locEl != null && locEl.IsCellElement())
+            {
+                TFCOM.TFElementList tfList = AppTF.CreateTFElement();
+                tfList.InitFromElement(locEl);
 
-            var circle = 
-                ElementHelper.createCircle(penInfo.pipeDiameterOutside, Point);
-            //circle.Redraw(DrawMode);
+                int type = tfList.AsTFElement.GetApplicationType();
 
-            BCOM.SmartSolidElement cylindrInside =
-                app_.SmartSolid.CreateCylinder(null, 
-                penInfo.pipeDiameterOutside / 2, 
-                singleModel_.UserTask.LengthCm * 10);
+                if (tfList.AsTFElement.GetIsFormType())
+                {
+                    TFCOM._TFFormRecipeList recipeList;                    
+                    tfList.AsTFElement.GetFormRecipeList(out recipeList);
 
-            cylindrInside.Move(Point);
+                    if (type == (int)TFFormTypeEnum.TF_SLAB_FORM_ELM)
+                    {
+                        var slab = (TFCOM.TFFormRecipeSlabList)recipeList;
 
-            TFCOM.TFFrameListClass frameList = new TFCOM.TFFrameListClass();
-            frameList.Add3DElement(cylindrInside);
+                        slab.AsTFFormRecipeSlab.GetThickness(out thickness);                
+                    }
+                    else if (type == (int)TFFormTypeEnum.TF_LINEAR_FORM_ELM)
+                    {
+                        var wall = (TFCOM.TFFormRecipeLinearList)recipeList;
+                        wall.AsTFFormRecipeLinear.GetThickness(out thickness);                              
+                    }                
+                }
+            }
 
-            var el = frameList.Get3DElement();
-            el.Redraw(DrawMode);
+            if (thickness > 0.0)
+            {
+                userTask.LengthCm = (int)Math.Ceiling(thickness) / 10;
+            }
+            else
+            {
+                userTask.LengthCm = 1;
+            }
         }
-        if (locEl != null ||
-            app_.CommandState.GetLocatedElement(false) != null)        
-        {
-            ;
-        }
+
+        singleModel_.setLocation(point); // для обновления формы
+        return true;
+    }
+
+
+    public bool getTFPlainFromBrepFace(out TFCOM.TFPlane tfPlain, TFCOM._TFFormRecipeList resipeList, TFCOM.TFdFaceLabel label)
+    {        
+        TFCOM.TFBrepList brepList;
+        resipeList.GetBrepList(out brepList, false, false, false);
+
+        TFCOM.TFBrepFaceList faceList = brepList.GetFacesByLabel(label);
+
+        //BCOM.Point3d center;
+        //faceList.AsTFBrepFace.GetCenter(out center);
+
+        //BCOM.Element faceElem;
+        //faceList.GetElement(out faceElem, App.Transform3dIdentity());
+                
+        //TFCOM.TFPlane tfPlain;
+        return faceList.AsTFBrepFace.IsPlanar(out tfPlain);
+        //{
+        //    return true
+        //}
+
+        //if (!faceElem.IsPlanarElement())
+        //{
+        //    plane = new BCOM.Plane3d();
+        //    return false;
+        //}
+
+        //var normal = faceElem.AsPlanarElement().Normal;
+
+        //plane = new BCOM.Plane3d() {
+        //    Normal = normal,
+        //    Origin = center
+        //}; 
+        //return true;
     }
 
     public void Keyin(string Keyin)
@@ -131,6 +210,23 @@ public class PenetrPrimitiveCmd : BCOM.IPrimitiveCommandEvents
 
     private SingleModel singleModel_;
     private static BCOM.Application app_ => BMI.Utilities.ComApp;
+
+    private bool ensureLocateEnabledRequired_ = true;
+
+    private void ensureLocateEnabled(ref BCOM.Point3d Point, BCOM.View View)
+    {
+         if (ensureLocateEnabledRequired_)
+        {   // ! unblock Locate
+            ensureLocateEnabledRequired_ = false;
+            app_.CommandState.StopDynamics();
+
+            app_.CommandState.LocateElement(ref Point, View, true);
+            app_.CommandState.GetHitPath();
+
+            app_.CommandState.StartDynamics();
+        }
+    }
+
 
 }
 

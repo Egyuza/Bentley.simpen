@@ -22,6 +22,12 @@ namespace Shared.Bentley
 public static class BentleyExtensions
 {
 
+    public static double getDistanceToPlane(this BCOM.Point3d point, BCOM.Plane3d plane)
+    {
+        BCOM.Point3d projPoint = App.Point3dProjectToPlane3d(point, plane);
+        return App.Point3dDistance(point, projPoint);
+    }
+
     public static BCOM.Element createPointElement(this BCOM.Application app)
     {
         var zero = app.Point3dZero();

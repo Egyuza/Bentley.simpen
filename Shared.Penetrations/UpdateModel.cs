@@ -23,14 +23,37 @@ class UpdateModel : BentleyInteropBase
     //    throw new NotImplementedException();
     //}
 
-    private Dictionary<ModelReference, List<TFFrameListClass>> updateColl_;
+    private Dictionary<ModelReference, List<CellElement>> modelsCellsForUpdate_;
+    private List<CellElement> checkedCellsForUpdate_;
+    private Dictionary<int, TFFrameListClass> cellFrames_;
 
+    public UpdateModel()
+    {
+        modelsCellsForUpdate_ = new Dictionary<ModelReference, List<CellElement>>();
+        checkedCellsForUpdate_ = new List<CellElement>();
+        cellFrames_ = new Dictionary<int, TFFrameListClass>();  
+    }
+
+    public void updateNodeDoubleClick(TreeNode node)
+    {
+        Element element = node.Tag as Element;
+        if (element == null)
+            return;
+        
+        App.ActiveModelReference.UnselectAllElements();
+        App.ActiveModelReference.SelectElement(element);
+        
+        element.zoomToElement();
+    }
 
     public void scanForUpdate(TreeView treeView) // TODO без TreeView
     {
-        updateColl_ = updateColl_ ?? 
-            new Dictionary<ModelReference, List<TFFrameListClass>>();
-        updateColl_.Clear();
+        treeView.AfterCheck -= TreeView_AfterCheck;
+        treeView.AfterCheck += TreeView_AfterCheck;
+
+        checkedCellsForUpdate_.Clear(); 
+        modelsCellsForUpdate_.Clear();
+        cellFrames_.Clear();
 
         /* TODO
         Поиск:
@@ -46,55 +69,79 @@ class UpdateModel : BentleyInteropBase
 
         treeView.Nodes.Clear();
 
-        foreach (var pair in updateColl_)
+        foreach (var pair in modelsCellsForUpdate_)
         {
             ModelReference model = pair.Key;
-            List<TFFrameListClass> updateList = pair.Value;
+            List<CellElement> updateList = pair.Value;
 
-            TreeNode node = 
+            TreeNode modelNode = 
                 treeView.Nodes.Add(model.Name + $" ({updateList.Count})");
-            foreach (TFFrameListClass frame in updateList)
+
+            foreach (var cell in updateList)
             {
-                Element element = frame.Get3DElement();
-                node.Nodes.Add(element.ID.ToString());
+                TFFrameListClass frame = cellFrames_[cell.MdlElementRef()];
+                TreeNode cellNode = modelNode.Nodes.Add(cell.ID.ToString());
+                cellNode.Tag = cell;
             }
+            modelNode.Checked = true;
         }
     }
 
-    public void update()
+    private void TreeView_AfterCheck(object sender, TreeViewEventArgs e)
     {
-        updateColl_.Clear();
+        var cell = e.Node.Tag as CellElement;
+
+        if (e.Node.Nodes.Count > 0)
+        {
+            foreach (TreeNode subNode in e.Node.Nodes)
+            {
+                subNode.Checked = e.Node.Checked;
+            }   
+        }
+        else if (cell != null)
+        {
+            if (checkedCellsForUpdate_.Contains(cell))
+            {
+                checkedCellsForUpdate_.Remove(cell);
+            }
+
+            if (e.Node.Checked)
+            {
+                checkedCellsForUpdate_.Add(cell);
+            }    
+        }
+    }
+
+    public void runUpdate()
+    {
+        modelsCellsForUpdate_.Clear();
+        cellFrames_.Clear();
 
         ElementScanCriteria scanCriteria = new ElementScanCriteriaClass();
         scanCriteria.ExcludeNonGraphical();
-        scanCriteria.IncludeOnlyVisible();  
+        scanCriteria.IncludeOnlyVisible();
 
         scanRecurse(App.ActiveModelReference, scanCriteria, true);
 
         // TODO запустить progressBar
 
-        foreach (var pair in updateColl_)
+        foreach (CellElement cell in checkedCellsForUpdate_)
         {
-            ModelReference model = pair.Key;
-            List<TFFrameListClass> updateList = pair.Value;
-
-            foreach (TFFrameListClass frame in updateList)
-            {
-                AppTF.ModelReferenceRewriteFrameList(model, frame);
-            }
-        }      
+            var frame = cellFrames_[cell.MdlElementRef()];
+            AppTF.ModelReferenceRewriteFrameList(cell.ModelReference, frame);
+        }
     }
 
     private void scanRecurse(ModelReference model, ElementScanCriteria criteria,
         bool updateImidiatly)
     {
-        if (updateColl_.ContainsKey(model))
+        if (modelsCellsForUpdate_.ContainsKey(model))
             return;
 
-        var updateList = new List<TFFrameListClass>();
+        var cellsToUpdateList = new List<CellElement>();
 
         foreach (string cellName in new string[] 
-            {PenetrVueTask.CELL_NAME, PenetrVueTask.CELL_NAME_OLD})
+            {PenetrTaskBase.CELL_NAME, PenetrTaskBase.CELL_NAME_OLD})
         {
             criteria.IncludeOnlyCell(cellName);
 
@@ -108,39 +155,45 @@ class UpdateModel : BentleyInteropBase
                 bool dirty = false;
 
                 CellElement cell = iter.Current.AsCellElement();     
-                TFFrameListClass frameList = new TFFrameListClass();
 
+                if (updateImidiatly && null == checkedCellsForUpdate_.Find(
+                        x => x.MdlElementRef() == cell.MdlElementRef()))
+                {
+                    continue;
+                }
+
+                TFFrameListClass frameList = new TFFrameListClass();
                 try
                 {
-                    if (cellName.Equals(PenetrVueTask.CELL_NAME))
+                    if (cellName.Equals(PenetrTaskBase.CELL_NAME))
                     {
-                        frameList.InitFromElement(cell);
-                        process(frameList, ref dirty, updateImidiatly);
+                        //frameList.InitFromElement(cell);
+                        //process(frameList, ref dirty, updateImidiatly);
                     }
-                    else if (cellName.Equals(PenetrVueTask.CELL_NAME_OLD))
+                    else if (cellName.Equals(PenetrTaskBase.CELL_NAME_OLD))
                     {
                         processOld(ref cell, ref dirty, updateImidiatly); // CELL  
                         frameList.InitFromElement(cell); // FRAME
                         processOld(frameList, ref dirty, updateImidiatly);  
                     }
                 }
-                catch (Exception) 
+                catch (Exception ex) 
                 {
                     // TODO log exception 
+                    continue;
                 }
 
                 if (dirty)
                 {
-                    updateList.Add(frameList);
-                    //AppTF.ModelReferenceRewriteFrameList(
-                    //   App.ActiveModelReference, frameList);
+                    cellFrames_.Add(cell.MdlElementRef(), frameList);
+                    cellsToUpdateList.Add(cell);
                 }            
             }                 
         }
 
-        if (updateList.Count > 0)
+        if (cellsToUpdateList.Count > 0)
         {
-            updateColl_.Add(model, updateList);
+            modelsCellsForUpdate_.Add(model, cellsToUpdateList);
         }
 
         foreach (Attachment attachment in model.Attachments)
@@ -192,7 +245,7 @@ class UpdateModel : BentleyInteropBase
                 PenetrHelper.addProjectionToFrame(frame,
                     ElementHelper.createPoint(origin),
                     "refPoint",
-                    PenetrVueTask.LevelRefPoint);
+                    PenetrTaskBase.LevelRefPoint);
             }
         }
     }
@@ -220,15 +273,15 @@ class UpdateModel : BentleyInteropBase
 
             if (temp.IsLineElement() && temp.AsLineElement().SegmentsCount > 1)
             {
-                requiredLevel = PenetrVueTask.LevelSymb;
+                requiredLevel = PenetrTaskBase.LevelSymb;
             }
             else if (temp.Type == MsdElementType.Ellipse) /*перфоратор*/
             {
-                requiredLevel = PenetrVueTask.LevelSymb;
+                requiredLevel = PenetrTaskBase.LevelSymb;
             }
             else
             {
-                requiredLevel = PenetrVueTask.LevelMain;
+                requiredLevel = PenetrTaskBase.LevelMain;
             }
 
             if (temp.Level?.ID != requiredLevel.ID)

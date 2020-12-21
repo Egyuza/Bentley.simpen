@@ -6,15 +6,15 @@ using System.ComponentModel;
 
 using Shared;
 
-namespace Embedded.UI
+namespace Embedded.Penetrations.UI
 {
 
-public enum BindinUpdateMode
-{
-    ControlOnly,
-    SourceOnly,
-    Both
-}
+//public enum BindinUpdateMode
+//{
+//    ControlOnly,
+//    SourceOnly,
+//    Both
+//}
 
 public partial class PenetrationForm : Form
 {
@@ -22,6 +22,8 @@ public partial class PenetrationForm : Form
     public delegate void CreateAction();
     public delegate void ScanForUpdateAction(TreeView treeView);
     public delegate void UpdateAction();
+    public delegate void UpdateNodeDoubleClickAction(TreeNode node);
+    public delegate void StartDefaultAction();
     public delegate void StartPrimitiveAction();
     public delegate void SingleSelectFlangeTypeAction(long flangeType);
     public delegate void SingleSelectDiameterTypeAction(object diameterType);
@@ -46,6 +48,19 @@ public partial class PenetrationForm : Form
 
             dgvCreationTasks.RowsAdded += DgvFields_RowsAdded;
             dgvCreationTasks.DataError += DgvFields_DataError;  
+
+            numAngleX.setBinding("Enabled", chbxManualRotate, "Checked", BindinUpdateMode.ControlOnly);
+            numAngleY.setBinding("Enabled", chbxManualRotate, "Checked", BindinUpdateMode.ControlOnly);
+            numAngleZ.setBinding("Enabled", chbxManualRotate, "Checked", BindinUpdateMode.ControlOnly);
+
+            numIncrement.setBinding("Enabled", chbxManualRotate, "Checked", BindinUpdateMode.ControlOnly);
+            numAngleX.setBinding("Increment", numIncrement, "Value", BindinUpdateMode.ControlOnly);
+            numAngleY.setBinding("Increment", numIncrement, "Value", BindinUpdateMode.ControlOnly);            
+            numAngleZ.setBinding("Increment", numIncrement, "Value", BindinUpdateMode.ControlOnly);
+
+            txtLength.setBinding(nameof(txtLength.ReadOnly), 
+                chbxAutoLength, nameof(chbxAutoLength.Checked), 
+                BindinUpdateMode.ControlOnly);
         }
 
         { // ОБНОВЛЕНИЕ:
@@ -80,67 +95,67 @@ public partial class PenetrationForm : Form
     //    //trvUpdate.DataSource = new BindingSource(bindList, null);
     //}
 
-    public void setBinding(string controlName, string controlPropertyName,
-        object dataSource, string dataSourceMember, BindinUpdateMode bindingMode)
-    {
-        try
-        {
-            setBinding(findControl(controlName, this), controlPropertyName,
-                dataSource, dataSourceMember, bindingMode);
-        }
-        catch (Exception ex)
-        {
-            ex.ShowMessage();
-        }
-    }
+    //public void setBinding(string controlName, string controlPropertyName,
+    //    object dataSource, string dataSourceMember, BindinUpdateMode bindingMode)
+    //{
+    //    try
+    //    {
+    //        setBinding(findControl(controlName, this), controlPropertyName,
+    //            dataSource, dataSourceMember, bindingMode);
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        ex.ShowMessage();
+    //    }
+    //}
 
-    public static void setBinding(Control control, string controlPropertyName,
-        object dataSource, string dataSourceMember, BindinUpdateMode bindingMode)
-    {       
-        try
-        {
-            var binding = new Binding(
-                controlPropertyName, dataSource, dataSourceMember);
+    //public static void setBinding(Control control, string controlPropertyName,
+    //    object dataSource, string dataSourceMember, BindinUpdateMode bindingMode)
+    //{       
+    //    try
+    //    {
+    //        var binding = new Binding(
+    //            controlPropertyName, dataSource, dataSourceMember);
              
-            switch (bindingMode)
-            {
-            case BindinUpdateMode.ControlOnly:
-                binding.ControlUpdateMode = ControlUpdateMode.OnPropertyChanged;
-                binding.DataSourceUpdateMode = DataSourceUpdateMode.Never;
-                break;
-            case BindinUpdateMode.SourceOnly:
-                binding.ControlUpdateMode = ControlUpdateMode.Never;
-                binding.DataSourceUpdateMode = DataSourceUpdateMode.OnPropertyChanged;
-                break;
-            default:
-                binding.DataSourceUpdateMode = DataSourceUpdateMode.OnPropertyChanged;
-                binding.ControlUpdateMode = ControlUpdateMode.OnPropertyChanged;             
-                break;
-            }
+    //        switch (bindingMode)
+    //        {
+    //        case BindinUpdateMode.ControlOnly:
+    //            binding.ControlUpdateMode = ControlUpdateMode.OnPropertyChanged;
+    //            binding.DataSourceUpdateMode = DataSourceUpdateMode.Never;
+    //            break;
+    //        case BindinUpdateMode.SourceOnly:
+    //            binding.ControlUpdateMode = ControlUpdateMode.Never;
+    //            binding.DataSourceUpdateMode = DataSourceUpdateMode.OnPropertyChanged;
+    //            break;
+    //        default:
+    //            binding.DataSourceUpdateMode = DataSourceUpdateMode.OnPropertyChanged;
+    //            binding.ControlUpdateMode = ControlUpdateMode.OnPropertyChanged;             
+    //            break;
+    //        }
 
-            control.DataBindings.Add(binding);
-        }
-        catch (Exception ex)
-        {
-            ex.ShowMessage();
-        }
-    }
+    //        control.DataBindings.Add(binding);
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        ex.ShowMessage();
+    //    }
+    //}
 
-    private Control findControl(string name, Control owner)
-    {
-        Control res = null;
-        res = owner.Controls[name];
+    //private Control findControl(string name, Control owner)
+    //{
+    //    Control res = null;
+    //    res = owner.Controls[name];
         
-        if (res == null)
-        {
-            foreach (Control control in owner.Controls)
-            {
-                res = findControl(name, control);
-                if (res != null) return res;
-            }
-        }
-        return res;
-    }
+    //    if (res == null)
+    //    {
+    //        foreach (Control control in owner.Controls)
+    //        {
+    //            res = findControl(name, control);
+    //            if (res != null) return res;
+    //        }
+    //    }
+    //    return res;
+    //}
 
     public void setStatusProject(string projectName)
     {
@@ -184,9 +199,19 @@ public partial class PenetrationForm : Form
         scanForUpdateAction_ = action;
     }
 
+    public void setUpdateNodeDoubleClickAction(UpdateNodeDoubleClickAction action)
+    {
+       updateNodeDoubleClickAction_ = action;
+    }
+
     public void setUpdateAction(UpdateAction action)
     {
         updateAction_ = action;
+    }
+
+    public void setStartDefaultAction(StartDefaultAction action)
+    {
+        startDefaultAction_ = action;
     }
 
     public void setStartPrimitiveAction(StartPrimitiveAction action)
@@ -285,8 +310,10 @@ public partial class PenetrationForm : Form
     private PreviewAction previewAction_;
     private CreateAction createAction_;
     private ScanForUpdateAction scanForUpdateAction_;
+    private UpdateNodeDoubleClickAction updateNodeDoubleClickAction_;
     private UpdateAction updateAction_;
     private StartPrimitiveAction startPrimitiveAction_;
+    private StartDefaultAction startDefaultAction_;
     private SingleSelectFlangeTypeAction singleSelectFlangeTypeAction_;
     private SingleSelectDiameterTypeAction singleSelectDiameterTypeAction_;
     private SingleSelectLengthAction singleSelectLengthAction_;
@@ -310,7 +337,32 @@ public partial class PenetrationForm : Form
 
     private void txtLength_TextChanged(object sender, EventArgs e)
     {
-        InvokeSafe(singleSelectLengthAction_, int.Parse(txtLength.Text));
+        try
+        {
+            InvokeSafe(singleSelectLengthAction_, int.Parse(txtLength.Text));
+        }
+        catch (FormatException ex)
+        {
+            if (!string.IsNullOrEmpty(txtLength.Text))
+            {
+               ex.ShowMessage();
+            }
+        }
+    }
+
+    private void PenetrationForm_KeyDown(object sender, KeyEventArgs e)
+    {
+        ;
+    }
+
+    private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        InvokeSafe(startDefaultAction_);
+    }
+
+    private void trvUpdate_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
+    {
+        InvokeSafe(updateNodeDoubleClickAction_, e.Node);
     }
 }
 }
