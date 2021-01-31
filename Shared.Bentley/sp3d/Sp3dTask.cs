@@ -6,17 +6,21 @@ class Sp3dTask
     public P3DHangerStdComponent component { get; private set; }
     public P3DEquipment equipment { get; private set; }
 
-    public Sp3dTask(P3DHangerPipeSupport pipe, P3DHangerStdComponent component)
+    public string XmlSummary { get; private set; }
+
+    public Sp3dTask(P3DHangerPipeSupport pipe, P3DHangerStdComponent component, string summary)
     {
         this.pipe = pipe;
         this.component = component;
+        XmlSummary = summary;
     }
 
-    public Sp3dTask(P3DEquipment equipment)
+    public Sp3dTask(P3DEquipment equipment, string summary)
     {
         this.pipe = null;
         this.component = null;
         this.equipment = equipment;
+        XmlSummary = summary;
     }
 
     public bool isFlange()

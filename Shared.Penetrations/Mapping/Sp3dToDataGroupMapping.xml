@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Sp3dToDataGroupMapping>
+    <Items>        
+        <Item Sp3dXmlPath="P3DHangerPipeSupport/Name" TargetXPath="EmbPart/@PartCode" TargetName="PartCode" Visible="true" ReadOnly="false"></Item>
+        <Item Sp3dXmlPath="P3DEquipment/Name" TargetXPath="EmbPart/@PartCode" TargetName="PartCode" Visible="true" ReadOnly="false"></Item>
+    </Items>
+</Sp3dToDataGroupMapping>

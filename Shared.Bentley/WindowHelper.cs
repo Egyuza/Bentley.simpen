@@ -56,6 +56,8 @@ internal static class WindowHelper
         FormWindowState state = form.WindowState;
         form.WindowState = state != FormWindowState.Normal ? FormWindowState.Normal : state;
 
+        m_window.MinimumSize = new System.Drawing.Size(
+            form.MinimumSize.Width + 5, form.MinimumSize.Height + 5);
         m_window.Show();
         m_window.FloatingHostForm?.Refresh();
         form.Refresh();

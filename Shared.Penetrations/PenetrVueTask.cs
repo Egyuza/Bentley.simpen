@@ -16,6 +16,10 @@ using BMI = Bentley.MstnPlatformNET.InteropServices;
 
 using Shared.Bentley.sp3d;
 using Shared.Bentley;
+using Shared;
+using System.Xml.Linq;
+using System.Linq;
+using System.Xml.XPath;
 
 namespace Embedded.Penetrations.Shared
 {
@@ -166,10 +170,25 @@ public class PenetrVueTask : BentleyInteropBase, IPenetrTask
         long id;
         IntPtr elRef, modelRef;
         ElementHelper.extractFromElement(element, out id, out elRef, out modelRef);
+        var v = Sp3dToDataGroupMapping.Instance;
+        ;
         
+        var doc = XDocument.Parse(task.XmlSummary);
+        foreach (var propMap in Sp3dToDataGroupMapping.Instance.Items)
+        {
+            var prop = doc.XPathSelectElement(propMap.Sp3dXmlPath);
+            if (prop != null)
+            {
+                var value = prop.Value;
+                ;
+            }            
+        }
+
         elemRefP = elRef;
         modelRefP = modelRef;
         elemId = id;
+        
+
 
         P3Dbase data = task.isEquipment() ? (P3Dbase)task.equipment : task.pipe;
 

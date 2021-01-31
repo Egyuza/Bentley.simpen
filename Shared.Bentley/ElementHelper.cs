@@ -35,6 +35,8 @@ static class ElementHelper
         P3DHangerStdComponent component = null;
         P3DEquipment equipment = null;
         task = null;
+
+        string xmlSummary = string.Empty;
         
         if (element == null)
             return false;
@@ -49,8 +51,9 @@ static class ElementHelper
         {
             if (inst.StartsWith("<P3DEquipment"))
             {
-                string xmlData = Regex.Replace(inst, " xmlns=\"[^\"]+\"", "");  
-                equipment = XmlSerializer.FromXml<P3DEquipment>(xmlData);
+                string xmlData = Regex.Replace(inst, " xmlns=\"[^\"]+\"", "");
+                xmlSummary += xmlData;
+                equipment = XmlSerializerEx.FromXml<P3DEquipment>(xmlData);
                 break;
             }
 
@@ -77,14 +80,15 @@ static class ElementHelper
                     {
                         if (xmlData.StartsWith("<P3DHangerPipeSupport"))
                         {
-                            pipe = XmlSerializer.FromXml
+                            pipe = XmlSerializerEx.FromXml
                                 <P3DHangerPipeSupport>(xmlData);
                         }
                         else if (xmlData.StartsWith("<P3DHangerStdComponent"))
                         {        
-                            component = XmlSerializer.FromXml
+                            component = XmlSerializerEx.FromXml
                                 <P3DHangerStdComponent>(xmlData);
                         }
+                        xmlSummary += xmlData;
                     }
                     catch (Exception)
                     {
@@ -97,11 +101,11 @@ static class ElementHelper
         
         if (equipment != null)
         {
-            task = new Sp3dTask(equipment);
+            task = new Sp3dTask(equipment, xmlSummary);
         }
         else if (pipe != null && component != null)
         {
-            task = new Sp3dTask(pipe, component);
+            task = new Sp3dTask(pipe, component, xmlSummary);
         }
 
         return task != null;
@@ -295,15 +299,6 @@ static class ElementHelper
 
         BCOM.Point3d[] verts = { center, center, center, center, center };
         double k = diameter/2 * Math.Cos(Math.PI/4);
-        //verts[0].X = -k;
-        //verts[0].Y = -k;
-        //verts[1].X = k;
-        //verts[1].Y = k;
-        //verts[2] = center;
-        //verts[3] = verts[0];
-        //verts[3].Y *= -1;
-        //verts[4] = verts[1];
-        //verts[4].Y *= -1;
 
         verts[0].X -= k;
         verts[0].Y -= k;
@@ -525,6 +520,59 @@ static class ElementHelper
     public static double getActiveAnnotationScale()
     {
         return App.ActiveModelReference.GetSheetDefinition().AnnotationScaleFactor;
+    }
+
+    public static bool setTagOnElement<T>(BCOM.Element element, 
+        string tagSetName, string tagName, T value, BCOM.MsdTagType type = BCOM.MsdTagType.Character)
+    {
+        BCOM.TagElement tag = null;
+        BCOM.DesignFile dgnFile = element.ModelReference.DesignFile;
+
+        BCOM.TagSet tagSet = getTagSetOrCreate(dgnFile, tagSetName);
+        
+        try { tag = element.GetTag(tagSet, tagName); }
+        catch (Exception) {}
+        
+        if (tag == null) {
+            BCOM.TagDefinition tagDef = 
+                getTagDefOrCreate(tagSet, tagName, BCOM.MsdTagType.Character);
+            tag = element.AddTag(tagDef);
+        }
+
+        if (tag != null)
+        {
+            tag.Value = value;
+            tag.Rewrite();
+            //var tagTest = element.GetTag(tagSet, tagName);
+            element.Rewrite();
+            return true;
+        }
+
+        return false;
+    }
+
+    public static BCOM.TagSet getTagSetOrCreate(BCOM.DesignFile dgnFile, string tagSetName) {
+        try
+        {
+            return dgnFile.TagSets[tagSetName];
+        }
+        catch (Exception)
+        {
+            return dgnFile.TagSets.Add(tagSetName);
+        }
+    }
+
+    public static BCOM.TagDefinition getTagDefOrCreate(
+        BCOM.TagSet tagSet, string tagName, BCOM.MsdTagType tagType) 
+    {
+        try
+        {
+            return tagSet.TagDefinitions[tagName];
+        }
+        catch (Exception)
+        {
+            return tagSet.TagDefinitions.Add(tagName, tagType);
+        }
     }
 
     private static BCOM.Application App

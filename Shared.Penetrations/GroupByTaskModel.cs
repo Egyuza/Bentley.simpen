@@ -75,6 +75,21 @@ public class GroupByTaskModel : NotifyPropertyChangedBase
             BCOM.MsdTransientFlags.Overlay | BCOM.MsdTransientFlags.Snappable | BCOM.MsdTransientFlags.IncludeInPlot,
             BCOM.MsdViewMask.AllViews, 
             BCOM.MsdDrawingMode.Temporary);
+
+
+#if DEBUG
+            try
+            {
+                var map1 = Sp3dToDataGroupMapping.Instance;
+                var map2 = DataGroupToTagsMapping.Instance;
+                ;
+            }
+            catch (Exception ex)
+            {
+                ;
+            }
+
+        #endif
     }
 
 #if V8i
@@ -116,6 +131,11 @@ public class GroupByTaskModel : NotifyPropertyChangedBase
 
         #if DEBUG
                 BCOM.Element comEl = ElementHelper.getElementCOM(element);
+                
+                if (DataGroupHelper.IsElementOfCatalogType(comEl, "EmbeddedPart"))
+                {
+                    ;
+                }
 
                 if (comEl.IsCompundCell())
                 {
@@ -168,6 +188,7 @@ public class GroupByTaskModel : NotifyPropertyChangedBase
     }
 
 #elif CONNECT
+
     Bentley.MstnPlatformNET.AddIn addin_;
     public GroupByTaskModel(Bentley.MstnPlatformNET.AddIn addin) : this()
     {

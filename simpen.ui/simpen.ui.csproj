@@ -203,7 +203,7 @@
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Embedded.UI\Embedded.UI.csproj">
+    <ProjectReference Include="..\Embedded.Penetrations.UI\Embedded.Penetrations.UI.csproj">
       <Project>{2c1825d3-6bb5-4340-a921-7c8088ca5167}</Project>
       <Name>Embedded.UI</Name>
     </ProjectReference>

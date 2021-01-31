@@ -7,7 +7,7 @@ namespace Shared
 {
 /// <summary> Класс, предоставляющий упрощённые методы для сериализации и
 /// десериализации классов в Xml формат </summary>
-public static class XmlSerializer
+public static class XmlSerializerEx
 {
     private static XmlSerializerNamespaces _namespaces;
     public static XmlSerializerNamespaces Namespaces
@@ -44,7 +44,7 @@ public static class XmlSerializer
         using (FileStream fs =
             new FileStream(path, FileMode.Open, access: FileAccess.Read))
         {
-                System.Xml.Serialization.XmlSerializer formatter = new System.Xml.Serialization.XmlSerializer(typeof(T));
+            var formatter = new System.Xml.Serialization.XmlSerializer(typeof(T));
             obj = (T)formatter.Deserialize(fs);
         }
         return obj;
@@ -52,7 +52,7 @@ public static class XmlSerializer
 
     /// <summary> Десериализация из Xml-строки без генерации ошибки, в случае 
     /// неуспеха возвращается null </summary>
-    public static T TryFromXml<T>(string xml)
+    public static T TryFromXmlEx<T>(string xml)
     {
         try
         {
@@ -87,7 +87,7 @@ public static class XmlSerializer
         T obj;
         using (TextReader txtReader = new StringReader(xml))
         {
-                System.Xml.Serialization.XmlSerializer formatter = new System.Xml.Serialization.XmlSerializer(typeof(T));
+            var formatter = new System.Xml.Serialization.XmlSerializer(typeof(T));
             try
             {
                 obj = (T)formatter.Deserialize(txtReader);
@@ -123,7 +123,8 @@ public static class XmlSerializer
         System.Text.StringBuilder sb = new System.Text.StringBuilder();
         TextWriter txtWriter =
             new StringWriter(sb, CultureInfo.InvariantCulture);
-            System.Xml.Serialization.XmlSerializer formatter = new System.Xml.Serialization.XmlSerializer(typeof(T));
+
+        var formatter = new System.Xml.Serialization.XmlSerializer(typeof(T));
         try
         {
             formatter.Serialize(txtWriter, obj, Namespaces);
