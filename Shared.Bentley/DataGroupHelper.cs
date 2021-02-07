@@ -33,10 +33,34 @@ public class DataGroupHelper
                 return true;
             }
         }
-            BCOM.Application app;
+
+        BCOM.Application app;
 
             
         return false;
+    }
+
+
+    public static object GetDataGroupPropertyValue(BCOM.Element bcomElement,
+        string propertyPath, string catalogType = null)
+    {
+        Element element = ElementHelper.getElement(bcomElement);
+        if (element == null)
+            return null;
+
+        //var schemas = DataGroupDocument.Instance.CatalogSchemas.Schemas; // НВС для позгрузки
+
+        using (var catalogEditHandle = new CatalogEditHandle(element, true, true))
+        {
+            foreach (DataGroupProperty property in catalogEditHandle.GetProperties())
+            {
+                if (property.Xpath.Equals(propertyPath)) 
+                {
+                    return property.Value;
+                }
+            }
+        }
+        return null;
     }
 }
 }

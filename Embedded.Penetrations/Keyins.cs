@@ -1,5 +1,6 @@
 ﻿using Shared;
 using Embedded.Penetrations.Shared;
+using Embedded.Penetrations.Shared.Mapping;
 
 namespace Embedded.Penetrations
 {
@@ -16,6 +17,11 @@ static class Keyins
     public static void drawLeader(string unparsed)
     {
         PenetrLocateCmd.StartCommand();
+    }
+
+    public static void convertDataGroupPropertiesToTags(string unparsed)
+    {
+        DataGroupToTagsConverter.Run();
     }
 }
 }

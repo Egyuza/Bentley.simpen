@@ -534,8 +534,8 @@ static class ElementHelper
         catch (Exception) {}
         
         if (tag == null) {
-            BCOM.TagDefinition tagDef = 
-                getTagDefOrCreate(tagSet, tagName, BCOM.MsdTagType.Character);
+            BCOM.TagDefinition tagDef = getTagDefOrCreate(tagSet, tagName, type);
+            // TODO tagDef.IsHidden  = ...
             tag = element.AddTag(tagDef);
         }
 
@@ -543,7 +543,6 @@ static class ElementHelper
         {
             tag.Value = value;
             tag.Rewrite();
-            //var tagTest = element.GetTag(tagSet, tagName);
             element.Rewrite();
             return true;
         }

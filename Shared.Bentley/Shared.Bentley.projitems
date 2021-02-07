@@ -10,6 +10,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)BentleyInteropBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DataGroupHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ElementHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)BentleyExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Logger.cs" />

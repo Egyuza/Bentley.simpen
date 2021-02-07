@@ -130,12 +130,7 @@ public class GroupByTaskModel : NotifyPropertyChangedBase
                 Element element = ElementHelper.getElement(eventArgs);
 
         #if DEBUG
-                BCOM.Element comEl = ElementHelper.getElementCOM(element);
-                
-                if (DataGroupHelper.IsElementOfCatalogType(comEl, "EmbeddedPart"))
-                {
-                    ;
-                }
+                BCOM.Element comEl = ElementHelper.getElementCOM(element);                
 
                 if (comEl.IsCompundCell())
                 {

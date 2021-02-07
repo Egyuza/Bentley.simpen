@@ -184,7 +184,7 @@ public static class PenetrHelper
         if (element == null)
             return;
         
-        var schemas = DataGroupDocument.Instance.CatalogSchemas.Schemas;
+        var schemas = DataGroupDocument.Instance.CatalogSchemas.Schemas; // НВС для подгрузки схем
 
         using (var catalogEditHandle = new CatalogEditHandle(element, true, true))
         {
