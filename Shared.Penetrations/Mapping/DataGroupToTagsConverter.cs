@@ -34,8 +34,6 @@ public class DataGroupToTagsConverter : BentleyInteropBase
     {
         ElementEnumerator iter = App.ActiveModelReference.Scan(criteria);
 
-        App.ShowStatus()
-
         iter.Reset();        
         while (iter.MoveNext())
         {
