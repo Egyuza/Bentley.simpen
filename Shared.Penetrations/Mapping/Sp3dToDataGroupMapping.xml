@@ -19,7 +19,7 @@
                 <string>CUEQPHVACPen_RndT3O/Description</string>      
             </Sp3dXmlPaths>
         </Item>
-        <!--<Item Key="TOIWaterResistance" TargetXPath="EmbPart/@WaterResistance" TargetName="WaterResistance" Visible="true" ReadOnly="false">
+        <!--<Item Key="TOIWaterResistance" TargetXPath="EmbPart/@WaterResistance" TargetName="WaterResistance">
             <Sp3dXmlPaths>
                 <string>P3DHangerPipeSupport/TOIWaterResistance</string>
                 <string>P3DEquipment/TOIWaterResistance</string>

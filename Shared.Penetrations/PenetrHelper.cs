@@ -199,8 +199,6 @@ public static class PenetrHelper
             catalogEditHandle.InsertDataGroupCatalogInstance("EmbeddedPart", "Embedded Part");
             catalogEditHandle.UpdateInstanceDataDefaults();
             
-            //DataGroupProperty code = null;
-            //DataGroupProperty name = null;
 
             foreach (var pair in task.DataGroupPropsValues)
             {

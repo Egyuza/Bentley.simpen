@@ -27,10 +27,8 @@ public class TagsToDataGroupMapping
     private static TagsToDataGroupMapping instance_;
 
     private static TagsToDataGroupMapping read() =>
-        XmlSerializerEx.FromXmlFile<TagsToDataGroupMapping>(            
-            Path.Combine(
-                Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase.TrimStart("file:///".ToCharArray())),
-                "Mapping/TagsToDataGroupMapping.xml")
+        XmlSerializerEx.FromXmlFile<TagsToDataGroupMapping>( 
+            WorkspaceHelper.GetConfigVariable(CfgVariables.TAGS_DG_MAP_FILE_PATH)
         );
 }
 }

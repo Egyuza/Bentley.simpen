@@ -6,6 +6,14 @@ using System.Reflection;
 using System.Xml.Serialization;
 using Shared;
 
+using BCOM = Bentley.Interop.MicroStationDGN;
+using Shared.Bentley;
+#if V8i
+using BMI = Bentley.MicroStation.InteropServices;
+#elif CONNECT
+using BMI = Bentley.MstnPlatformNET.InteropServices;
+#endif
+
 namespace Embedded.Penetrations.Shared
 {
 [Serializable]
@@ -20,16 +28,13 @@ public class Sp3dToDataGroupMapping
 
     private Sp3dToDataGroupMapping() 
     {
+        
     }
 
-    private static Sp3dToDataGroupMapping instance_;
-
     private static Sp3dToDataGroupMapping read() =>
-        XmlSerializerEx.FromXmlFile<Sp3dToDataGroupMapping>(            
-            Path.Combine(
-                Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase.TrimStart("file:///".ToCharArray())),
-                "Mapping/Sp3dToDataGroupMapping.xml")
-        );
+        XmlSerializerEx.FromXmlFile<Sp3dToDataGroupMapping>(
+            WorkspaceHelper.GetConfigVariable(CfgVariables.SP3D_MAP_FILE_PATH));
     
+    private static Sp3dToDataGroupMapping instance_;
 }
 }
