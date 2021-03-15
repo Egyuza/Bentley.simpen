@@ -1,4 +1,5 @@
-﻿using BCOM = Bentley.Interop.MicroStationDGN;
+﻿using System.Collections.Generic;
+using BCOM = Bentley.Interop.MicroStationDGN;
 
 namespace Embedded.Penetrations.Shared
 {
@@ -30,6 +31,10 @@ public interface IPenetrTask
     BCOM.Vector3d SingleFlangeSide { get; }
 
     bool IsSingleFlangeFirst { get; }
+
+    Dictionary<Sp3dToDataGroupMapProperty, string> DataGroupPropsValues { get; set; }
+
+    void prepairDataGroup();
 
     void scanInfo();
 }

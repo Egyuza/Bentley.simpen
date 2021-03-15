@@ -183,6 +183,8 @@ public static class PenetrHelper
         Element element = ElementHelper.getElement(bcomElement);
         if (element == null)
             return;
+
+        task.prepairDataGroup();
         
         var schemas = DataGroupDocument.Instance.CatalogSchemas.Schemas; // НВС для подгрузки схем
 
@@ -197,37 +199,57 @@ public static class PenetrHelper
             catalogEditHandle.InsertDataGroupCatalogInstance("EmbeddedPart", "Embedded Part");
             catalogEditHandle.UpdateInstanceDataDefaults();
             
-            DataGroupProperty code = null;
-            DataGroupProperty name = null;
+            //DataGroupProperty code = null;
+            //DataGroupProperty name = null;
 
-            foreach (DataGroupProperty property in catalogEditHandle.GetProperties())
+            foreach (var pair in task.DataGroupPropsValues)
             {
-                if (property?.Xpath == "EmbPart/@PartCode") 
-                    code = property;
-                else if (property?.Xpath == "EmbPart/@CatalogName")
-                    name = property;
+                Sp3dToDataGroupMapProperty mapProp = pair.Key;
+                string value = pair.Value;
+
+                DataGroupProperty prop = catalogEditHandle.GetProperties()
+                    .FirstOrDefault(x => x.Xpath == mapProp.TargetXPath);
+
+                if (prop == null)
+                {
+                    prop = new DataGroupProperty(
+                        mapProp.TargetName, value, mapProp.ReadOnly, mapProp.Visible);
+                    prop.Xpath = mapProp.TargetXPath;
+                }        
+                catalogEditHandle.SetValue(prop, value);    
+                catalogEditHandle.Properties.Add(prop);
             }
 
-            if (code != null)
-                catalogEditHandle.SetValue(code, task.Code);
-            else {
-                code = new DataGroupProperty("PartCode", task.Code, false, true);
-                //code.SchemaName = "EmbPart";
-                code.Xpath = "EmbPart/@PartCode";
-                catalogEditHandle.Properties.Add(code);
-            }
-            catalogEditHandle.SetValue(code, task.Code);
-
-            if (name != null)
-                catalogEditHandle.SetValue(name, task.Name);
-            else {
-                name = new DataGroupProperty("CatalogName", task.Name, false, true);
-                //name.SchemaName = "EmbPart";
-                name.Xpath = "EmbPart/@CatalogName";
-                catalogEditHandle.Properties.Add(name);
-            }
-            catalogEditHandle.SetValue(name, task.Name);
             catalogEditHandle.Rewrite((int)BCOM.MsdDrawingMode.Normal);
+
+            //foreach (DataGroupProperty property in catalogEditHandle.GetProperties())
+            //{
+            //    if (property?.Xpath == "EmbPart/@PartCode") 
+            //        code = property;
+            //    else if (property?.Xpath == "EmbPart/@CatalogName")
+            //        name = property;
+            //}
+
+            //if (code != null)
+            //    catalogEditHandle.SetValue(code, task.Code);
+            //else {
+            //    code = new DataGroupProperty("PartCode", task.Code, false, true);
+            //    //code.SchemaName = "EmbPart";
+            //    code.Xpath = "EmbPart/@PartCode";
+            //    catalogEditHandle.Properties.Add(code);
+            //}
+            //catalogEditHandle.SetValue(code, task.Code);
+
+            //if (name != null)
+            //    catalogEditHandle.SetValue(name, task.Name);
+            //else {
+            //    name = new DataGroupProperty("CatalogName", task.Name, false, true);
+            //    //name.SchemaName = "EmbPart";
+            //    name.Xpath = "EmbPart/@CatalogName";
+            //    catalogEditHandle.Properties.Add(name);
+            //}
+            //catalogEditHandle.SetValue(name, task.Name);
+            //catalogEditHandle.Rewrite((int)BCOM.MsdDrawingMode.Normal);
 
             // TODO решить проблему вылета при команде Modify DataGroup Instance
         }

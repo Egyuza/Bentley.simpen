@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using System.Xml.Linq;
 
 namespace Shared
 {
@@ -56,6 +58,57 @@ static class Extensions
     {
         var reg = new Regex(regexp);
         return reg.IsMatch(text);
+    }
+
+    public static bool ContainsAny<T>(this ICollection<T> coll, params T[] items)
+    {
+        foreach(T item in items)
+        {
+            if (coll.Contains(item))
+                return true;
+        }
+        return false;
+    }
+    public static bool ContainsAny(this string text, params string[] items)
+    {
+        foreach(string item in items)
+        {
+            if (text.Contains(item))
+                return true;
+        }
+        return false;
+    }
+
+    public static XElement getChildByRegexPath(this XElement source, string path, 
+        out string propName)
+    {
+        propName = null;
+
+        XElement curElement = source;
+        string[] spath = path.Split('/');
+        for(int i = 0; i < spath.Length; ++i)
+        {
+            var regex = new Regex($"^{spath[i]}$");
+            var remCur = curElement;
+            foreach(XElement subEl in curElement.Nodes())
+            {
+                if (regex.IsMatch(subEl.Name.LocalName))
+                {
+                    if (i == spath.Length - 1)
+                    {
+                        propName = subEl.Name.LocalName;
+                        return subEl;
+                    }
+                    
+                    curElement = subEl;
+                    break;
+                }
+            }
+            if (remCur == curElement)
+                break;
+        }
+
+        return null;
     }
 
 }

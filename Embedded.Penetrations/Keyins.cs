@@ -21,7 +21,7 @@ static class Keyins
 
     public static void convertDataGroupPropertiesToTags(string unparsed)
     {
-        DataGroupToTagsConverter.Run();
+        TagsToDataGroupConverter.Run();
     }
 }
 }

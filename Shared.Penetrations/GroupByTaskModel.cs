@@ -75,21 +75,6 @@ public class GroupByTaskModel : NotifyPropertyChangedBase
             BCOM.MsdTransientFlags.Overlay | BCOM.MsdTransientFlags.Snappable | BCOM.MsdTransientFlags.IncludeInPlot,
             BCOM.MsdViewMask.AllViews, 
             BCOM.MsdDrawingMode.Temporary);
-
-
-#if DEBUG
-            try
-            {
-                var map1 = Sp3dToDataGroupMapping.Instance;
-                var map2 = DataGroupToTagsMapping.Instance;
-                ;
-            }
-            catch (Exception ex)
-            {
-                ;
-            }
-
-        #endif
     }
 
 #if V8i
@@ -101,12 +86,19 @@ public class GroupByTaskModel : NotifyPropertyChangedBase
     }
 
     private AddIn.SelectionChangedEventArgs.ActionKind lastSelectionAction_;
+    private uint lastFilePos_;
 
     private void Addin_SelectionChangedEvent(
         AddIn sender, AddIn.SelectionChangedEventArgs eventArgs)
     {
         try
         {
+            if (eventArgs.Action == lastSelectionAction_  && 
+                eventArgs.FilePosition == lastFilePos_)
+            {
+                return;
+            }
+
             switch (eventArgs.Action)
             {
             case AddIn.SelectionChangedEventArgs.ActionKind.SetEmpty:
@@ -162,7 +154,7 @@ public class GroupByTaskModel : NotifyPropertyChangedBase
                 TaskSelection.RaiseListChangedEvents = false;
                 foreach (PenetrVueTask task in tasksBuf_.Values)
                 {
-                    Logger.Log.Info($"Выбор объекта заадния {task.ToString()}");
+                    //Logger.Log.Info($"Выбор объекта заадния {task.ToString()}");
                     TaskSelection.Add(task);
                 }
                 tasksBuf_.Clear();
@@ -172,6 +164,7 @@ public class GroupByTaskModel : NotifyPropertyChangedBase
             }
 
             lastSelectionAction_ = eventArgs.Action;
+            lastFilePos_ = eventArgs.FilePosition;
             TaskSelection.ResetBindings();
             OnPropertyChanged(NP.TaskSelection);
         }

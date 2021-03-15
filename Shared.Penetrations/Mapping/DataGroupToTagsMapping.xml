@@ -1,8 +1,0 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
-<DataGroupToTagsMapping>
-    <Items>
-        <!--Возможные значения атрибута "TagType": 'Character', 'ShortInteger', 'LongInteger', 'Double', 'Binary'-->
-        <!--? Нужно ли проверять на DataGroupInstance ?-->
-        <Item DataGroupCatalogType="EmbeddedPart" DataGroupInstance="Embedded Part" DataGroupXPath="EmbPart/@PartCode" DataGroupName="PartCode" TagSetName="Penetration" TagName="PartCode" TagType="Character"></Item>
-    </Items>
-</DataGroupToTagsMapping>

@@ -56,9 +56,29 @@ public abstract class PenetrTaskBase : BentleyInteropBase, IPenetrTask
     public bool IsSingleFlangeFirst => App.Vector3dEqualTolerance(
         SingleFlangeSide, App.Vector3dFromXYZ(0, 0, -1), 0.1);
 
+
+    public Dictionary<Sp3dToDataGroupMapProperty, string> DataGroupPropsValues { get; set; }
+
     public virtual void scanInfo()
     {
         // TODO?
+    }
+
+    public void prepairDataGroup()
+    {
+        DataGroupPropsValues = DataGroupPropsValues ?? new Dictionary<Sp3dToDataGroupMapProperty, string>();
+        DataGroupPropsValues.Clear();
+        foreach (var propMap in Sp3dToDataGroupMapping.Instance.Items)
+        {  
+            if (propMap.TargetXPath == null)
+                continue;
+           
+            switch (propMap.Key)
+            {
+            case "Code": DataGroupPropsValues[propMap] = propMap.getMapValue(Code); break;
+            case "Name": DataGroupPropsValues[propMap] = propMap.getMapValue(Name); break;
+            }
+        }
     }
 
     public PenetrTaskBase()

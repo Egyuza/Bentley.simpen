@@ -9,8 +9,15 @@ using Shared;
 namespace Embedded.Penetrations.Shared
 {
 [Serializable]
-public class DataGroupToTagMapProperty
+public class TagToDataGroupMapProperty
 {
+    [XmlAttribute]
+    public string TagSetName { get; set; }
+    [XmlAttribute]
+    public string TagName { get; set; }
+    //[XmlAttribute]
+    //public string TagType { get; set; }
+
     [XmlAttribute]
     public string DataGroupCatalogType { get; set; }
     [XmlAttribute]
@@ -20,10 +27,11 @@ public class DataGroupToTagMapProperty
     [XmlAttribute]
     public string DataGroupName { get; set; }
     [XmlAttribute]
-    public string TagSetName { get; set; }
+    public bool IsReadOnly { get; set; } = false;
     [XmlAttribute]
-    public string TagName { get; set; }
-    [XmlAttribute]
-    public string TagType { get; set; }
+    public bool IsVisible { get; set; } = true;
+
+    [XmlIgnore]
+    public object Value { get; set; }
 }
 }

@@ -20,6 +20,7 @@ using Shared;
 using System.Xml.Linq;
 using System.Linq;
 using System.Xml.XPath;
+using System.Text.RegularExpressions;
 
 namespace Embedded.Penetrations.Shared
 {
@@ -97,6 +98,8 @@ public class PenetrVueTask : BentleyInteropBase, IPenetrTask
     public string Path { get; private set; }
     public TaskTypeEnum TaskType { get; private set; }
 
+    public BCOM.CellElement Cell { get; private set; }
+
     private BCOM.Point3d rawLocation_;
     private BCOM.Point3d? projectLocationOnForm_ = null;
 
@@ -136,6 +139,8 @@ public class PenetrVueTask : BentleyInteropBase, IPenetrTask
     public List<TFCOM.TFElementList> TFFormsIntersected { get; private set; }
     public List<TFCOM.TFElementList> CompoundsIntersected { get; private set; }
 
+    public Dictionary<Sp3dToDataGroupMapProperty, string>
+    DataGroupPropsValues { get; set; }
 
     public static PenetrVueTask getByParameters(
         BCOM.Point3d location, long flangeType, int lengthCm)
@@ -143,71 +148,135 @@ public class PenetrVueTask : BentleyInteropBase, IPenetrTask
         return new PenetrVueTask(location, flangeType, lengthCm);
     }
 
+    public void prepairDataGroup()
+    {
+    }
+
     public static bool getFromElement(Element element, out PenetrVueTask penTask)
     {
-        Sp3dTask task = null;
+        Sp3dTask_Old taskOld = null;
         penTask = null;
 
-        if (!ElementHelper.isElementSp3dTask(element, out task) ||
-            !(task.isPipe() || task.isPipeOld() || task.isEquipment()))
+        if (ElementHelper.isElementSp3dTask_Old(element, out taskOld) &&
+            (taskOld.isPipe() || taskOld.isPipeOld() || taskOld.isEquipment()))
         {
-            return false;
+            penTask = new PenetrVueTask(element, taskOld);
         }
+        else
+        {
+            IEnumerable<string> sp3dXmlData = 
+                ElementHelper.getSp3dXmlData(element);
+            Sp3dPenTask sp3dTask = new Sp3dPenTask(sp3dXmlData);
 
-        penTask = new PenetrVueTask(element, task);
-        return true;
+            if (sp3dTask.Type == Sp3dPenTask.TaskType.Pipe && sp3dTask.IsValid)
+            {
+                penTask = new PenetrVueTask(element, sp3dTask);                
+            }
+        }
+        
+        return penTask != null ? penTask.isValid : false;
+    }
+
+    private void initialize_(Element element = null)
+    {
+        DataGroupPropsValues = new Dictionary<Sp3dToDataGroupMapProperty, string>();
+        FlangesGeom = new List<PenetrTaskFlange>();
+        TFFormsIntersected = new List<TFCOM.TFElementList>();
+        CompoundsIntersected = new List<TFCOM.TFElementList>();
+
+        if (element != null)
+        {
+            Cell = element.AsCellElementCOM();
+            long id;
+            IntPtr elRef, modelRef;
+            ElementHelper.extractFromElement(element, out id, out elRef, out modelRef);
+
+            elemRefP = elRef;
+            modelRefP = modelRef;
+            elemId = id;
+        }
     }
 
     private PenetrVueTask(BCOM.Point3d location, long flangeType, int lengthCm)
     {
+        initialize_();
         rawLocation_ = location;
         this.FlangesType = flangeType;
         this.LengthCm = lengthCm;
     }
 
-    private PenetrVueTask(Element element, Sp3dTask task) 
+    private PenetrVueTask(Element element, Sp3dPenTask task)
     {
-        long id;
-        IntPtr elRef, modelRef;
-        ElementHelper.extractFromElement(element, out id, out elRef, out modelRef);
-        var v = Sp3dToDataGroupMapping.Instance;
-        ;
-        
-        var doc = XDocument.Parse(task.XmlSummary);
-        foreach (var propMap in Sp3dToDataGroupMapping.Instance.Items)
+        if (task == null)
+            return;
+
+        initialize_(element);
+
+        if (task.Location != null)
         {
-            var prop = doc.XPathSelectElement(propMap.Sp3dXmlPath);
-            if (prop != null)
-            {
-                var value = prop.Value;
-                ;
-            }            
+            rawLocation_ = Cell.Origin;
+            rawLocation_ = App.Point3dFromXYZ(
+                task.Location[0] * 1000, task.Location[1] * 1000, task.Location[2] * 1000);
         }
-
-        elemRefP = elRef;
-        modelRefP = modelRef;
-        elemId = id;
+        else
+        {
+            rawLocation_ = Cell.Origin;
+        }
         
+        Rotation = Cell.Rotation;
 
+        // разбор типоразмера:
+        parseTypeSize(task.Name);
+        Code = task.Code;
 
-        P3Dbase data = task.isEquipment() ? (P3Dbase)task.equipment : task.pipe;
+        testScan();
 
-        Oid = data.Oid;
+        //findFlangesOld();
+        scanInfo();
+    }
+    
+    private void testScan() 
+    {
+        if (Cell == null)
+            return;
+
+        var surfaces = new List<BCOM.Element>();
+        collectSubElementsByType(Cell, ref surfaces, BCOM.MsdElementType.Surface);
+
+        if (surfaces.Count > 0)
+        {
+            ;
+        }
+        else
+        {
+            var cones = new List<BCOM.ConeElement>();
+            collectSubElementsByType(Cell, ref cones);
+            ;
+        }
+    }
+
+    private PenetrVueTask(Element element, Sp3dTask_Old task) 
+    {
+        initialize_(element);
+
+        P3Dbase taskData = task.isEquipment() ? (P3Dbase)task.equipment : task.pipe;
+
+        Oid = taskData.Oid;
 
         BCOM.ModelReference taskModel =
             App.MdlGetModelReferenceFromModelRefP((int)modelRefP);
-        BCOM.Element bcomEl = taskModel.GetElementByID(elemId);
+        //BCOM.Element bcomEl = taskModel.GetElementByID(elemId);
 
-        Rotation = data.getRotation();
+        Rotation = taskData.getRotation();
 
-        Code = data.Name.Trim();
-        User = data.SP3D_UserLastModified.Trim();
-        Path = data.SP3D_SystemPath;
+        Code = taskData.Name.Trim();
+        User = taskData.SP3D_UserLastModified.Trim();
+        Path = taskData.SP3D_SystemPath;
 
-        BCOM.Point3d pt = App.Point3dFromXYZ(
-            data.LocationX, data.LocationY, data.LocationZ);
+        //BCOM.Point3d pt = App.Point3dFromXYZ(
+        //    taskData.LocationX, taskData.LocationY, taskData.LocationZ);
 
-        rawLocation_ = App.Point3dScale(data.getLocation(),
+        rawLocation_ = App.Point3dScale(taskData.getLocation(),
             taskModel.IsAttachmentOf(App.ActiveModelReference) ?
                 UOR.subPerMaster : 1);
 
@@ -227,23 +296,28 @@ public class PenetrVueTask : BentleyInteropBase, IPenetrTask
             TaskTypeEnum.Pipe;
 
         // разбор типоразмера:
-        try
-        {
-            string[] parameters =
-                data.Description.TrimStart('T').Split('-');            
-            PenCode = parameters[0]; // до ввода фиброцементного типа проходок FlangesType = int.Parse(parameters[0]);
-            DiameterTypeStr = new DiameterType(int.Parse(parameters[1])).ToString();
-            LengthCm = int.Parse(parameters[2]);
-        }
-        catch (Exception)
-        {
-            ErrorText = string.Format("Не удалось разобрать типоразмер \"{0}\"",
-                data.Description);
-        }
+        parseTypeSize(taskData.Description);
 
-        FlangesGeom = new List<PenetrTaskFlange>();
-        TFFormsIntersected = new List<Bentley.Interop.TFCom.TFElementList>();
-        CompoundsIntersected = new List<Bentley.Interop.TFCom.TFElementList>();
+        // Свойства DataGroup
+        // task.XmlDoc.Root
+
+        foreach (var propMap in Sp3dToDataGroupMapping.Instance.Items)
+        {  
+            if (propMap.TargetXPath == null)
+                continue;
+            
+            foreach (string path in propMap.Sp3dXmlPaths)
+            {
+                string propName;
+                var xEl = task.XmlDoc.Root.getChildByRegexPath(path, out propName);
+                //var xEl = xDoc.Root.XPathSelectElement(path);
+                if (xEl != null)
+                {
+                    string value = propMap.getMapValue(xEl.Value);
+                    DataGroupPropsValues.Add(propMap, value);
+                }
+            }
+        }
 
         if (TaskType == TaskTypeEnum.Pipe)
             findFlanges();
@@ -251,6 +325,25 @@ public class PenetrVueTask : BentleyInteropBase, IPenetrTask
             findFlangesOld();
 
         scanInfo();
+    }
+
+
+    /// <summary>
+    /// Разбор типоразмера
+    /// </summary>
+    private void parseTypeSize(string description)
+    {
+        try
+        {
+            string[] parameters = description.TrimStart('T').Split('-');            
+            PenCode = parameters[0]; // до ввода фиброцементного типа проходок FlangesType = int.Parse(parameters[0]);
+            DiameterTypeStr = new DiameterType(int.Parse(parameters[1])).ToString();
+            LengthCm = int.Parse(parameters[2]);
+        }
+        catch (Exception)
+        {
+            ErrorText = $"Не удалось разобрать типоразмер \"{description}\"";
+        }
     }
 
     private BCOM.CellElement getTaskCell()
@@ -484,7 +577,8 @@ public class PenetrVueTask : BentleyInteropBase, IPenetrTask
     }
 
     // todo
-    private void collectSubElementsByType<T>(BCOM.ComplexElement cell, ref List<T> list)
+    private void collectSubElementsByType<T>(BCOM.ComplexElement cell, ref List<T> list, 
+            BCOM.MsdElementType? specifyType = null)
         where T : BCOM.Element
     {
         list = list ?? new List<T>();
@@ -500,7 +594,14 @@ public class PenetrVueTask : BentleyInteropBase, IPenetrTask
 
             if (iter.Current is T)
             {
-                list.Add((T)iter.Current);
+                if (specifyType != null && iter.Current.Type == specifyType.Value)
+                {
+                    list.Add((T)iter.Current);
+                }
+                else
+                {
+                    list.Add((T)iter.Current);
+                }
             }
             else if (iter.Current is BCOM.ComplexElement)
             {
@@ -675,7 +776,7 @@ public class PenetrVueTask : BentleyInteropBase, IPenetrTask
     }
 
 
-    public override string ToString() => Name;
+    public override string ToString() => Name ?? base.ToString();
 
 }
 }

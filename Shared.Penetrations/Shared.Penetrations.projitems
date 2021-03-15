@@ -13,9 +13,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)DiameterType.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)GroupByTaskModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IPenetrTask.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Mapping\DataGroupToTagMapProperty.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Mapping\DataGroupToTagsConverter.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Mapping\DataGroupToTagsMapping.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Mapping\TagToDataGroupMapProperty.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Mapping\TagsToDataGroupConverter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Mapping\TagsToDataGroupMapping.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Mapping\Sp3dToDataGroupMapping.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Mapping\Sp3dToDataGroupMapProperty.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PenetrTaskBase.cs" />
@@ -34,7 +34,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)UpdateModel.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="$(MSBuildThisFileDirectory)Mapping\DataGroupToTagsMapping.xml">
+    <Content Include="$(MSBuildThisFileDirectory)Mapping\TagsToDataGroupMapping.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="$(MSBuildThisFileDirectory)Mapping\Sp3dToDataGroupMapping.xml">

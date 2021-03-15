@@ -9,6 +9,7 @@ using BMI = Bentley.MicroStation.InteropServices;
 using Bentley.Internal.MicroStation.Elements;
 using Bentley.MicroStation;
 using Bentley.MicroStation.XmlInstanceApi;
+using System.Xml.Linq;
 #endif
 
 #if CONNECT
@@ -26,36 +27,36 @@ using Shared.Bentley.sp3d;
 
 namespace Shared.Bentley
 {
+
+public class test
+{
+    public List<string> Values { get; set; } = new List<string>() {"1", "2", "3"};
+    public Dictionary<string,string> ValueMap { get; set; } =
+         new Dictionary<string, string>() { { "1", "First"}, { "2", "Second"},};
+}
+
+
 static class ElementHelper
 {
 #if V8i
-    public static bool isElementSp3dTask(Element element, out Sp3dTask task)
+
+    public static IEnumerable<string> getSp3dXmlData(Element element, bool includeRelations = true)
     {
-        P3DHangerPipeSupport pipe = null;
-        P3DHangerStdComponent component = null;
-        P3DEquipment equipment = null;
-        task = null;
-
-        string xmlSummary = string.Empty;
-        
-        if (element == null)
-            return false;
-
-        XmlInstanceSchemaManager modelSchema =
-            new XmlInstanceSchemaManager(element.ModelRef);
+        var res = new HashSet<string>();
+        var modelSchema = new XmlInstanceSchemaManager(element.ModelRef);
         
         XmlInstanceApi api = XmlInstanceApi.CreateApi(modelSchema);
         IList<string> instances = api.ReadInstances(element.ElementRef);
 
         foreach (string inst in instances)
         {
-            if (inst.StartsWith("<P3DEquipment"))
-            {
-                string xmlData = Regex.Replace(inst, " xmlns=\"[^\"]+\"", "");
-                xmlSummary += xmlData;
-                equipment = XmlSerializerEx.FromXml<P3DEquipment>(xmlData);
-                break;
-            }
+            //! если не удалить xmlns, то получим ошибку                        
+            // ~ "not absolut xmlns path"
+            string xmlData = Regex.Replace(inst, " xmlns=\"[^\"]+\"", "");   
+            res.Add(xmlData);
+
+            if (!includeRelations)
+                continue;
 
             string instId = XmlInstanceApi.GetInstanceIdFromXmlInstance(inst);
             IList<string> relations = api.ReadRelationshipInstances(instId);
@@ -71,41 +72,51 @@ static class ElementHelper
                 
                 foreach (string subInst in new string[] {sourceInst, targetInst})
                 {
-                    //! если не удалить xmlns, то получим ошибку                        
-                    // ~ "not absolut xmlns path"
-                    string xmlData =
-                        Regex.Replace(subInst, " xmlns=\"[^\"]+\"", "");                    
-
-                    try
-                    {
-                        if (xmlData.StartsWith("<P3DHangerPipeSupport"))
-                        {
-                            pipe = XmlSerializerEx.FromXml
-                                <P3DHangerPipeSupport>(xmlData);
-                        }
-                        else if (xmlData.StartsWith("<P3DHangerStdComponent"))
-                        {        
-                            component = XmlSerializerEx.FromXml
-                                <P3DHangerStdComponent>(xmlData);
-                        }
-                        xmlSummary += xmlData;
-                    }
-                    catch (Exception)
-                    {
-                        throw; // todo обработать
-                    }
+                    xmlData = Regex.Replace(subInst, " xmlns=\"[^\"]+\"", "");
+                    res.Add(xmlData);                    
                 }
-
             }
-        }   
+        }
+        return res;
+    }
+
+    public static bool isElementSp3dTask_Old(Element element, out Sp3dTask_Old task)
+    {
+        P3DHangerPipeSupport pipe = null;
+        P3DHangerStdComponent component = null;
+        P3DEquipment equipment = null;
+        task = null;
+
+        //string xmlSummary = string.Empty;
+        var xmlSumBilder = new System.Text.StringBuilder();
         
+        if (element == null)
+            return false;
+        
+        IEnumerable<string> summaryXmlData = ElementHelper.getSp3dXmlData(element);
+        foreach( string xmlData in summaryXmlData)
+        {
+            if (xmlData.StartsWith("<P3DEquipment"))
+            {                
+                equipment = XmlSerializerEx.FromXml<P3DEquipment>(xmlData);
+            }
+            else if (xmlData.StartsWith("<P3DHangerPipeSupport"))
+            {
+                pipe = XmlSerializerEx.FromXml<P3DHangerPipeSupport>(xmlData);
+            }
+            else if (xmlData.StartsWith("<P3DHangerStdComponent"))
+            {        
+                component = XmlSerializerEx.FromXml<P3DHangerStdComponent>(xmlData);
+            }
+        }
+
         if (equipment != null)
         {
-            task = new Sp3dTask(equipment, xmlSummary);
+            task = new Sp3dTask_Old(equipment, summaryXmlData);
         }
         else if (pipe != null && component != null)
         {
-            task = new Sp3dTask(pipe, component, xmlSummary);
+            task = new Sp3dTask_Old(pipe, component, summaryXmlData);
         }
 
         return task != null;
@@ -182,7 +193,7 @@ static class ElementHelper
         return el.ToString();
     }
 
-    public static bool isElementSp3dTask(Element element, out Sp3dTask task)
+    public static bool isElementSp3dTask(Element element, out Sp3dTask_Old task)
     {
         P3DHangerPipeSupport pipe = null;
         P3DHangerStdComponent component = null;
@@ -246,7 +257,7 @@ static class ElementHelper
 
         if (pipe != null && component != null)
         {
-            task = new Sp3dTask(pipe, component);
+            task = new Sp3dTask_Old(pipe, component);
         }
 
         return task != null;

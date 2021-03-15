@@ -11,26 +11,26 @@ using Shared.Bentley;
 namespace Embedded.Penetrations.Shared
 {
 [Serializable]
-[XmlRoot("DataGroupToTagsMapping")]
-public class DataGroupToTagsMapping
+[XmlRoot("TagsToDataGroupMapping")]
+public class TagsToDataGroupMapping
 {
     [XmlArrayItem("Item")]
-    public DataGroupToTagMapProperty[] Items { get; set; }
+    public TagToDataGroupMapProperty[] Items { get; set; }
 
-    public static DataGroupToTagsMapping Instance => 
+    public static TagsToDataGroupMapping Instance => 
         (instance_ ?? (instance_ = read()));
     
-    private DataGroupToTagsMapping()
+    private TagsToDataGroupMapping()
     {
     }
 
-    private static DataGroupToTagsMapping instance_;
+    private static TagsToDataGroupMapping instance_;
 
-    private static DataGroupToTagsMapping read() =>
-        XmlSerializerEx.FromXmlFile<DataGroupToTagsMapping>(            
+    private static TagsToDataGroupMapping read() =>
+        XmlSerializerEx.FromXmlFile<TagsToDataGroupMapping>(            
             Path.Combine(
                 Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase.TrimStart("file:///".ToCharArray())),
-                "Mapping/DataGroupToTagsMapping.xml")
+                "Mapping/TagsToDataGroupMapping.xml")
         );
 }
 }

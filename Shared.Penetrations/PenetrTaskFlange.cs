@@ -44,12 +44,12 @@ public class PenetrTaskFlange
 
     public bool isValid { get { return string.IsNullOrEmpty(ErrorText); } }
 
-    private PenetrTaskFlange(BCOM.Element element, Sp3dTask task)
+    private PenetrTaskFlange(BCOM.Element element, Sp3dTask_Old task)
     {
         init(element, task);
     }
 
-    private void init(BCOM.Element element, Sp3dTask task)
+    private void init(BCOM.Element element, Sp3dTask_Old task)
     {
         elemRef = element.MdlElementRef();
         modelRef = element.ModelReference.MdlModelRefP();
@@ -85,10 +85,10 @@ public class PenetrTaskFlange
 
     public static bool getFromElement(BCOM.Element element, out PenetrTaskFlange penTask)
     {
-        Sp3dTask task = null;
+        Sp3dTask_Old task = null;
         penTask = null;        
 
-        if (!ElementHelper.isElementSp3dTask(
+        if (!ElementHelper.isElementSp3dTask_Old(
             ElementHelper.getElement(element), out task) || !(task.isFlange()))
         {
             return false;
