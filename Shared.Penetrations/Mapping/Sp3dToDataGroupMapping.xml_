@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Sp3dToDataGroupMapping>
+    <Items>
+        <Item Key="Code" TargetXPath="EmbPart/@PartCode" TargetName="PartCode">
+            <Sp3dXmlPaths>
+                <string>P3DHangerPipeSupport/Name</string>
+                <string>P3DEquipment/Name</string>
+                <string>CUHASD[0-9]+T[0-9]_EN_10219O/Name</string>
+                <string>CUHASD08O/Name</string>
+                <string>CUEQPHVACPen_RndT3O/Name</string>
+            </Sp3dXmlPaths>
+        </Item>
+        <Item Key="Name" TargetXPath="EmbPart/@CatalogName" TargetName="CatalogName">
+            <Sp3dXmlPaths>
+                <string>P3DHangerPipeSupport/Description</string>
+                <string>P3DEquipment/Description</string>
+                <string>CUHASD[0-9]+T[0-9]_EN_10219O/BOMdescription</string>
+                <string>CUHASD08O/BOMdescription</string>
+                <string>CUEQPHVACPen_RndT3O/Description</string>      
+            </Sp3dXmlPaths>
+        </Item>
+        <!--<Item Key="TOIWaterResistance" TargetXPath="EmbPart/@WaterResistance" TargetName="WaterResistance">
+            <Sp3dXmlPaths>
+                <string>P3DHangerPipeSupport/TOIWaterResistance</string>
+                <string>P3DEquipment/TOIWaterResistance</string>
+            </Sp3dXmlPaths>
+            <ValuesMap>
+                <Item Key="1" Value="Value1"/>
+                <Item Key="2" Value="Value2"/>
+            </ValuesMap>
+        </Item>-->
+        <Item Key="Oid">
+            <Sp3dXmlPaths>
+                <string>P3DEquipment/Oid</string>
+                <string>P3DHangerPipeSupport/Oid</string>
+                <string>CUHASD[0-9]+T[0-9]_EN_10219O/Oid</string>
+                <string>CUHASD08O/BOMdescription</string>
+            </Sp3dXmlPaths>
+        </Item>
+        <Item Key="Type"> 
+            <!-- Определяет, что элемент - это объект задания на проходку, либо её фланцев.
+                Искомые значения (без учета регистра):
+                    "penpipe", "pntrt", "penplate", "penflange"
+            -->
+            <Sp3dXmlPaths>
+                <string>CUHASPenParts_EN_10219O/BOMdescription</string>
+                <string>CUEQPHVACPen_RndT3O/OriginalTypeName</string>
+                <string>CUHASSBPAEP_HS_PenPlateO/OriginalTypeName</string>
+            </Sp3dXmlPaths>
+        </Item>
+        <Item Key="Location">
+            <Sp3dXmlPaths>
+                <string>CUHASSBPAEP_HS_PenPlateO/DryCGX</string>
+                <string>CUHASSBPAEP_HS_PenPlateO/DryCGY</string>
+                <string>CUHASSBPAEP_HS_PenPlateO/DryCGZ</string>
+            </Sp3dXmlPaths>
+        </Item>
+        <!--<Item Sp3dXmlPath="P3DEquipment/Name" TargetXPath="EmbPart/@PartCode" TargetName="PartCode" Visible="true" ReadOnly="false"></Item>-->
+    </Items>
+</Sp3dToDataGroupMapping>

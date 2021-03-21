@@ -77,6 +77,9 @@ public class GroupByTaskModel : NotifyPropertyChangedBase
             BCOM.MsdDrawingMode.Temporary);
     }
 
+    private AddIn.SelectionChangedEventArgs.ActionKind lastSelectionAction_;
+    private uint lastFilePos_;
+
 #if V8i
     Bentley.MicroStation.AddIn addin_;
     public GroupByTaskModel(Bentley.MicroStation.AddIn addin) : this()
@@ -84,9 +87,6 @@ public class GroupByTaskModel : NotifyPropertyChangedBase
         addin_ = addin;
         addin_.SelectionChangedEvent += Addin_SelectionChangedEvent;
     }
-
-    private AddIn.SelectionChangedEventArgs.ActionKind lastSelectionAction_;
-    private uint lastFilePos_;
 
     private void Addin_SelectionChangedEvent(
         AddIn sender, AddIn.SelectionChangedEventArgs eventArgs)
@@ -122,16 +122,16 @@ public class GroupByTaskModel : NotifyPropertyChangedBase
                 Element element = ElementHelper.getElement(eventArgs);
 
         #if DEBUG
-                BCOM.Element comEl = ElementHelper.getElementCOM(element);                
+                //BCOM.Element comEl = ElementHelper.getElementCOM(element);                
 
-                if (comEl.IsCompundCell())
-                {
-                    var cell = comEl.AsCellElement();
-                    var pointEl = ElementHelper.createPoint(cell.Origin);
-                    pointEl.Level.ElementLineWeight = 10;
+                //if (comEl.IsCompundCell())
+                //{
+                //    var cell = comEl.AsCellElement();
+                //    var pointEl = ElementHelper.createPoint(cell.Origin);
+                //    pointEl.Level.ElementLineWeight = 10;
 
-                    previewTranCon_.AppendCopyOfElement(pointEl);
-                }
+                //    previewTranCon_.AppendCopyOfElement(pointEl);
+                //}
         #endif
 
                 PenetrVueTask task;
@@ -187,6 +187,12 @@ public class GroupByTaskModel : NotifyPropertyChangedBase
     private void Addin_SelectionChangedEvent(
         AddIn sender, AddIn.SelectionChangedEventArgs eventArgs)
     {
+        if (eventArgs.Action == lastSelectionAction_  && 
+            eventArgs.FilePosition == lastFilePos_)
+        {
+            return;
+        }
+
         Dictionary<IntPtr, Element> selectionSet = new Dictionary<IntPtr, Element>();
         uint nums = SelectionSetManager.NumSelected();
         for (uint i = 0; i < nums; ++i)
@@ -286,7 +292,9 @@ public class GroupByTaskModel : NotifyPropertyChangedBase
                 break;
             }
             }
-            
+
+            lastSelectionAction_ = eventArgs.Action;
+            lastFilePos_ = eventArgs.FilePosition;
             TaskSelection.ResetBindings();
             OnPropertyChanged(NP.TaskSelection);
         }

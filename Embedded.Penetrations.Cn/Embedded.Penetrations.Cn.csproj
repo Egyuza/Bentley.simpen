@@ -157,7 +157,7 @@
   <Import Project="..\Shared.Penetrations\Shared.Penetrations.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy /y "$(TargetDir)*.dll" "c:\Program Files\Bentley\AECOsim CONNECT Edition\AECOsimBuildingDesigner\Assemblies\OIM\*.dll"</PostBuildEvent>
+    <PostBuildEvent>xcopy $(TargetDir)* "c:\Program Files\Bentley\AECOsim CONNECT Edition\AECOsimBuildingDesigner\Assemblies\OIM\Embedded.Penetrations" /I/Y/S</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

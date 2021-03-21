@@ -4,15 +4,16 @@ using System.Text.RegularExpressions;
 
 using BCOM = Bentley.Interop.MicroStationDGN;
 
+using Shared;
+
 #if V8i
 using BMI = Bentley.MicroStation.InteropServices;
 using Bentley.Internal.MicroStation.Elements;
 using Bentley.MicroStation;
 using Bentley.MicroStation.XmlInstanceApi;
 using System.Xml.Linq;
-#endif
 
-#if CONNECT
+#elif CONNECT
 using System.Linq;
 using System.Xml.Linq;
 using BMI = Bentley.MstnPlatformNET.InteropServices;
@@ -182,22 +183,23 @@ static class ElementHelper
         foreach (var prop in ecInst.ClassDefinition)
         {
             var propValue = ecInst.FindPropertyValue(prop.Name, false, false,false, true);
-
             if (propValue != null)
             {
                 XElement subEl = new XElement(XName.Get(propValue?.AccessString, nameSpace));
-                subEl.Value = propValue.XmlStringValue;
+                try
+                {
+                    subEl.Value = propValue.XmlStringValue;
+                }
+                catch (Exception) {}
                 el.Add(subEl);
             }
         }
         return el.ToString();
     }
 
-    public static bool isElementSp3dTask(Element element, out Sp3dTask_Old task)
+    public static IEnumerable<string> getSp3dXmlData(Element element, bool includeRelations = true)
     {
-        P3DHangerPipeSupport pipe = null;
-        P3DHangerStdComponent component = null;
-        task = null;
+        var summary = new HashSet<string>();
 
         var manager = DgnECManager.Manager;
         manager.ActivateDgnECEvents();
@@ -207,16 +209,14 @@ static class ElementHelper
         {
             foreach (IDgnECInstance inst in ecInstances)
             {
-                if (inst.ClassDefinition.Name != "P3DHangerStdComponent")
-                {
-                    continue;
-                }
-
                 //! если не удалить xmlns, то получим ошибку
                 // ~ "not absolut xmlns path"
                 string xmlData = Regex.Replace(getXmlFormECInstance(inst),
                     " xmlns=\"[^\"]+\"", "");
-                component = XmlSerializer.FromXml<P3DHangerStdComponent>(xmlData);
+                summary.Add(xmlData);
+
+                if (!includeRelations)
+                    continue;
 
                 inst.SelectClause = inst.SelectClause ?? new SelectCriteria();
                 inst.SelectClause.SelectAllProperties = true;
@@ -229,39 +229,150 @@ static class ElementHelper
 
                     if (relInst.Source.ClassDefinition.Name == "P3DHangerPipeSupport")
                     {
-                        FindInstancesScopeOption option = new FindInstancesScopeOption(DgnECHostType.Element);                          
-                        FindInstancesScope scope = 
+                        FindInstancesScopeOption option = new FindInstancesScopeOption(DgnECHostType.Element);
+                        FindInstancesScope scope =
                             FindInstancesScope.CreateScope(refInst.Element, option);
-                        
+
                         IECSchema schema = relInst.Source.ClassDefinition.Schema;
 
-                        var query = QueryHelper.CreateQuery(schema, true, 
+                        var query = QueryHelper.CreateQuery(schema, true,
                             relInst.Source.ClassDefinition.Name);
                         query.SelectClause.SelectAllProperties = true;
                         query.SelectClause.SelectDistinctValues = true;
-                        
+
                         var findInsts = manager.FindInstances(scope, query);
                         if (findInsts.Count() > 0)
                         {
                             //! если не удалить xmlns, то получим ошибку
                             // ~ "not absolut xmlns path"
                             xmlData = Regex.Replace(
-                                getXmlFormECInstance(findInsts.First()), 
+                                getXmlFormECInstance(findInsts.First()),
                                 " xmlns=\"[^\"]+\"", "");
-                            pipe = XmlSerializer.FromXml<P3DHangerPipeSupport>(xmlData);
+                            summary.Add(xmlData); 
                         }
                     }
                 }
-            }
-        }         
 
-        if (pipe != null && component != null)
+            }
+        }
+
+        return summary;
+    }
+
+
+    public static bool isElementSp3dTask_Old(Element element, out Sp3dTask_Old task)
+    {
+        P3DHangerPipeSupport pipe = null;
+        P3DHangerStdComponent component = null;
+        P3DEquipment equipment = null;
+        task = null;
+
+        //string xmlSummary = string.Empty;
+        var xmlSumBilder = new System.Text.StringBuilder();
+        
+        if (element == null)
+            return false;
+        
+        IEnumerable<string> summaryXmlData = ElementHelper.getSp3dXmlData(element);
+        foreach( string xmlData in summaryXmlData)
         {
-            task = new Sp3dTask_Old(pipe, component);
+            if (xmlData.StartsWith("<P3DEquipment"))
+            {                
+                equipment = XmlSerializerEx.FromXml<P3DEquipment>(xmlData);
+            }
+            else if (xmlData.StartsWith("<P3DHangerPipeSupport"))
+            {
+                pipe = XmlSerializerEx.FromXml<P3DHangerPipeSupport>(xmlData);
+            }
+            else if (xmlData.StartsWith("<P3DHangerStdComponent"))
+            {        
+                component = XmlSerializerEx.FromXml<P3DHangerStdComponent>(xmlData);
+            }
+        }
+
+        if (equipment != null)
+        {
+            task = new Sp3dTask_Old(equipment, summaryXmlData);
+        }
+        else if (pipe != null && component != null)
+        {
+            task = new Sp3dTask_Old(pipe, component, summaryXmlData);
         }
 
         return task != null;
     }
+
+
+    //public static bool isElementSp3dTask(Element element, out Sp3dTask_Old task)
+    //{
+    //    P3DHangerPipeSupport pipe = null;
+    //    P3DHangerStdComponent component = null;
+    //    task = null;
+
+    //    var manager = DgnECManager.Manager;
+    //    manager.ActivateDgnECEvents();
+
+    //    using (DgnECInstanceCollection ecInstances =
+    //        manager.GetElementProperties(element, ECQueryProcessFlags.SearchAllClasses))
+    //    {
+    //        foreach (IDgnECInstance inst in ecInstances)
+    //        {
+    //            if (inst.ClassDefinition.Name != "P3DHangerStdComponent")
+    //            {
+    //                continue;
+    //            }
+
+    //            //! если не удалить xmlns, то получим ошибку
+    //            // ~ "not absolut xmlns path"
+    //            string xmlData = Regex.Replace(getXmlFormECInstance(inst),
+    //                " xmlns=\"[^\"]+\"", "");
+    //            component = XmlSerializerEx.FromXml<P3DHangerStdComponent>(xmlData);
+
+    //            inst.SelectClause = inst.SelectClause ?? new SelectCriteria();
+    //            inst.SelectClause.SelectAllProperties = true;
+    //            inst.SelectClause.SelectDistinctValues = true;
+    //            DgnSelectAllRelationshipsAccessor.SetIn(inst.SelectClause, true);
+
+    //            foreach (IECRelationshipInstance relInst in inst.GetRelationshipInstances())
+    //            {
+    //                var refInst = (IDgnECInstance)relInst.Source;
+
+    //                if (relInst.Source.ClassDefinition.Name == "P3DHangerPipeSupport")
+    //                {
+    //                    FindInstancesScopeOption option = new FindInstancesScopeOption(DgnECHostType.Element);                          
+    //                    FindInstancesScope scope = 
+    //                        FindInstancesScope.CreateScope(refInst.Element, option);
+                        
+    //                    IECSchema schema = relInst.Source.ClassDefinition.Schema;
+
+    //                    var query = QueryHelper.CreateQuery(schema, true, 
+    //                        relInst.Source.ClassDefinition.Name);
+    //                    query.SelectClause.SelectAllProperties = true;
+    //                    query.SelectClause.SelectDistinctValues = true;
+                        
+    //                    var findInsts = manager.FindInstances(scope, query);
+    //                    if (findInsts.Count() > 0)
+    //                    {
+    //                        //! если не удалить xmlns, то получим ошибку
+    //                        // ~ "not absolut xmlns path"
+    //                        xmlData = Regex.Replace(
+    //                            getXmlFormECInstance(findInsts.First()), 
+    //                            " xmlns=\"[^\"]+\"", "");
+    //                        pipe = XmlSerializerEx.FromXml<P3DHangerPipeSupport>(xmlData);
+    //                    }
+    //                }
+    //            }
+    //        }
+    //    }         
+
+    //    if (pipe != null && component != null)
+    //    {
+    //        task = new Sp3dTask_Old(pipe, component);
+    //    }
+
+    //    return task != null;
+    //}
+
 
     public static void extractFromElement(Element element, out long id,
         out IntPtr elemRef, out IntPtr modelRef)

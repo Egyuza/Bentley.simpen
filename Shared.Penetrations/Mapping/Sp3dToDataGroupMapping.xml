@@ -19,16 +19,45 @@
                 <string>CUEQPHVACPen_RndT3O/Description</string>      
             </Sp3dXmlPaths>
         </Item>
-        <!--<Item Key="TOIWaterResistance" TargetXPath="EmbPart/@WaterResistance" TargetName="WaterResistance">
+        <Item Key="TOIWaterResistance" TargetXPath="SealAttributes/@WaterTight" TargetName="WaterTight">
             <Sp3dXmlPaths>
                 <string>P3DHangerPipeSupport/TOIWaterResistance</string>
                 <string>P3DEquipment/TOIWaterResistance</string>
             </Sp3dXmlPaths>
             <ValuesMap>
-                <Item Key="1" Value="Value1"/>
-                <Item Key="2" Value="Value2"/>
+                <Item Key="-1" Value="Undefined"/>
+                <Item Key="0" Value="Undefined"/>
+                <Item Key="1" Value="Undefined"/>
+                <Item Key="10000" Value="yes"/>
+                <Item Key="10001" Value="no"/>
             </ValuesMap>
-        </Item>-->
+        </Item>
+        <Item Key="TOITightness" TargetXPath="SealAttributes/@AirTight" TargetName="AirTight">
+            <Sp3dXmlPaths>
+                <string>P3DHangerPipeSupport/TOITightness</string>
+                <string>P3DEquipment/TOITightness</string>
+            </Sp3dXmlPaths>
+            <ValuesMap>
+                <Item Key="-1" Value="Undefined"/>
+                <Item Key="0" Value="Undefined"/>
+                <Item Key="1" Value="Undefined"/>
+                <Item Key="10000" Value="yes"/>
+                <Item Key="10001" Value="no"/>
+            </ValuesMap>
+        </Item>
+        <Item Key="TOIRadiationprotection" TargetXPath="SealAttributes/@RadiationProtect" TargetName="RadiationProtect">
+            <Sp3dXmlPaths>
+                <string>P3DHangerPipeSupport/TOIRadiationprotection</string>
+                <string>P3DEquipment/TOIRadiationprotection</string>
+            </Sp3dXmlPaths>
+            <ValuesMap>
+                <Item Key="-1" Value="Undefined"/>
+                <Item Key="0" Value="Undefined"/>
+                <Item Key="1" Value="Undefined"/>
+                <Item Key="10000" Value="yes"/>
+                <Item Key="10001" Value="no"/>
+            </ValuesMap>
+        </Item>
         <Item Key="Oid">
             <Sp3dXmlPaths>
                 <string>P3DEquipment/Oid</string>
@@ -57,4 +86,78 @@
         </Item>
         <!--<Item Sp3dXmlPath="P3DEquipment/Name" TargetXPath="EmbPart/@PartCode" TargetName="PartCode" Visible="true" ReadOnly="false"></Item>-->
     </Items>
+<!--	
+        <ECProperty propertyName="TOIRadiationprotection" typeName="int">
+            <ECCustomAttributes>
+                <StandardValues xmlns="EditorCustomAttributes.01.02">
+                    <ValueMap>
+                        <ValueMap>
+                            <DisplayString />
+                            <Value>-1</Value>
+                        </ValueMap>
+                        <ValueMap>
+                            <DisplayString>Undefined</DisplayString>
+                            <Value>1</Value>
+                        </ValueMap>
+                        <ValueMap>
+                            <DisplayString>yes</DisplayString>
+                            <Value>10000</Value>
+                        </ValueMap>
+                        <ValueMap>
+                            <DisplayString>no</DisplayString>
+                            <Value>10001</Value>
+                        </ValueMap>
+                    </ValueMap>
+                </StandardValues>
+            </ECCustomAttributes>
+        </ECProperty>
+        <ECProperty propertyName="TOITightness" typeName="int">
+            <ECCustomAttributes>
+                <StandardValues xmlns="EditorCustomAttributes.01.02">
+                    <ValueMap>
+                        <ValueMap>
+                            <DisplayString />
+                            <Value>-1</Value>
+                        </ValueMap>
+                        <ValueMap>
+                            <DisplayString>Undefined</DisplayString>
+                            <Value>1</Value>
+                        </ValueMap>
+                        <ValueMap>
+                            <DisplayString>yes</DisplayString>
+                            <Value>10000</Value>
+                        </ValueMap>
+                        <ValueMap>
+                            <DisplayString>no</DisplayString>
+                            <Value>10001</Value>
+                        </ValueMap>
+                    </ValueMap>
+                </StandardValues>
+            </ECCustomAttributes>
+        </ECProperty>
+        <ECProperty propertyName="TOIWaterResistance" typeName="int">
+            <ECCustomAttributes>
+                <StandardValues xmlns="EditorCustomAttributes.01.02">
+                    <ValueMap>
+                        <ValueMap>
+                            <DisplayString />
+                            <Value>-1</Value>
+                        </ValueMap>
+                        <ValueMap>
+                            <DisplayString>Undefined</DisplayString>
+                            <Value>1</Value>
+                        </ValueMap>
+                        <ValueMap>
+                            <DisplayString>yes</DisplayString>
+                            <Value>10000</Value>
+                        </ValueMap>
+                        <ValueMap>
+                            <DisplayString>no</DisplayString>
+                            <Value>10001</Value>
+                        </ValueMap>
+                    </ValueMap>
+                </StandardValues>
+            </ECCustomAttributes>
+        </ECProperty>
+-->	
 </Sp3dToDataGroupMapping>
