@@ -1,6 +1,8 @@
 ﻿using Shared;
 using Embedded.Penetrations.Shared;
 using Embedded.Penetrations.Shared.Mapping;
+using System;
+using System.Windows.Forms;
 
 namespace Embedded.Penetrations
 {
@@ -19,9 +21,16 @@ static class Keyins
         PenetrLocateCmd.StartCommand();
     }
 
-    public static void convertDataGroupPropertiesToTags(string unparsed)
+    public static void convertTagsToDataGroup(string unparsed)
     {
-        TagsToDataGroupConverter.Run();
+        try
+        {
+            TagsToDataGroupConverter.Run();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
     }
 }
 }

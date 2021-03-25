@@ -258,7 +258,7 @@ public class PenetrationVM : BentleyInteropBase
     private IEnumerable<DataGridViewColumn> getColumns_()
     {
         var columns = new List<DataGridViewColumn>();
-
+        
         DataGridViewColumn column = new DataGridViewTextBoxColumn();
         column.DataPropertyName = "Code";
         column.Name = ColumnName.CODE;
@@ -298,6 +298,13 @@ public class PenetrationVM : BentleyInteropBase
         column.ReadOnly = true;
         column.AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
         columns.Add(column);
+
+        //column = new DataGridViewTextBoxColumn();
+        //column.DataPropertyName = "Test.First().Value";
+        //column.Name = "new";
+        //column.ReadOnly = true;
+        //column.AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
+        //columns.Add(column);
 
         return columns;
     }

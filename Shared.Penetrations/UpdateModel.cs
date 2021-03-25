@@ -25,13 +25,19 @@ class UpdateModel : BentleyInteropBase
 
     private Dictionary<ModelReference, List<CellElement>> modelsCellsForUpdate_;
     private List<CellElement> checkedCellsForUpdate_;
-    private Dictionary<int, TFFrameListClass> cellFrames_;
+
+#if V8i
+    private Dictionary<int, TFFrameListClass> cellFrames_ = new Dictionary<int, TFFrameListClass>();
+        
+#elif CONNECT
+    private Dictionary<long, TFFrameListClass> cellFrames_ = new Dictionary<long, TFFrameListClass>();
+#endif
+
 
     public UpdateModel()
     {
         modelsCellsForUpdate_ = new Dictionary<ModelReference, List<CellElement>>();
         checkedCellsForUpdate_ = new List<CellElement>();
-        cellFrames_ = new Dictionary<int, TFFrameListClass>();  
     }
 
     public void updateNodeDoubleClick(TreeNode node)

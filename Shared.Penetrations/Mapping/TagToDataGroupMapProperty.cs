@@ -26,10 +26,10 @@ public class TagToDataGroupMapProperty
     public string DataGroupXPath { get; set; }
     [XmlAttribute]
     public string DataGroupName { get; set; }
-    [XmlAttribute]
-    public bool IsReadOnly { get; set; } = false;
-    [XmlAttribute]
-    public bool IsVisible { get; set; } = true;
+    //[XmlAttribute]
+    //public bool IsReadOnly { get; set; } = false;
+    //[XmlAttribute]
+    //public bool IsVisible { get; set; } = true;
 
     [XmlIgnore]
     public object Value { get; set; }

@@ -14,6 +14,7 @@ using Bentley.Internal.MicroStation.Elements;
 #elif CONNECT
 using Bentley.Building.DataGroupSystem.Serialization;
 using Bentley.Building.DataGroupSystem;
+using Bentley.DgnPlatformNET.Elements;
 #endif
 
 
@@ -63,7 +64,6 @@ public class DataGroupHelper
         }
         return null;
     }
-
 
     public static bool SetDataGroupPropertyValue(BCOM.Element bcomElement,
         string catalogName, string instanceName, 

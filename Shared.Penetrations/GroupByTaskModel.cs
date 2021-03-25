@@ -162,9 +162,7 @@ public class GroupByTaskModel : NotifyPropertyChangedBase
                 break;
             }
             }
-
-            lastSelectionAction_ = eventArgs.Action;
-            lastFilePos_ = eventArgs.FilePosition;
+           
             TaskSelection.ResetBindings();
             OnPropertyChanged(NP.TaskSelection);
         }
@@ -172,6 +170,11 @@ public class GroupByTaskModel : NotifyPropertyChangedBase
         {
             // todo обработать
             ex.ShowMessage();
+        }
+        finally
+        {
+            lastSelectionAction_ = eventArgs.Action;
+            lastFilePos_ = eventArgs.FilePosition;
         }
     }
 
@@ -293,8 +296,6 @@ public class GroupByTaskModel : NotifyPropertyChangedBase
             }
             }
 
-            lastSelectionAction_ = eventArgs.Action;
-            lastFilePos_ = eventArgs.FilePosition;
             TaskSelection.ResetBindings();
             OnPropertyChanged(NP.TaskSelection);
         }
@@ -302,6 +303,11 @@ public class GroupByTaskModel : NotifyPropertyChangedBase
         {
             // todo обработать
             ex.ShowMessage();
+        }
+        finally
+        {
+            lastSelectionAction_ = eventArgs.Action;
+            lastFilePos_ = eventArgs.FilePosition;
         }
     }
 #endif

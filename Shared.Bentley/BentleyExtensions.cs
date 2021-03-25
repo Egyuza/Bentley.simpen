@@ -151,16 +151,27 @@ public static class BentleyExtensions
         return pt;
     }
 
-    public static BCOM.CellElement AsCellElementCOM(this Element element)
+    public static BCOM.Element AsElementCOM(this Element element)
     {
         long id;
+        BCOM.ModelReference modelRef;
+
         #if CONNECT
             id = element.ElementId;
+            modelRef = App.MdlGetModelReferenceFromModelRefP(
+                (long)element.GetNativeDgnModelRef());
         #elif V8i
             id = element.ElementID;
+            modelRef = App.MdlGetModelReferenceFromModelRefP(
+                (int)element.ModelRef);
         #endif
 
-        return App.ActiveModelReference.GetElementByID(id).AsCellElement();
+        return modelRef.GetElementByID(id);
+    }
+
+    public static BCOM.CellElement AsCellElementCOM(this Element element)
+    {
+        return element.AsElementCOM().AsCellElement();
     }
 
     public static bool IsCompundCell(this BCOM.Element element)
