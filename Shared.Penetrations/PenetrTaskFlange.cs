@@ -15,7 +15,7 @@ using BMI = Bentley.MstnPlatformNET.InteropServices;
 #endif
 
 using Shared.Bentley;
-using Shared.Bentley.sp3d;
+using Embedded.Penetrations.Shared.sp3d;
 
 namespace Embedded.Penetrations.Shared
 {
@@ -88,8 +88,8 @@ public class PenetrTaskFlange
         Sp3dTask_Old task = null;
         penTask = null;        
 
-        if (!ElementHelper.isElementSp3dTask_Old(
-            ElementHelper.getElement(element), out task) || !(task.isFlange()))
+        if (!ElementHelper.getElement(element)
+            .isElementSp3dTask_Old(out task) || !(task.isFlange()))
         {
             return false;
         }

@@ -9,10 +9,10 @@
     <Import_RootNamespace>Embedded.Openings.Shared</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)AssemblyVersion.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Models\GroupByTaskModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)OpeningHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)OpeningTask.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="$(MSBuildThisFileDirectory)Models\" />
-    <Folder Include="$(MSBuildThisFileDirectory)ViewModels\" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\OpeningsVM.cs" />
   </ItemGroup>
 </Project>

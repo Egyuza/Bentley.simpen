@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Xml.Serialization;
 
-namespace Shared.Bentley.sp3d
+namespace Embedded.Penetrations.Shared.sp3d
 {
 [Serializable]
 public class P3DHangerStdComponent

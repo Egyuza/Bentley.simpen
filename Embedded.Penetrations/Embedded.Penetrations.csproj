@@ -11,7 +11,8 @@
     <AssemblyName>Embedded.Penetrations</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
   </PropertyGroup>
@@ -24,6 +25,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <UseVSHostingProcess>false</UseVSHostingProcess>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -32,56 +34,57 @@
     <DefineConstants>TRACE;V8i</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Bentley.Building.DataGroupSystem">
-      <HintPath>..\..\..\..\Program Files (x86)\Bentley\AECOsimBuildingDesigner V8i Ss6\AECOsimBuildingDesigner\assemblies\Bentley.Building.DataGroupSystem.dll</HintPath>
+      <HintPath>c:\Program Files (x86)\Bentley\AECOsimBuildingDesigner V8i Ss6\AECOsimBuildingDesigner\assemblies\Bentley.Building.DataGroupSystem.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Bentley.Building.DataGroupSystem.CustomTypeDescriptor">
-      <HintPath>..\..\..\..\Program Files (x86)\Bentley\AECOsimBuildingDesigner V8i Ss6\AECOsimBuildingDesigner\assemblies\Bentley.Building.DataGroupSystem.CustomTypeDescriptor.dll</HintPath>
+      <HintPath>c:\Program Files (x86)\Bentley\AECOsimBuildingDesigner V8i Ss6\AECOsimBuildingDesigner\assemblies\Bentley.Building.DataGroupSystem.CustomTypeDescriptor.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Bentley.Building.DataGroupSystem.Serialization">
-      <HintPath>..\..\..\..\Program Files (x86)\Bentley\AECOsimBuildingDesigner V8i Ss6\AECOsimBuildingDesigner\assemblies\Bentley.Building.DataGroupSystem.Serialization.dll</HintPath>
+      <HintPath>c:\Program Files (x86)\Bentley\AECOsimBuildingDesigner V8i Ss6\AECOsimBuildingDesigner\assemblies\Bentley.Building.DataGroupSystem.Serialization.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Bentley.General.1.0">
-      <HintPath>..\..\..\..\Program Files (x86)\Bentley\AECOsimBuildingDesigner V8i Ss6\AECOsimBuildingDesigner\assemblies\ECFramework\Bentley.General.1.0.dll</HintPath>
+      <HintPath>c:\Program Files (x86)\Bentley\AECOsimBuildingDesigner V8i Ss6\AECOsimBuildingDesigner\assemblies\ECFramework\Bentley.General.1.0.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="bentley.interop.microstationdgn">
-      <HintPath>..\..\..\..\Program Files (x86)\Bentley\AECOsimBuildingDesigner V8i Ss6\AECOsimBuildingDesigner\assemblies\bentley.interop.microstationdgn.dll</HintPath>
-      <EmbedInteropTypes>True</EmbedInteropTypes>
+      <HintPath>c:\Program Files (x86)\Bentley\AECOsimBuildingDesigner V8i Ss6\AECOsimBuildingDesigner\assemblies\bentley.interop.microstationdgn.dll</HintPath>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
       <Private>False</Private>
     </Reference>
     <Reference Include="Bentley.Interop.TFCom">
-      <HintPath>..\..\..\..\Program Files (x86)\Bentley\AECOsimBuildingDesigner V8i Ss6\AECOsimBuildingDesigner\assemblies\Bentley.Interop.TFCom.dll</HintPath>
-      <EmbedInteropTypes>True</EmbedInteropTypes>
+      <HintPath>c:\Program Files (x86)\Bentley\AECOsimBuildingDesigner V8i Ss6\AECOsimBuildingDesigner\assemblies\Bentley.Interop.TFCom.dll</HintPath>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
       <Private>False</Private>
     </Reference>
     <Reference Include="Bentley.logging.log4net-2.0">
-      <HintPath>..\..\..\..\Program Files (x86)\Bentley\AECOsimBuildingDesigner V8i Ss6\AECOsimBuildingDesigner\assemblies\ECFramework\Bentley.logging.log4net-2.0.dll</HintPath>
+      <HintPath>c:\Program Files (x86)\Bentley\AECOsimBuildingDesigner V8i Ss6\AECOsimBuildingDesigner\assemblies\ECFramework\Bentley.logging.log4net-2.0.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="bentley.microstation">
-      <HintPath>..\..\..\..\Program Files (x86)\Bentley\AECOsimBuildingDesigner V8i Ss6\AECOsimBuildingDesigner\assemblies\bentley.microstation.dll</HintPath>
+      <HintPath>c:\Program Files (x86)\Bentley\AECOsimBuildingDesigner V8i Ss6\AECOsimBuildingDesigner\assemblies\bentley.microstation.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Bentley.MicroStation.XmlInstanceapi">
-      <HintPath>..\..\..\..\Program Files (x86)\Bentley\AECOsimBuildingDesigner V8i Ss6\AECOsimBuildingDesigner\assemblies\Bentley.MicroStation.XmlInstanceapi.dll</HintPath>
+      <HintPath>c:\Program Files (x86)\Bentley\AECOsimBuildingDesigner V8i Ss6\AECOsimBuildingDesigner\assemblies\Bentley.MicroStation.XmlInstanceapi.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Bentley.MicroStation.XmlInstanceCore">
-      <HintPath>..\..\..\..\Program Files (x86)\Bentley\AECOsimBuildingDesigner V8i Ss6\AECOsimBuildingDesigner\assemblies\Bentley.MicroStation.XmlInstanceCore.dll</HintPath>
+      <HintPath>c:\Program Files (x86)\Bentley\AECOsimBuildingDesigner V8i Ss6\AECOsimBuildingDesigner\assemblies\Bentley.MicroStation.XmlInstanceCore.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Bentley.Platform">
-      <HintPath>..\..\..\..\Program Files (x86)\Bentley\AECOsimBuildingDesigner V8i Ss6\AECOsimBuildingDesigner\assemblies\ECFramework\Bentley.Platform.dll</HintPath>
+      <HintPath>c:\Program Files (x86)\Bentley\AECOsimBuildingDesigner V8i Ss6\AECOsimBuildingDesigner\assemblies\ECFramework\Bentley.Platform.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Bentley.Windowing">
-      <HintPath>..\..\..\..\Program Files (x86)\Bentley\AECOsimBuildingDesigner V8i Ss6\AECOsimBuildingDesigner\assemblies\ECFramework\Bentley.Windowing.dll</HintPath>
+      <HintPath>c:\Program Files (x86)\Bentley\AECOsimBuildingDesigner V8i Ss6\AECOsimBuildingDesigner\assemblies\ECFramework\Bentley.Windowing.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
@@ -93,7 +96,7 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="ustation">
-      <HintPath>..\..\..\..\Program Files (x86)\Bentley\AECOsimBuildingDesigner V8i Ss6\AECOsimBuildingDesigner\ustation.dll</HintPath>
+      <HintPath>c:\Program Files (x86)\Bentley\AECOsimBuildingDesigner V8i Ss6\AECOsimBuildingDesigner\ustation.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>
@@ -131,7 +134,7 @@
   <Import Project="..\Shared\Shared.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy $(TargetDir)* "c:\aecosim_ss6\AECOsimBuildingDesigner\assemblies\OIM\Embedded.Penetrations" /I/Y/S</PostBuildEvent>
+    <PostBuildEvent>xcopy $(TargetDir)* "c:\Program Files (x86)\Bentley\AECOsimBuildingDesigner V8i Ss6\AECOsimBuildingDesigner\assemblies\OIM\Embedded.Penetrations" /I/Y/S</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

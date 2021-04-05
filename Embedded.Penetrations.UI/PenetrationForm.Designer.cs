@@ -29,9 +29,9 @@
         private void InitializeComponent()
         {
             System.Windows.Forms.ToolStrip toolStrip1;
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle22 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle23 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle24 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
             this.toolStripLabel1 = new System.Windows.Forms.ToolStripLabel();
             this.statusProject = new System.Windows.Forms.ToolStripLabel();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
@@ -60,22 +60,26 @@
             this.label6 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
-            this.label10 = new System.Windows.Forms.Label();
-            this.label11 = new System.Windows.Forms.Label();
             this.label12 = new System.Windows.Forms.Label();
             this.txtKKS = new System.Windows.Forms.TextBox();
             this.txtTypeSize = new System.Windows.Forms.TextBox();
-            this.txtLength = new System.Windows.Forms.TextBox();
-            this.txtRefPoint = new System.Windows.Forms.TextBox();
             this.cbxFlanges = new System.Windows.Forms.ComboBox();
             this.cbxDiameter = new System.Windows.Forms.ComboBox();
             this.chbxManualRotate = new System.Windows.Forms.CheckBox();
-            this.label8 = new System.Windows.Forms.Label();
-            this.numAngleX = new System.Windows.Forms.NumericUpDown();
-            this.label13 = new System.Windows.Forms.Label();
+            this.label11 = new System.Windows.Forms.Label();
+            this.label10 = new System.Windows.Forms.Label();
+            this.txtRefPoint = new System.Windows.Forms.TextBox();
+            this.txtLength = new System.Windows.Forms.TextBox();
+            this.chbxAutoLength = new System.Windows.Forms.CheckBox();
+            this.label15 = new System.Windows.Forms.Label();
             this.label14 = new System.Windows.Forms.Label();
-            this.numAngleY = new System.Windows.Forms.NumericUpDown();
             this.numAngleZ = new System.Windows.Forms.NumericUpDown();
+            this.numAngleY = new System.Windows.Forms.NumericUpDown();
+            this.label13 = new System.Windows.Forms.Label();
+            this.numAngleX = new System.Windows.Forms.NumericUpDown();
+            this.label8 = new System.Windows.Forms.Label();
+            this.label16 = new System.Windows.Forms.Label();
+            this.numIncrement = new System.Windows.Forms.NumericUpDown();
             this.tabGroupByTask = new System.Windows.Forms.TabPage();
             this.tabUpdate = new System.Windows.Forms.TabPage();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
@@ -88,10 +92,6 @@
             this.label5 = new System.Windows.Forms.Label();
             this.trvUpdate = new System.Windows.Forms.TreeView();
             this.tlpForm = new System.Windows.Forms.TableLayoutPanel();
-            this.chbxAutoLength = new System.Windows.Forms.CheckBox();
-            this.label15 = new System.Windows.Forms.Label();
-            this.label16 = new System.Windows.Forms.Label();
-            this.numIncrement = new System.Windows.Forms.NumericUpDown();
             toolStrip1 = new System.Windows.Forms.ToolStrip();
             toolStrip1.SuspendLayout();
             this.tlpSets.SuspendLayout();
@@ -104,15 +104,15 @@
             this.tableLayoutPanel2.SuspendLayout();
             this.flowLayoutPanel3.SuspendLayout();
             this.tableLayoutPanel3.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numAngleX)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numAngleY)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numAngleZ)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numAngleY)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numAngleX)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numIncrement)).BeginInit();
             this.tabGroupByTask.SuspendLayout();
             this.tabUpdate.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             this.flowLayoutPanel2.SuspendLayout();
             this.tlpForm.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numIncrement)).BeginInit();
             this.SuspendLayout();
             // 
             // toolStrip1
@@ -140,14 +140,14 @@
             // 
             this.toolStripLabel1.ForeColor = System.Drawing.SystemColors.ControlDark;
             this.toolStripLabel1.Name = "toolStripLabel1";
-            this.toolStripLabel1.Size = new System.Drawing.Size(48, 20);
+            this.toolStripLabel1.Size = new System.Drawing.Size(50, 20);
             this.toolStripLabel1.Text = "Проект:";
             // 
             // statusProject
             // 
             this.statusProject.ForeColor = System.Drawing.Color.Red;
             this.statusProject.Name = "statusProject";
-            this.statusProject.Size = new System.Drawing.Size(78, 20);
+            this.statusProject.Size = new System.Drawing.Size(84, 20);
             this.statusProject.Text = "Не определён";
             // 
             // toolStripSeparator2
@@ -159,7 +159,7 @@
             // 
             this.toolStripLabel3.ForeColor = System.Drawing.SystemColors.ControlDark;
             this.toolStripLabel3.Name = "toolStripLabel3";
-            this.toolStripLabel3.Size = new System.Drawing.Size(38, 20);
+            this.toolStripLabel3.Size = new System.Drawing.Size(42, 20);
             this.toolStripLabel3.Text = "Инфо:";
             // 
             // toolStripProgressBar1
@@ -174,7 +174,7 @@
             this.statusInfo.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this.statusInfo.ForeColor = System.Drawing.SystemColors.ControlText;
             this.statusInfo.Name = "statusInfo";
-            this.statusInfo.Size = new System.Drawing.Size(19, 20);
+            this.statusInfo.Size = new System.Drawing.Size(16, 20);
             this.statusInfo.Text = "...";
             this.statusInfo.Visible = false;
             // 
@@ -189,8 +189,8 @@
             this.tlpSets.Name = "tlpSets";
             this.tlpSets.RowCount = 1;
             this.tlpSets.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tlpSets.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 113F));
-            this.tlpSets.Size = new System.Drawing.Size(392, 112);
+            this.tlpSets.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 112F));
+            this.tlpSets.Size = new System.Drawing.Size(397, 112);
             this.tlpSets.TabIndex = 1;
             // 
             // dgvCreationTasks
@@ -201,23 +201,23 @@
             this.dgvCreationTasks.BackgroundColor = System.Drawing.SystemColors.Control;
             this.dgvCreationTasks.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.dgvCreationTasks.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.Single;
-            dataGridViewCellStyle22.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle22.BackColor = System.Drawing.SystemColors.ControlLight;
-            dataGridViewCellStyle22.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            dataGridViewCellStyle22.ForeColor = System.Drawing.SystemColors.WindowText;
-            dataGridViewCellStyle22.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle22.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle22.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dgvCreationTasks.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle22;
+            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.ControlLight;
+            dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dgvCreationTasks.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
             this.dgvCreationTasks.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
-            dataGridViewCellStyle23.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle23.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle23.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            dataGridViewCellStyle23.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
-            dataGridViewCellStyle23.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle23.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle23.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.dgvCreationTasks.DefaultCellStyle = dataGridViewCellStyle23;
+            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
+            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.dgvCreationTasks.DefaultCellStyle = dataGridViewCellStyle2;
             this.dgvCreationTasks.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgvCreationTasks.EditMode = System.Windows.Forms.DataGridViewEditMode.EditOnEnter;
             this.dgvCreationTasks.EnableHeadersVisualStyles = false;
@@ -225,18 +225,18 @@
             this.dgvCreationTasks.Margin = new System.Windows.Forms.Padding(0, 1, 0, 0);
             this.dgvCreationTasks.MultiSelect = false;
             this.dgvCreationTasks.Name = "dgvCreationTasks";
-            dataGridViewCellStyle24.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle24.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle24.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            dataGridViewCellStyle24.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle24.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle24.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dgvCreationTasks.RowHeadersDefaultCellStyle = dataGridViewCellStyle24;
+            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle3.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dgvCreationTasks.RowHeadersDefaultCellStyle = dataGridViewCellStyle3;
             this.dgvCreationTasks.RowHeadersVisible = false;
             this.dgvCreationTasks.RowTemplate.DefaultCellStyle.ForeColor = System.Drawing.Color.Black;
             this.dgvCreationTasks.RowTemplate.Height = 20;
             this.dgvCreationTasks.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvCreationTasks.Size = new System.Drawing.Size(392, 111);
+            this.dgvCreationTasks.Size = new System.Drawing.Size(397, 111);
             this.dgvCreationTasks.TabIndex = 2;
             this.dgvCreationTasks.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvCreationTasks_CellContentClick);
             // 
@@ -254,7 +254,7 @@
             this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tlpMain.Size = new System.Drawing.Size(404, 223);
+            this.tlpMain.Size = new System.Drawing.Size(409, 223);
             this.tlpMain.TabIndex = 1;
             // 
             // flowLayoutPanel1
@@ -270,7 +270,7 @@
             this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.flowLayoutPanel1.Location = new System.Drawing.Point(3, 140);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(398, 80);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(403, 80);
             this.flowLayoutPanel1.TabIndex = 5;
             // 
             // label1
@@ -349,7 +349,7 @@
             this.grbxTasks.Dock = System.Windows.Forms.DockStyle.Fill;
             this.grbxTasks.Location = new System.Drawing.Point(3, 3);
             this.grbxTasks.Name = "grbxTasks";
-            this.grbxTasks.Size = new System.Drawing.Size(398, 131);
+            this.grbxTasks.Size = new System.Drawing.Size(403, 131);
             this.grbxTasks.TabIndex = 7;
             this.grbxTasks.TabStop = false;
             this.grbxTasks.Text = "Задания:";
@@ -374,7 +374,7 @@
             this.tabCreate.Location = new System.Drawing.Point(4, 22);
             this.tabCreate.Name = "tabCreate";
             this.tabCreate.Padding = new System.Windows.Forms.Padding(3);
-            this.tabCreate.Size = new System.Drawing.Size(404, 223);
+            this.tabCreate.Size = new System.Drawing.Size(409, 223);
             this.tabCreate.TabIndex = 2;
             this.tabCreate.Text = "Построение";
             this.tabCreate.UseVisualStyleBackColor = true;
@@ -393,7 +393,7 @@
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel2.Size = new System.Drawing.Size(398, 217);
+            this.tableLayoutPanel2.Size = new System.Drawing.Size(403, 217);
             this.tableLayoutPanel2.TabIndex = 2;
             // 
             // flowLayoutPanel3
@@ -407,7 +407,7 @@
             this.flowLayoutPanel3.Location = new System.Drawing.Point(0, 188);
             this.flowLayoutPanel3.Margin = new System.Windows.Forms.Padding(0);
             this.flowLayoutPanel3.Name = "flowLayoutPanel3";
-            this.flowLayoutPanel3.Size = new System.Drawing.Size(398, 29);
+            this.flowLayoutPanel3.Size = new System.Drawing.Size(403, 29);
             this.flowLayoutPanel3.TabIndex = 5;
             // 
             // btnStartPrimitive
@@ -496,7 +496,7 @@
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel3.Size = new System.Drawing.Size(398, 188);
+            this.tableLayoutPanel3.Size = new System.Drawing.Size(403, 188);
             this.tableLayoutPanel3.TabIndex = 6;
             // 
             // label6
@@ -532,28 +532,6 @@
             this.label9.TabIndex = 2;
             this.label9.Text = "Диаметр:";
             // 
-            // label10
-            // 
-            this.label10.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(13, 138);
-            this.label10.Margin = new System.Windows.Forms.Padding(3, 6, 3, 0);
-            this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(63, 13);
-            this.label10.TabIndex = 3;
-            this.label10.Text = "Длина(см):";
-            // 
-            // label11
-            // 
-            this.label11.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(25, 164);
-            this.label11.Margin = new System.Windows.Forms.Padding(3, 6, 3, 0);
-            this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(51, 13);
-            this.label11.TabIndex = 4;
-            this.label11.Text = "RefPoint:";
-            // 
             // label12
             // 
             this.label12.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
@@ -579,24 +557,6 @@
             this.txtTypeSize.ReadOnly = true;
             this.txtTypeSize.Size = new System.Drawing.Size(121, 20);
             this.txtTypeSize.TabIndex = 7;
-            // 
-            // txtLength
-            // 
-            this.txtLength.Location = new System.Drawing.Point(82, 135);
-            this.txtLength.Name = "txtLength";
-            this.txtLength.ReadOnly = true;
-            this.txtLength.Size = new System.Drawing.Size(121, 20);
-            this.txtLength.TabIndex = 8;
-            this.txtLength.Text = "10";
-            this.txtLength.TextChanged += new System.EventHandler(this.txtLength_TextChanged);
-            // 
-            // txtRefPoint
-            // 
-            this.txtRefPoint.Location = new System.Drawing.Point(82, 161);
-            this.txtRefPoint.Name = "txtRefPoint";
-            this.txtRefPoint.ReadOnly = true;
-            this.txtRefPoint.Size = new System.Drawing.Size(121, 20);
-            this.txtRefPoint.TabIndex = 9;
             // 
             // cbxFlanges
             // 
@@ -627,45 +587,68 @@
             this.chbxManualRotate.Text = "ручная ориентация";
             this.chbxManualRotate.UseVisualStyleBackColor = true;
             // 
-            // label8
+            // label11
             // 
-            this.label8.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(252, 58);
-            this.label8.Margin = new System.Windows.Forms.Padding(3, 6, 3, 0);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(76, 13);
-            this.label8.TabIndex = 13;
-            this.label8.Text = "поворот по X:";
+            this.label11.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(25, 164);
+            this.label11.Margin = new System.Windows.Forms.Padding(3, 6, 3, 0);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(51, 13);
+            this.label11.TabIndex = 4;
+            this.label11.Text = "RefPoint:";
             // 
-            // numAngleX
+            // label10
             // 
-            this.numAngleX.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.numAngleX.Location = new System.Drawing.Point(334, 55);
-            this.numAngleX.Maximum = new decimal(new int[] {
-            360,
-            0,
-            0,
-            0});
-            this.numAngleX.Minimum = new decimal(new int[] {
-            360,
-            0,
-            0,
-            -2147483648});
-            this.numAngleX.Name = "numAngleX";
-            this.numAngleX.Size = new System.Drawing.Size(64, 20);
-            this.numAngleX.TabIndex = 14;
+            this.label10.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(13, 138);
+            this.label10.Margin = new System.Windows.Forms.Padding(3, 6, 3, 0);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(63, 13);
+            this.label10.TabIndex = 3;
+            this.label10.Text = "Длина(см):";
             // 
-            // label13
+            // txtRefPoint
             // 
-            this.label13.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(252, 85);
-            this.label13.Margin = new System.Windows.Forms.Padding(3, 6, 3, 0);
-            this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(76, 13);
-            this.label13.TabIndex = 13;
-            this.label13.Text = "поворот по Y:";
+            this.txtRefPoint.Location = new System.Drawing.Point(82, 161);
+            this.txtRefPoint.Name = "txtRefPoint";
+            this.txtRefPoint.ReadOnly = true;
+            this.txtRefPoint.Size = new System.Drawing.Size(121, 20);
+            this.txtRefPoint.TabIndex = 9;
+            // 
+            // txtLength
+            // 
+            this.txtLength.Location = new System.Drawing.Point(82, 135);
+            this.txtLength.Name = "txtLength";
+            this.txtLength.ReadOnly = true;
+            this.txtLength.Size = new System.Drawing.Size(121, 20);
+            this.txtLength.TabIndex = 8;
+            this.txtLength.Text = "10";
+            this.txtLength.TextChanged += new System.EventHandler(this.txtLength_TextChanged);
+            // 
+            // chbxAutoLength
+            // 
+            this.chbxAutoLength.AutoSize = true;
+            this.chbxAutoLength.Checked = true;
+            this.chbxAutoLength.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chbxAutoLength.Location = new System.Drawing.Point(82, 112);
+            this.chbxAutoLength.Margin = new System.Windows.Forms.Padding(3, 6, 3, 3);
+            this.chbxAutoLength.Name = "chbxAutoLength";
+            this.chbxAutoLength.Size = new System.Drawing.Size(15, 14);
+            this.chbxAutoLength.TabIndex = 15;
+            this.chbxAutoLength.UseVisualStyleBackColor = true;
+            // 
+            // label15
+            // 
+            this.label15.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.label15.AutoSize = true;
+            this.label15.Location = new System.Drawing.Point(12, 112);
+            this.label15.Margin = new System.Windows.Forms.Padding(3, 6, 3, 0);
+            this.label15.Name = "label15";
+            this.label15.Size = new System.Drawing.Size(64, 13);
+            this.label15.TabIndex = 3;
+            this.label15.Text = "Автодлина:";
             // 
             // label14
             // 
@@ -677,24 +660,6 @@
             this.label14.Size = new System.Drawing.Size(76, 13);
             this.label14.TabIndex = 13;
             this.label14.Text = "поворот по Z:";
-            // 
-            // numAngleY
-            // 
-            this.numAngleY.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.numAngleY.Location = new System.Drawing.Point(334, 82);
-            this.numAngleY.Maximum = new decimal(new int[] {
-            360,
-            0,
-            0,
-            0});
-            this.numAngleY.Minimum = new decimal(new int[] {
-            360,
-            0,
-            0,
-            -2147483648});
-            this.numAngleY.Name = "numAngleY";
-            this.numAngleY.Size = new System.Drawing.Size(64, 20);
-            this.numAngleY.TabIndex = 14;
             // 
             // numAngleZ
             // 
@@ -714,12 +679,104 @@
             this.numAngleZ.Size = new System.Drawing.Size(64, 20);
             this.numAngleZ.TabIndex = 14;
             // 
+            // numAngleY
+            // 
+            this.numAngleY.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.numAngleY.Location = new System.Drawing.Point(334, 82);
+            this.numAngleY.Maximum = new decimal(new int[] {
+            360,
+            0,
+            0,
+            0});
+            this.numAngleY.Minimum = new decimal(new int[] {
+            360,
+            0,
+            0,
+            -2147483648});
+            this.numAngleY.Name = "numAngleY";
+            this.numAngleY.Size = new System.Drawing.Size(64, 20);
+            this.numAngleY.TabIndex = 14;
+            // 
+            // label13
+            // 
+            this.label13.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.label13.AutoSize = true;
+            this.label13.Location = new System.Drawing.Point(252, 85);
+            this.label13.Margin = new System.Windows.Forms.Padding(3, 6, 3, 0);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(76, 13);
+            this.label13.TabIndex = 13;
+            this.label13.Text = "поворот по Y:";
+            // 
+            // numAngleX
+            // 
+            this.numAngleX.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.numAngleX.Location = new System.Drawing.Point(334, 55);
+            this.numAngleX.Maximum = new decimal(new int[] {
+            360,
+            0,
+            0,
+            0});
+            this.numAngleX.Minimum = new decimal(new int[] {
+            360,
+            0,
+            0,
+            -2147483648});
+            this.numAngleX.Name = "numAngleX";
+            this.numAngleX.Size = new System.Drawing.Size(64, 20);
+            this.numAngleX.TabIndex = 14;
+            // 
+            // label8
+            // 
+            this.label8.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(252, 58);
+            this.label8.Margin = new System.Windows.Forms.Padding(3, 6, 3, 0);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(76, 13);
+            this.label8.TabIndex = 13;
+            this.label8.Text = "поворот по X:";
+            // 
+            // label16
+            // 
+            this.label16.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.label16.AutoSize = true;
+            this.label16.Location = new System.Drawing.Point(299, 32);
+            this.label16.Margin = new System.Windows.Forms.Padding(3, 6, 3, 0);
+            this.label16.Name = "label16";
+            this.label16.Size = new System.Drawing.Size(29, 13);
+            this.label16.TabIndex = 13;
+            this.label16.Text = "шаг:";
+            // 
+            // numIncrement
+            // 
+            this.numIncrement.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.numIncrement.Location = new System.Drawing.Point(334, 29);
+            this.numIncrement.Maximum = new decimal(new int[] {
+            360,
+            0,
+            0,
+            0});
+            this.numIncrement.Minimum = new decimal(new int[] {
+            360,
+            0,
+            0,
+            -2147483648});
+            this.numIncrement.Name = "numIncrement";
+            this.numIncrement.Size = new System.Drawing.Size(64, 20);
+            this.numIncrement.TabIndex = 14;
+            this.numIncrement.Value = new decimal(new int[] {
+            90,
+            0,
+            0,
+            0});
+            // 
             // tabGroupByTask
             // 
             this.tabGroupByTask.Controls.Add(this.tlpMain);
             this.tabGroupByTask.Location = new System.Drawing.Point(4, 22);
             this.tabGroupByTask.Name = "tabGroupByTask";
-            this.tabGroupByTask.Size = new System.Drawing.Size(404, 223);
+            this.tabGroupByTask.Size = new System.Drawing.Size(409, 223);
             this.tabGroupByTask.TabIndex = 0;
             this.tabGroupByTask.Text = "Групповой по заданию";
             this.tabGroupByTask.UseVisualStyleBackColor = true;
@@ -865,63 +922,6 @@
             this.tlpForm.Size = new System.Drawing.Size(417, 272);
             this.tlpForm.TabIndex = 4;
             // 
-            // chbxAutoLength
-            // 
-            this.chbxAutoLength.AutoSize = true;
-            this.chbxAutoLength.Checked = true;
-            this.chbxAutoLength.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chbxAutoLength.Location = new System.Drawing.Point(82, 112);
-            this.chbxAutoLength.Margin = new System.Windows.Forms.Padding(3, 6, 3, 3);
-            this.chbxAutoLength.Name = "chbxAutoLength";
-            this.chbxAutoLength.Size = new System.Drawing.Size(15, 14);
-            this.chbxAutoLength.TabIndex = 15;
-            this.chbxAutoLength.UseVisualStyleBackColor = true;
-            // 
-            // label15
-            // 
-            this.label15.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.label15.AutoSize = true;
-            this.label15.Location = new System.Drawing.Point(12, 112);
-            this.label15.Margin = new System.Windows.Forms.Padding(3, 6, 3, 0);
-            this.label15.Name = "label15";
-            this.label15.Size = new System.Drawing.Size(64, 13);
-            this.label15.TabIndex = 3;
-            this.label15.Text = "Автодлина:";
-            // 
-            // label16
-            // 
-            this.label16.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.label16.AutoSize = true;
-            this.label16.Location = new System.Drawing.Point(299, 32);
-            this.label16.Margin = new System.Windows.Forms.Padding(3, 6, 3, 0);
-            this.label16.Name = "label16";
-            this.label16.Size = new System.Drawing.Size(29, 13);
-            this.label16.TabIndex = 13;
-            this.label16.Text = "шаг:";
-            // 
-            // numIncrement
-            // 
-            this.numIncrement.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.numIncrement.Location = new System.Drawing.Point(334, 29);
-            this.numIncrement.Maximum = new decimal(new int[] {
-            360,
-            0,
-            0,
-            0});
-            this.numIncrement.Minimum = new decimal(new int[] {
-            360,
-            0,
-            0,
-            -2147483648});
-            this.numIncrement.Name = "numIncrement";
-            this.numIncrement.Size = new System.Drawing.Size(64, 20);
-            this.numIncrement.TabIndex = 14;
-            this.numIncrement.Value = new decimal(new int[] {
-            90,
-            0,
-            0,
-            0});
-            // 
             // PenetrationForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -950,9 +950,10 @@
             this.flowLayoutPanel3.PerformLayout();
             this.tableLayoutPanel3.ResumeLayout(false);
             this.tableLayoutPanel3.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numAngleX)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numAngleY)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numAngleZ)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numAngleY)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numAngleX)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numIncrement)).EndInit();
             this.tabGroupByTask.ResumeLayout(false);
             this.tabUpdate.ResumeLayout(false);
             this.tableLayoutPanel1.ResumeLayout(false);
@@ -960,7 +961,6 @@
             this.flowLayoutPanel2.ResumeLayout(false);
             this.flowLayoutPanel2.PerformLayout();
             this.tlpForm.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.numIncrement)).EndInit();
             this.ResumeLayout(false);
 
         }

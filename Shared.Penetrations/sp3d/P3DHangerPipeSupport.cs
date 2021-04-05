@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Shared.Bentley.sp3d
+namespace Embedded.Penetrations.Shared.sp3d
 {
 [Serializable]
 public class P3DHangerPipeSupport : P3Dbase

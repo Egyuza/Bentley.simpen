@@ -14,13 +14,13 @@ using Bentley.MstnPlatformNET;
 using BMI = Bentley.MstnPlatformNET.InteropServices;
 #endif
 
-using Shared.Bentley.sp3d;
 using Shared.Bentley;
 using Shared;
 using System.Xml.Linq;
 using System.Linq;
 using System.Xml.XPath;
 using System.Text.RegularExpressions;
+using Embedded.Penetrations.Shared.sp3d;
 
 namespace Embedded.Penetrations.Shared
 {
@@ -157,7 +157,7 @@ public class PenetrVueTask : BentleyInteropBase, IPenetrTask
         Sp3dTask_Old taskOld = null;
         penTask = null;
 
-        if (ElementHelper.isElementSp3dTask_Old(element, out taskOld) &&
+        if (element.isElementSp3dTask_Old(out taskOld) &&
             (taskOld.isPipe() || taskOld.isPipeOld() || taskOld.isEquipment()))
         {
             penTask = new PenetrVueTask(element, taskOld);

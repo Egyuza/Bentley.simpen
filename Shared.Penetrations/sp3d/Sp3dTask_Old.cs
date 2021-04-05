@@ -1,8 +1,7 @@
-﻿using Embedded.Penetrations.Shared;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Xml.Linq;
 
-namespace Shared.Bentley.sp3d
+namespace Embedded.Penetrations.Shared.sp3d
 {
 class Sp3dTask_Old
 {
@@ -43,8 +42,6 @@ class Sp3dTask_Old
         {
             XmlDoc.Root.Add(XElement.Parse(xmlText));
         }
-
-
     }
 
     public bool isFlange()

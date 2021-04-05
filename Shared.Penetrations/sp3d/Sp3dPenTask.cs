@@ -1,11 +1,12 @@
 ﻿using Embedded.Penetrations.Shared;
+using Shared;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 using System.Xml.Linq;
 
-namespace Shared.Bentley.sp3d
+namespace Embedded.Penetrations.Shared.sp3d
 {
     public class Sp3dPenTask
     {

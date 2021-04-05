@@ -1,9 +1,10 @@
-﻿using System;
+﻿using Shared.Bentley;
+using System;
 using System.Xml.Serialization;
 
 using BCOM = Bentley.Interop.MicroStationDGN;
 
-namespace Shared.Bentley.sp3d
+namespace Embedded.Penetrations.Shared.sp3d
 {
 [Serializable]
 public class P3Dbase : BentleyInteropBase

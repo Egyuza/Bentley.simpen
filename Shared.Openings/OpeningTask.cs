@@ -13,5 +13,7 @@ public class OpeningTask
     public string Code {get; set;}
 
     public IntPtr OwnerFormRef {get; private set;}
+
+    public Dictionary<string, string> Properties {get; set;}
 }
 }

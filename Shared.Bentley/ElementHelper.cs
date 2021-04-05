@@ -24,7 +24,6 @@ using Bentley.ECObjects.Schema;
 using Bentley.ECObjects.Instance;
 #endif
 
-using Shared.Bentley.sp3d;
 
 namespace Shared.Bentley
 {
@@ -39,11 +38,26 @@ public class test
 
 static class ElementHelper
 {
-#if V8i
+    public static XDocument getSp3dXDocument(Element element, 
+        bool includeRelations = true)
+    {
+        var XmlDoc = XDocument.Parse("<Root></Root>");
+        var xmlData = getSp3dXmlData(element, includeRelations);
 
+        if (xmlData == null)
+            return null;
+        foreach (string xmlText in xmlData)
+        {
+            XmlDoc.Root.Add(XElement.Parse(xmlText));
+        }
+        return XmlDoc;
+    }
+
+
+#if V8i
     public static IEnumerable<string> getSp3dXmlData(Element element, bool includeRelations = true)
     {
-        var res = new HashSet<string>();
+        var summary = new HashSet<string>();
         var modelSchema = new XmlInstanceSchemaManager(element.ModelRef);
         
         XmlInstanceApi api = XmlInstanceApi.CreateApi(modelSchema);
@@ -51,10 +65,12 @@ static class ElementHelper
 
         foreach (string inst in instances)
         {
-            //! если не удалить xmlns, то получим ошибку                        
-            // ~ "not absolut xmlns path"
-            string xmlData = Regex.Replace(inst, " xmlns=\"[^\"]+\"", "");   
-            res.Add(xmlData);
+#if DEBUG
+            //geSummaryXmlRecurse_(api, inst, ref summary, includeRelations);
+            //continue;
+#endif
+
+            summary.Add(prepair_(inst));
 
             if (!includeRelations)
                 continue;
@@ -70,57 +86,52 @@ static class ElementHelper
 
                 string sourceInst = api.ReadInstance(sourceId);
                 string targetInst = api.ReadInstance(targetId);
-                
-                foreach (string subInst in new string[] {sourceInst, targetInst})
+
+                foreach (string subInst in new string[] { sourceInst, targetInst })
                 {
-                    xmlData = Regex.Replace(subInst, " xmlns=\"[^\"]+\"", "");
-                    res.Add(xmlData);                    
+                    summary.Add(prepair_(subInst));
                 }
             }
         }
-        return res;
+        return summary;
     }
 
-    public static bool isElementSp3dTask_Old(Element element, out Sp3dTask_Old task)
+    private static void geSummaryXmlRecurse_(XmlInstanceApi api, string instance, ref HashSet<string> summary, bool includeRelations = true)
     {
-        P3DHangerPipeSupport pipe = null;
-        P3DHangerStdComponent component = null;
-        P3DEquipment equipment = null;
-        task = null;
+        summary.Add(prepair_(instance));
 
-        //string xmlSummary = string.Empty;
-        var xmlSumBilder = new System.Text.StringBuilder();
-        
-        if (element == null)
-            return false;
-        
-        IEnumerable<string> summaryXmlData = ElementHelper.getSp3dXmlData(element);
-        foreach( string xmlData in summaryXmlData)
+        if (!includeRelations)
+            return;
+
+        string instId = XmlInstanceApi.GetInstanceIdFromXmlInstance(instance);
+        IList<string> relations = api.ReadRelationshipInstances(instId);
+
+        foreach (string relation in relations)
         {
-            if (xmlData.StartsWith("<P3DEquipment"))
-            {                
-                equipment = XmlSerializerEx.FromXml<P3DEquipment>(xmlData);
-            }
-            else if (xmlData.StartsWith("<P3DHangerPipeSupport"))
+            string sourceId, targetId;
+            XmlInstanceApi.GetInstanceIdsFromXmlRelationshipInstance(
+                relation, out sourceId, out targetId);
+
+            string sourceInst = api.ReadInstance(sourceId);
+            string targetInst = api.ReadInstance(targetId);
+                
+            foreach (string subInst in new string[] {sourceInst, targetInst})
             {
-                pipe = XmlSerializerEx.FromXml<P3DHangerPipeSupport>(xmlData);
+                string xmlData = prepair_(subInst);
+                if (!summary.Contains(xmlData))
+                {
+                    summary.Add(xmlData);
+                    geSummaryXmlRecurse_(api, subInst, ref summary, includeRelations);
+                }
             }
-            else if (xmlData.StartsWith("<P3DHangerStdComponent"))
-            {        
-                component = XmlSerializerEx.FromXml<P3DHangerStdComponent>(xmlData);
-            }
         }
+    }
 
-        if (equipment != null)
-        {
-            task = new Sp3dTask_Old(equipment, summaryXmlData);
-        }
-        else if (pipe != null && component != null)
-        {
-            task = new Sp3dTask_Old(pipe, component, summaryXmlData);
-        }
-
-        return task != null;
+    private static string prepair_(string xmlInstance)
+    {
+        //! если не удалить xmlns, то получим ошибку                        
+        // ~ "not absolut xmlns path"
+        return Regex.Replace(xmlInstance, " xmlns=\"[^\"]+\"", "");
     }
 
     public static void extractFromElement(Element element, out long id,
@@ -260,47 +271,7 @@ static class ElementHelper
     }
 
 
-    public static bool isElementSp3dTask_Old(Element element, out Sp3dTask_Old task)
-    {
-        P3DHangerPipeSupport pipe = null;
-        P3DHangerStdComponent component = null;
-        P3DEquipment equipment = null;
-        task = null;
-
-        //string xmlSummary = string.Empty;
-        var xmlSumBilder = new System.Text.StringBuilder();
-        
-        if (element == null)
-            return false;
-        
-        IEnumerable<string> summaryXmlData = ElementHelper.getSp3dXmlData(element);
-        foreach( string xmlData in summaryXmlData)
-        {
-            if (xmlData.StartsWith("<P3DEquipment"))
-            {                
-                equipment = XmlSerializerEx.FromXml<P3DEquipment>(xmlData);
-            }
-            else if (xmlData.StartsWith("<P3DHangerPipeSupport"))
-            {
-                pipe = XmlSerializerEx.FromXml<P3DHangerPipeSupport>(xmlData);
-            }
-            else if (xmlData.StartsWith("<P3DHangerStdComponent"))
-            {        
-                component = XmlSerializerEx.FromXml<P3DHangerStdComponent>(xmlData);
-            }
-        }
-
-        if (equipment != null)
-        {
-            task = new Sp3dTask_Old(equipment, summaryXmlData);
-        }
-        else if (pipe != null && component != null)
-        {
-            task = new Sp3dTask_Old(pipe, component, summaryXmlData);
-        }
-
-        return task != null;
-    }
+    
 
 
     //public static bool isElementSp3dTask(Element element, out Sp3dTask_Old task)

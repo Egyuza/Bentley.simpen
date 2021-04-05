@@ -11,14 +11,15 @@
     <AssemblyName>Embedded.Openings</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;V8i</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <UseVSHostingProcess>false</UseVSHostingProcess>
@@ -32,6 +33,70 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Bentley.Building.DataGroupSystem">
+      <HintPath>c:\Program Files (x86)\Bentley\AECOsimBuildingDesigner V8i Ss6\AECOsimBuildingDesigner\assemblies\Bentley.Building.DataGroupSystem.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Bentley.Building.DataGroupSystem.CustomTypeDescriptor">
+      <HintPath>c:\Program Files (x86)\Bentley\AECOsimBuildingDesigner V8i Ss6\AECOsimBuildingDesigner\assemblies\Bentley.Building.DataGroupSystem.CustomTypeDescriptor.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Bentley.Building.DataGroupSystem.Serialization">
+      <HintPath>c:\Program Files (x86)\Bentley\AECOsimBuildingDesigner V8i Ss6\AECOsimBuildingDesigner\assemblies\Bentley.Building.DataGroupSystem.Serialization.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Bentley.General.1.0">
+      <HintPath>c:\Program Files (x86)\Bentley\AECOsimBuildingDesigner V8i Ss6\AECOsimBuildingDesigner\assemblies\ECFramework\Bentley.General.1.0.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="bentley.interop.microstationdgn">
+      <HintPath>c:\Program Files (x86)\Bentley\AECOsimBuildingDesigner V8i Ss6\AECOsimBuildingDesigner\assemblies\bentley.interop.microstationdgn.dll</HintPath>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Bentley.Interop.TFCom">
+      <HintPath>c:\Program Files (x86)\Bentley\AECOsimBuildingDesigner V8i Ss6\AECOsimBuildingDesigner\assemblies\Bentley.Interop.TFCom.dll</HintPath>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Bentley.logging.log4net-2.0">
+      <HintPath>c:\Program Files (x86)\Bentley\AECOsimBuildingDesigner V8i Ss6\AECOsimBuildingDesigner\assemblies\ECFramework\Bentley.logging.log4net-2.0.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="bentley.microstation">
+      <HintPath>c:\Program Files (x86)\Bentley\AECOsimBuildingDesigner V8i Ss6\AECOsimBuildingDesigner\assemblies\bentley.microstation.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Bentley.MicroStation.XmlInstanceapi">
+      <HintPath>c:\Program Files (x86)\Bentley\AECOsimBuildingDesigner V8i Ss6\AECOsimBuildingDesigner\assemblies\Bentley.MicroStation.XmlInstanceapi.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Bentley.MicroStation.XmlInstanceCore">
+      <HintPath>c:\Program Files (x86)\Bentley\AECOsimBuildingDesigner V8i Ss6\AECOsimBuildingDesigner\assemblies\Bentley.MicroStation.XmlInstanceCore.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Bentley.Platform">
+      <HintPath>c:\Program Files (x86)\Bentley\AECOsimBuildingDesigner V8i Ss6\AECOsimBuildingDesigner\assemblies\ECFramework\Bentley.Platform.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Bentley.Windowing">
+      <HintPath>c:\Program Files (x86)\Bentley\AECOsimBuildingDesigner V8i Ss6\AECOsimBuildingDesigner\assemblies\ECFramework\Bentley.Windowing.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="ustation">
+      <HintPath>c:\Program Files (x86)\Bentley\AECOsimBuildingDesigner V8i Ss6\AECOsimBuildingDesigner\ustation.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -40,10 +105,26 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Class1.cs" />
+    <Compile Include="Addin.cs" />
+    <Compile Include="Keyins.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Embedded.Openings.UI\Embedded.Openings.UI.csproj">
+      <Project>{6b0a1d7d-7508-489f-ba9f-024ffabd2cc1}</Project>
+      <Name>Embedded.Openings.UI</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="commands.xml" />
+  </ItemGroup>
+  <Import Project="..\Shared\Shared.projitems" Label="Shared" />
+  <Import Project="..\Shared.Bentley\Shared.Bentley.projitems" Label="Shared" />
+  <Import Project="..\Shared.Openings\Shared.Openings.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>xcopy $(TargetDir)* "c:\Program Files (x86)\Bentley\AECOsimBuildingDesigner V8i Ss6\AECOsimBuildingDesigner\assemblies\OIM\Embedded.Openings" /I/Y/S</PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

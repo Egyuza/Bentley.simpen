@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31112.23
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Embedded.Penetrations", "Embedded.Penetrations\Embedded.Penetrations.csproj", "{A25CDD2C-D7EF-481C-9A3E-430C27570D1F}"
 EndProject
@@ -41,6 +41,10 @@ Global
 		Shared\Shared.projitems*{4642f70a-accb-42aa-a949-3f0cf1cb5c9a}*SharedItemsImports = 4
 		Shared.Openings\Shared.Openings.projitems*{5074c78e-ec24-473a-84d0-a91472c89e28}*SharedItemsImports = 13
 		Shared\Shared.projitems*{5ea97bce-858d-498f-adcf-372a9fc8de99}*SharedItemsImports = 4
+		Shared\Shared.projitems*{6b0a1d7d-7508-489f-ba9f-024ffabd2cc1}*SharedItemsImports = 4
+		Shared.Bentley\Shared.Bentley.projitems*{9454c148-8a26-4ece-bd3f-38b5ea8778c6}*SharedItemsImports = 4
+		Shared.Openings\Shared.Openings.projitems*{9454c148-8a26-4ece-bd3f-38b5ea8778c6}*SharedItemsImports = 4
+		Shared\Shared.projitems*{9454c148-8a26-4ece-bd3f-38b5ea8778c6}*SharedItemsImports = 4
 		Shared.Bentley\Shared.Bentley.projitems*{a25cdd2c-d7ef-481c-9a3e-430c27570d1f}*SharedItemsImports = 4
 		Shared.Penetrations\Shared.Penetrations.projitems*{a25cdd2c-d7ef-481c-9a3e-430c27570d1f}*SharedItemsImports = 4
 		Shared\Shared.projitems*{a25cdd2c-d7ef-481c-9a3e-430c27570d1f}*SharedItemsImports = 4
@@ -184,5 +188,8 @@ Global
 		{5EA97BCE-858D-498F-ADCF-372A9FC8DE99} = {A4BBE183-BF63-4AFF-8A41-35EA5C1534C1}
 		{4642F70A-ACCB-42AA-A949-3F0CF1CB5C9A} = {A4BBE183-BF63-4AFF-8A41-35EA5C1534C1}
 		{74F11097-7855-4AD4-BCF2-DA75B57F90E7} = {73580DDB-35D1-42D6-B4B1-AD891335F691}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {6C3FDAA1-71F4-42E5-83C1-513B415C8E8C}
 	EndGlobalSection
 EndGlobal

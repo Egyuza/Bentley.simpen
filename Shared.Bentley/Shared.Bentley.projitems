@@ -16,12 +16,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)BentleyExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Logger.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)RoundTool.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)sp3d\P3Dbase.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)sp3d\P3DEquipment.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)sp3d\P3DHangerPipeSupport.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)sp3d\P3DHangerStdComponent.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)sp3d\Sp3dPenTask.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)sp3d\Sp3dTask_Old.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TFFormTypeEnum.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)UOR.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewHelper.cs" />
