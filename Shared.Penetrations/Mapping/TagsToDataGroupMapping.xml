@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <TagsToDataGroupMapping>
     <Items>
-        <Item TagSetName="Penetration" TagName="PartCode" DataGroupCatalogType="EmbeddedPart" DataGroupInstance="Embedded Part" DataGroupXPath="EmbPart/@PartCode" DataGroupName="PartCode"></Item>
+      <Item TagSetName="embb" TagName="name" DataGroupCatalogType="EmbeddedPart" DataGroupInstance="Embedded Part" DataGroupXPath="EmbPart/@CatalogName" DataGroupName="CatalogName"></Item>
+      <Item TagSetName="embb" TagName="sp" DataGroupCatalogType="EmbeddedPart" DataGroupInstance="Embedded Part" DataGroupXPath="EmbPart/@PartCode" DataGroupName="PartCode"></Item>
     </Items>
 </TagsToDataGroupMapping>

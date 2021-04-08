@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 using BCOM = Bentley.Interop.MicroStationDGN;
+using TFCOM = Bentley.Interop.TFCom;
 
 using Shared;
 
@@ -551,7 +552,7 @@ static class ElementHelper
     /// в пространстве заданной модели
     /// </summary>
     public static IEnumerable<BCOM.Element> scanIntersectsInElementRange(
-        BCOM.Element element, BCOM.ModelReference model = null)
+        this BCOM.Element element, BCOM.ModelReference model = null)
     {
         model = model ?? App.ActiveModelReference;
 
@@ -667,9 +668,82 @@ static class ElementHelper
         }
     }
 
+    public static bool getFacePlaneByLabel(out BCOM.Plane3d plane,
+        BCOM.Element element, TFCOM.TFdFaceLabel faceLabel)
+    {
+        plane = new BCOM.Plane3d();
+
+        TFCOM.TFBrepList brepList; // = AppTF.CreateTFBrep();
+        //brepList.InitFromElement(element, App.ActiveModelReference);
+
+        var formRecipeList = new TFCOM.TFFormRecipeListClass();
+        formRecipeList.InitFromElement(element);
+
+        string options = string.Empty;
+        formRecipeList.GetBrepList(out brepList, false, false, false, ref options);
+
+        var faceList = brepList.GetFacesByLabel(faceLabel) as TFCOM.TFBrepFaceListClass;
+        if (faceList != null)
+        {
+            TFCOM.TFPlane tfPlane;
+            if (faceList.IsPlanar(out tfPlane))
+            {
+                faceList.AsTFBrepFace.GetCenter(out plane.Origin);
+                tfPlane.GetNormal(out plane.Normal);
+
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static TFFormTypeEnum ParseFormType(int formType)
+    {
+        try
+        {
+            return (TFFormTypeEnum)formType;
+        }
+        catch (Exception)
+        {
+            return TFFormTypeEnum.UNDEFINED;
+        }
+    }
+    public static BCOM.Plane3d GetPlane3DByPoints(BCOM.Point3d[] polygon)
+    {
+        BCOM.Plane3d plane3D = new BCOM.Plane3d();
+        BCOM.ShapeElement shape = App.CreateShapeElement1(null, polygon);
+        if (shape.IsPlanar)
+        {
+            plane3D.Origin = shape.Centroid();
+            plane3D.Normal = shape.Normal;
+        }
+
+        return plane3D;
+    }
+
+    public static bool IsPlanesAreParallel(BCOM.Plane3d first, BCOM.Plane3d second) {
+
+        BCOM.Point3d secondNegateNormal = App.Point3dNegate(ref second.Normal);
+
+        return (App.Point3dAreVectorsParallel(first.Normal, second.Normal) ||
+            App.Point3dAreVectorsParallel(first.Normal, secondNegateNormal));
+    }
+
     private static BCOM.Application App
     {
         get { return BMI.Utilities.ComApp; }
     }
+
+    private static TFCOM.TFApplication _tfApp;    static TFCOM.TFApplication AppTF
+    {
+        get
+        {
+            return _tfApp ?? 
+                (_tfApp = new TFCOM.TFApplicationList().TFApplication);
+        }
+    }
+
+
+
 }
 }

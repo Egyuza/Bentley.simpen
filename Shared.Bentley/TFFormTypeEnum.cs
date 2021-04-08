@@ -6,7 +6,10 @@ public enum TFFormTypeEnum
     TF_FREE_FORM_ELM   = 31,
     TF_LINEAR_FORM_ELM = 32,
     TF_SLAB_FORM_ELM   = 42,
-    TF_SMOOTH_FORM_ELM = 45
+    TF_SMOOTH_FORM_ELM = 45,
+    TF_ARC_FORM_ELM = 44,
+
+    UNDEFINED = -1
 
     // #define TF_TOP_SHAPES                        1
     // #define TF_TOP_PLANE                         2

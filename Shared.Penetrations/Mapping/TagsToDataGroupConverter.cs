@@ -70,7 +70,8 @@ public class TagsToDataGroupConverter : BentleyInteropBase
             }
         }
 
-        string brief = $"Команда 'Экспорт свойств из Tags в DataGroup', успешно: {errorColl.Count()}/{summaryCount}";
+        string brief = $"Команда 'Экспорт свойств из Tags в DataGroup', успешно: {successList.Count()}/{summaryCount}";
+
         var builder = new StringBuilder();
 
         builder.AppendLine($"*** С ошибками: {errorColl.Count()} из {summaryCount}");

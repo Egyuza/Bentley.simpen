@@ -13,6 +13,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Models\GroupByTaskModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)OpeningHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)OpeningTask.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SmartSolidHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\OpeningsVM.cs" />
   </ItemGroup>
 </Project>

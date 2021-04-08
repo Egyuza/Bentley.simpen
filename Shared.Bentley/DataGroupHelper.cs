@@ -79,7 +79,8 @@ public class DataGroupHelper
         using (var catalogEditHandle = new CatalogEditHandle(element, true, true))
         {
             if (catalogEditHandle == null || 
-                catalogEditHandle.CatalogInstanceName != null)
+                (catalogEditHandle.CatalogInstanceName != null &&
+                    catalogEditHandle.CatalogInstanceName != instanceName))
             {
                 return false;
             }
@@ -92,7 +93,7 @@ public class DataGroupHelper
                 catalogEditHandle.UpdateInstanceDataDefaults();
             }
 
-            DataGroupProperty prop = catalogEditHandle.GetProperties()
+            DataGroupProperty prop = catalogEditHandle.Properties
                 .FirstOrDefault(x => x.Xpath.Equals(propXpath));
             
             if (prop == null)
@@ -100,16 +101,16 @@ public class DataGroupHelper
                 prop = new DataGroupProperty(propName, value, readOnly, visible) {
                     Xpath = propXpath
                 };
-                catalogEditHandle.Properties.Add(prop);                
+                catalogEditHandle.Properties.Add(prop);
             }
             else
             {
-                prop.Value = value;
+                catalogEditHandle.SetValue(prop, value.ToString());
             }
             
             int res = catalogEditHandle.Rewrite((int)BCOM.MsdDrawingMode.Normal);
 
-            return res == 1;
+            return res == 0;
 
             // TODO решить проблему вылета при команде Modify DataGroup Instance
         }
