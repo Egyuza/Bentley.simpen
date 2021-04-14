@@ -85,7 +85,6 @@ public class GroupByTaskModel : NotifyPropertyChangedBase
     public GroupByTaskModel(Bentley.MicroStation.AddIn addin) : this()
     {
         addin_ = addin;
-        addin_.SelectionChangedEvent += Addin_SelectionChangedEvent;
     }
 
     private void Addin_SelectionChangedEvent(
@@ -184,7 +183,6 @@ public class GroupByTaskModel : NotifyPropertyChangedBase
     public GroupByTaskModel(Bentley.MstnPlatformNET.AddIn addin) : this()
     {
         addin_ = addin;
-        addin_.SelectionChangedEvent += Addin_SelectionChangedEvent;
     }
 
     private void Addin_SelectionChangedEvent(

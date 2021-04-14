@@ -16,7 +16,8 @@ namespace Shared.Bentley
 {
 internal static class WindowHelper
 {
-    static Dictionary<Form, WindowContent> cache = new Dictionary<Form, WindowContent>();
+    static Dictionary<Form, WindowContent> cache = 
+        new Dictionary<Form, WindowContent>();
 
     internal static void show(Form form, string id)
     {

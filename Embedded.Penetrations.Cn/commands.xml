@@ -9,12 +9,14 @@
 
     <SubKeyinTables>
         <KeyinTable ID="Commands">
-            <Keyword CommandWord="PENETRATIONS"/>
+          <Keyword CommandWord="PENETRATIONS"/>
+          <Keyword CommandWord="TAGS_TO_DATAGROUP"/>
         </KeyinTable>   
     </SubKeyinTables>
     
     <KeyinHandlers>
-        <KeyinHandler Keyin="EMBEDDED PENETR" Function="Embedded.Penetrations.Cn.Keyins.showForm"/>
+      <KeyinHandler Keyin="EMBEDDED PENETR" Function="Embedded.Penetrations.Cn.Keyins.showForm"/>
+      <KeyinHandler Keyin="EMBEDDED TAGS_TO_DATAGROUP" Function="Embedded.Penetrations.Cn.Keyins.convertTagsToDataGroup"/>
     </KeyinHandlers>
 
 </KeyinTree>

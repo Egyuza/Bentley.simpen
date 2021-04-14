@@ -7,6 +7,8 @@ using System.Linq;
 using BCOM = Bentley.Interop.MicroStationDGN;
 using TFCOM = Bentley.Interop.TFCom;
 using Shared.Bentley;
+using Shared;
+using System.Data;
 
 #if V8i
 using Bentley.Internal.MicroStation.Elements;
@@ -20,17 +22,52 @@ using BMI = Bentley.MstnPlatformNET.InteropServices;
 
 namespace Embedded.Openings.Shared
 {
+
 static class OpeningHelper
 {
+    private struct VertexInfo : IComparable<VertexInfo>
+    {
+        public double Distance;
+        public BCOM.Point3d Point;
+
+        public int CompareTo(VertexInfo other)
+        {
+            return this.Distance.CompareTo(other.Distance);
+        }
+    }
+
+    private struct DimensionInfo : IComparable<DimensionInfo>
+    {
+        public double Length;
+        public BCOM.Point3d Vector;
+
+        public DimensionInfo(BCOM.Point3d p0, BCOM.Point3d p1)
+        {
+            Length = Math.Round(App.Point3dDistance(p0, p1), 5);
+            //Vector = App.Vector3dSubtractPoint3dPoint3d(p1, p0);
+            Vector = App.Point3dSubtract(p1, p0);
+        }
+
+        public int CompareTo(DimensionInfo other)
+        {
+            return this.Length.CompareTo(other.Length);
+        }
+    }
+
     public static bool getFromElement(Element element, out OpeningTask task)
     {
-        task = null;
+        task = new OpeningTask();
         XDocument xDoc = ElementHelper.getSp3dXDocument(element);
-        var equipmentEl = xDoc.Root.Elements().FirstOrDefault(x => 
-                x.Name.LocalName.Equals("P3DEquipment"));
 
-        if (equipmentEl == null)
+        string propName;
+        var checkNode = xDoc.Root.getChildByRegexPath("P3DEquipment");
+
+        if (checkNode == null)
             return false;
+
+        // TODO
+        task.Code = xDoc.Root.
+            getChildByRegexPath("P3DEquipment/Name", out propName)?.Value;
 
         BCOM.Element bcomEl = element.AsElementCOM();
 
@@ -45,13 +82,15 @@ static class OpeningHelper
 
         BCOM.CellElement cell = element.AsCellElementCOM();
        // BCOM.Point3d[] verts = cell.AsSmartSolidElement.GetVertices();
-        ;
 
         var brep = AppTF.CreateTFBrep();
         brep.InitFromElement(bcomEl, App.ActiveModelReference);
 
         BCOM.Point3d[] verts;
         brep.GetVertexLocations(out verts);
+
+        if (verts == null || verts.Count() < 8)
+            return false;
 
         if (verts.Count() > 8)
         {
@@ -62,7 +101,7 @@ static class OpeningHelper
         var formsIntersected = new List<TFCOM.TFElementList>();
         
         {  // Пересечения со стеной/плитой/аркой;
-                foreach (BCOM.Element current in bcomEl.scanIntersectsInElementRange())
+            foreach (BCOM.Element current in bcomEl.scanIntersectsInElementRange())
             {
                 TFCOM.TFElementList tfList = AppTF.CreateTFElement();
                 tfList.InitFromElement(current);
@@ -71,18 +110,19 @@ static class OpeningHelper
                     continue;
 
                 int tfType = tfList.AsTFElement.GetApplicationType();
-                if (tfList.AsTFElement.GetIsFormType())
+
+                if (isAvaliableTFFromType(tfType))
                 {
-                    if (isAvaliableTFFromType(tfType))
-                    {
+                    //if (tfList.AsTFElement.GetIsFormType())
+                    //{
                         formsIntersected.Add(tfList);
-                    }
+                    //}
                 }
             }
         }
         
-        BCOM.Plane3d planeFirst = new BCOM.Plane3d();
-        BCOM.Plane3d planeSecond = new BCOM.Plane3d();
+        var planeFirst = new BCOM.Plane3d();
+        var planeSecond = new BCOM.Plane3d();
 
         TFFormTypeEnum formType = TFFormTypeEnum.UNDEFINED;
 
@@ -107,22 +147,110 @@ static class OpeningHelper
                     formElement, TFCOM.TFdFaceLabel.tfdFaceLabelRight);
                 break;
             case TFFormTypeEnum.TF_SLAB_FORM_ELM:
-                planesAreFound =ElementHelper.getFacePlaneByLabel(out planeFirst, 
+                planesAreFound = ElementHelper.getFacePlaneByLabel(out planeFirst,
                     formElement, TFCOM.TFdFaceLabel.tfdFaceLabelTop);
-                planesAreFound &= ElementHelper.getFacePlaneByLabel(out planeSecond, 
+                planesAreFound &= ElementHelper.getFacePlaneByLabel(out planeSecond,
                     formElement, TFCOM.TFdFaceLabel.tfdFaceLabelBase);
                 break;
             case TFFormTypeEnum.TF_ARC_FORM_ELM:
                 // TODO РАДИАЛЬНЫЕ СТЕНЫ
                 break;
+            case TFFormTypeEnum.TF_EBREP_ELM:
+                
+                TFCOM.TFBrepList brepList = AppTF.CreateTFBrep();
+                brepList.InitFromElement(formElement, App.ActiveModelReference);
+
+                planesAreFound = ElementHelper.getFacePlaneByLabel(out planeFirst,
+                    brepList, TFCOM.TFdFaceLabel.tfdFaceLabelTop);
+
+                var intersectedPlanes = new List<TFCOM.TFPlane>();
+
+                TFCOM.TFPlane tfPlane;
+                IEnumerable<TFCOM.TFBrepFaceListClass> faceLists = brepList.GetFacesEx();
+                foreach(var faceList in faceLists)
+                {
+                    if (faceList.IsPlanarAndIntersectsElement(bcomEl, out tfPlane))
+                    {
+                        intersectedPlanes.Add(tfPlane);
+                    }
+                }
+
+                if (intersectedPlanes.Count > 2)
+                {
+                    // TODO ??
+                    /*
+                        1. собрать коллекцию с суммой площадей параллельных поверхностей
+                        2. у большей коллекции по суммарной площади вычислить нормаль
+                        3. выбирать плоскости проекции задания в соответсвии с выбранной нормалью
+                    */
+
+                    var facesInfo = new List<FaceInfo>();
+                    foreach(var faceList in faceLists)
+                    {
+                        TFCOM.TFPlane faceTFPlane;
+                        if (faceList.IsPlanar(out faceTFPlane))
+                        {
+                            double area;
+                            faceList.GetArea(out area, string.Empty);
+                            BCOM.Plane3d plane3D = faceTFPlane.ToPlane3d();
+
+                            FaceInfo faceInfo = facesInfo.FirstOrDefault(x =>
+                                x.Normal.IsVectorParallelTo(plane3D.Normal));
+
+                            if (faceInfo.Area == 0)
+                            {
+                                facesInfo.Add(new FaceInfo() { 
+                                    Area = area, Normal = plane3D.Normal 
+                                });
+                            }
+                            else
+                            {
+                                faceInfo.Area += area;
+                            }
+                        }
+                    }
+                    facesInfo.Sort((x, y) => -1 * x.Area.CompareTo(y.Area));
+
+                    FaceInfo faceTarget = facesInfo[0];
+
+                    intersectedPlanes.RemoveAll((x) => { 
+                        BCOM.Point3d norm;
+                        x.GetNormal(out norm);
+
+                        return !norm.IsVectorParallelTo(faceTarget.Normal);
+                    });
+                    ;
+                }   
+                
+                if (intersectedPlanes.Count == 2)
+                {
+                    // ! должно выполняться условие параллельности
+                    planeFirst = intersectedPlanes[0].ToPlane3d();
+                    planeSecond = intersectedPlanes[1].ToPlane3d();
+
+                    planesAreFound = planeFirst.IsParallelTo(planeSecond);
+                }
+
+                {
+                    /*
+                     Если только одна поверхность:
+                        1. через точку контура провести нормаль
+                        2. найти поверхности, кот. пересекает нормаль                     
+                    */
+                }
+
+
+                break;
             }
         }
 
-        if (planesAreFound)
+        if (!planesAreFound)
+            return false;
+
         { 
         // корректировка плоскостей относительно пользователя
-            BCOM.Point3d projOrigin =
-                App.Point3dProjectToPlane3d(ref planeFirst.Origin, ref planeSecond, null, false);
+            BCOM.Point3d projOrigin = 
+                planeFirst.Origin.ProjectToPlane3d(planeSecond);
 
             switch (formType)
             {
@@ -146,8 +274,81 @@ static class OpeningHelper
             }
         }
 
-
         { // Определение параметров контура:
+
+            var sorted = new List<VertexInfo>();
+            foreach (BCOM.Point3d pt in verts)
+            {
+                var projPt = pt.ProjectToPlane3d(planeFirst);
+                sorted.Add(new VertexInfo() { 
+                    Distance = App.Point3dDistance(pt, projPt),
+                    Point = projPt
+                });
+            }
+            sorted.Sort();
+            var firstFaceBounds = sorted.Take(4).Select(x => x.Point);
+
+            var checkSet = new HashSet<BCOM.Point3d>(firstFaceBounds);
+            if (checkSet.Count < 4)
+                return false;
+
+            sorted.Clear();
+            foreach (BCOM.Point3d pt in verts)
+            {
+                var projPt = pt.ProjectToPlane3d(planeSecond);
+                sorted.Add(new VertexInfo() { 
+                    Distance = App.Point3dDistance(pt, projPt),
+                    Point = projPt
+                });
+            }
+            sorted.Sort();
+            var secondFaceBounds = sorted.Take(4).Select(x => x.Point);
+            checkSet = new HashSet<BCOM.Point3d>(secondFaceBounds);
+            if (checkSet.Count < 4)
+                return false;
+               
+            var pts = firstFaceBounds.ToArray();
+                
+            var dimensions = new List<DimensionInfo>() {
+                new DimensionInfo(pts[0], pts[1]),
+                new DimensionInfo(pts[0], pts[2]),
+                new DimensionInfo(pts[0], pts[3]),
+            };
+            dimensions.Sort();
+                
+            if (planeFirst.IsParallelTo(App.GetPlane3dXY()))
+            {
+                // TOTO ширина и высота относительно ориентации
+            }
+
+            // опорная точка Origin:
+            //contourOrigin
+            BCOM.ShapeElement contour = App.CreateShapeElement1(null, pts);
+            BCOM.Point3d projOriginFirst =
+                contour.Centroid().ProjectToPlane3d(planeFirst);
+
+            task.Origin = projOriginFirst;
+
+            { // Высота
+                task.Height = dimensions[0].Length;
+                task.HeigthVec = dimensions[0].Vector;
+			}
+			{// Ширина
+                task.Width = dimensions[1].Length;
+                task.WidthVec = dimensions[1].Vector;
+			}
+			{ // Глубина
+				BCOM.Point3d projOriginSecond = 
+                    projOriginFirst.ProjectToPlane3d(planeSecond);
+                task.Depth = Math.Round(
+                    App.Point3dDistance(projOriginFirst, projOriginSecond), 5);
+                task.DepthVec = 
+                    App.Point3dSubtract(projOriginSecond, projOriginFirst);                
+			}
+
+            return true;
+
+
             BCOM.Point3d[] bnds  = verts;
             BCOM.Point3d[][] facetPoints = 
             {
@@ -229,63 +430,58 @@ static class OpeningHelper
 				    facetPoints[2][3] = bnds[5];
 			    }
 
-			    for (int j = 0; j < 3; ++j) {
-				    BCOM.Plane3d facet = 
-                        ElementHelper.GetPlane3DByPoints(facetPoints[j]);                   
-				    if (ElementHelper.IsPlanesAreParallel(facet, planeFirst)) {
-                        // TODO
+                bool isValid = false;                
 
-					    //DPoint3d pts[4];
-					    //for (int j = 0; j < 4; ++j) {
-						   // mdlVec_projectPointToPlane(&pts[j],
-							  //  &facetPoints[j][j], &facet.origin, &facet.normal);
-					    //}
-					    //// опорная точка Origin:
-					    //mdlVec_extractPolygonNormal(NULL, &contourOrigin, pts, 4);
-					    //mdlVec_projectPointToPlane(&contourOrigin, &contourOrigin,
-						   // &planeFirst.origin, &planeFirst.normal);
+                break;
 
-					    //{ // Высота
-						   // OpeningTask::getInstance().height = CExpr::convertToMaster(
-							  //  mdlVec_distance(&pts[3], &pts[0]));
-						   // // вектор высоты:
-						   // mdlVec_subtractDPoint3dDPoint3d(&heightVec,
-							  //  &pts[3], &pts[0]);
-					    //}
-					    //{// Ширина
-						   // OpeningTask::getInstance().width = CExpr::convertToMaster(
-							  //  mdlVec_distance(&pts[1], &pts[0]));
-						   // // вектор ширины:
-						   // mdlVec_subtractDPoint3dDPoint3d(&widthVec,
-							  //  &pts[1], &pts[0]);
-					    //}
-					    //{ // Глубина
-						   // DPoint3d projPoint;
-						   // mdlVec_projectPointToPlane(&projPoint, &contourOrigin,
-							  //  &planeSecond.origin, &planeSecond.normal);
+			    //for (int j = 0; j < 3; ++j) {
+       //             BCOM.Plane3d facet;
+       //             if (!ElementHelper.GetPlane3DByPoints(out facet, facetPoints[j]))
+       //                 continue;                   
 
-						   // OpeningTask::getInstance().depth = CExpr::convertToMaster(
-							  //  mdlVec_distance(&projPoint, &contourOrigin));
-						   // // вектор глубины:
-						   // mdlVec_subtractDPoint3dDPoint3d(&depthVec,
-							  //  &projPoint, &contourOrigin);
-					    //}
+				   // if (ElementHelper.IsPlanesAreParallel(facet, planeFirst)) {
+       //                 // TODO
 
-					    //isValid = true;
-					    //UI::readDataSynch();
-					    //UI::setEnableAddToModel();
+					  //  var pts =  facetPoints[j];
+       //  //               new BCOM.Point3d[4];
+					  //  //for (int k = 0; k < 4; ++k) {
+       //  //                   pts[k] = facetPoints[j][k].ProjectToPlane3d(facet);
+					  //  //}
+					  //  // опорная точка Origin:
+       //                 //contourOrigin
+       //                 BCOM.ShapeElement contour = App.CreateShapeElement1(null, pts);
+       //                 BCOM.Point3d projOriginFirst = 
+       //                     contour.Centroid().ProjectToPlane3d(planeFirst);
 
-					    break;
-				    }
-			    }
+					  //  { // Высота
+       //                     task.Height = App.Point3dDistance(pts[3], pts[0]);
+       //                     task.HeigthVec = 
+       //                         App.Vector3dSubtractPoint3dPoint3d(pts[3], pts[0]);
+					  //  }
+					  //  {// Ширина
+       //                     task.Width = App.Point3dDistance(pts[1], pts[0]);
+       //                     task.WidthVec= 
+       //                         App.Vector3dSubtractPoint3dPoint3d(pts[1], pts[0]);
+					  //  }
+					  //  { // Глубина
+						 //  BCOM.Point3d projOriginSecond = 
+       //                     projOriginFirst.ProjectToPlane3d(planeSecond);
 
-			    //if (isValid) {
-				   // break;
+       //                     task.Depth = App.Point3dDistance(
+       //                         projOriginFirst, projOriginSecond);
+       //                     task.DepthVec= 
+       //                         App.Vector3dSubtractPoint3dPoint3d(
+       //                             projOriginSecond, projOriginFirst);
+					  //  }
+       //                 isValid = true;
+					  //  break;
+				   // }
 			    //}
+
+			    //if (isValid)
+				   // break;			    
 		    }
-
         }
-
 
         //BCOM.Point3d[] closest = new BCOM.Point3d[verts.Count()];
         //for (int i = 0; i < verts.Count(); ++i)
@@ -294,8 +490,61 @@ static class OpeningHelper
         //}
 
         return true;
+    }
 
-        return false;
+    public struct FaceInfo
+    {
+        public BCOM.Point3d Normal;
+        public double Area;
+    }
+
+    public static TFCOM.TFFrameListClass createFrameList(
+        OpeningTask task, BCOM.Level level)
+    {
+        BCOM.Element shape = GetOpeningShape(task);
+
+        BCOM.SmartSolidElement body = 
+            App.SmartSolid.ExtrudeClosedPlanarCurve(shape, task.Depth, 0.0, true);
+
+        var frameList = new TFCOM.TFFrameListClass();
+        frameList.Add3DElement(body);
+        return frameList;
+    }
+
+
+    public static bool  getTaskDataFromDataRow(out OpeningTask task, DataRow row)
+    {
+        try
+        {
+            task = new OpeningTask(){
+                
+            };
+        }
+        catch (Exception)
+        {
+            task = null;
+        }
+
+        return task != null;
+    }
+
+    public static BCOM.Element GetOpeningShape(OpeningTask task)
+    {
+        var bounds = new BCOM.Point3d[4];
+
+        bounds[0] = task.Origin.AddScaled(task.HeigthVec, -0.5).AddScaled(task.WidthVec, -0.5);
+        bounds[1] = task.Origin.AddScaled(task.HeigthVec, 0.5).AddScaled(task.WidthVec, -0.5);
+        bounds[2] = task.Origin.AddScaled(task.HeigthVec, 0.5).AddScaled(task.WidthVec, 0.5);
+        bounds[3] = task.Origin.AddScaled(task.HeigthVec, -0.5).AddScaled(task.WidthVec, 0.5);
+
+        var shape = App.CreateShapeElement1(null, bounds);
+        
+        if (!App.Point3dEqualTolerance(
+            shape.Normal.Normalize(), task.DepthVec.Normalize(), 0.00005))
+        {
+            shape.Reverse();
+        }
+        return shape;
     }
 
     private static bool isAvaliableTFFromType(int tftype)
@@ -310,6 +559,7 @@ static class OpeningHelper
             case TFFormTypeEnum.TF_SLAB_FORM_ELM:
             case TFFormTypeEnum.TF_SMOOTH_FORM_ELM:
             case TFFormTypeEnum.TF_ARC_FORM_ELM:
+            case TFFormTypeEnum.TF_EBREP_ELM:
                 return true;
         }
         return false;

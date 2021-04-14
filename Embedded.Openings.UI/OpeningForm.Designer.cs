@@ -40,7 +40,7 @@ namespace Embedded.Openings.UI
             this.toolStripProgressBar1 = new System.Windows.Forms.ToolStripProgressBar();
             this.statusInfo = new System.Windows.Forms.ToolStripLabel();
             this.tlpForm = new System.Windows.Forms.TableLayoutPanel();
-            this.tabControl1 = new System.Windows.Forms.TabControl();
+            this.tabCtrlMain = new System.Windows.Forms.TabControl();
             this.tabCreate = new System.Windows.Forms.TabPage();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             this.flowLayoutPanel3 = new System.Windows.Forms.FlowLayoutPanel();
@@ -72,7 +72,7 @@ namespace Embedded.Openings.UI
             toolStrip1 = new System.Windows.Forms.ToolStrip();
             toolStrip1.SuspendLayout();
             this.tlpForm.SuspendLayout();
-            this.tabControl1.SuspendLayout();
+            this.tabCtrlMain.SuspendLayout();
             this.tabCreate.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
             this.flowLayoutPanel3.SuspendLayout();
@@ -155,7 +155,7 @@ namespace Embedded.Openings.UI
             this.tlpForm.BackColor = System.Drawing.SystemColors.Control;
             this.tlpForm.ColumnCount = 1;
             this.tlpForm.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tlpForm.Controls.Add(this.tabControl1, 0, 0);
+            this.tlpForm.Controls.Add(this.tabCtrlMain, 0, 0);
             this.tlpForm.Controls.Add(toolStrip1, 0, 1);
             this.tlpForm.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tlpForm.Location = new System.Drawing.Point(0, 0);
@@ -168,18 +168,18 @@ namespace Embedded.Openings.UI
             this.tlpForm.Size = new System.Drawing.Size(800, 450);
             this.tlpForm.TabIndex = 5;
             // 
-            // tabControl1
+            // tabCtrlMain
             // 
-            this.tabControl1.Controls.Add(this.tabCreate);
-            this.tabControl1.Controls.Add(this.tabGroupByTask);
-            this.tabControl1.Controls.Add(this.tabUpdate);
-            this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tabControl1.Location = new System.Drawing.Point(0, 0);
-            this.tabControl1.Margin = new System.Windows.Forms.Padding(0);
-            this.tabControl1.Name = "tabControl1";
-            this.tabControl1.SelectedIndex = 0;
-            this.tabControl1.Size = new System.Drawing.Size(800, 427);
-            this.tabControl1.TabIndex = 2;
+            this.tabCtrlMain.Controls.Add(this.tabCreate);
+            this.tabCtrlMain.Controls.Add(this.tabGroupByTask);
+            this.tabCtrlMain.Controls.Add(this.tabUpdate);
+            this.tabCtrlMain.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tabCtrlMain.Location = new System.Drawing.Point(0, 0);
+            this.tabCtrlMain.Margin = new System.Windows.Forms.Padding(0);
+            this.tabCtrlMain.Name = "tabCtrlMain";
+            this.tabCtrlMain.SelectedIndex = 0;
+            this.tabCtrlMain.Size = new System.Drawing.Size(800, 427);
+            this.tabCtrlMain.TabIndex = 2;
             // 
             // tabCreate
             // 
@@ -350,6 +350,7 @@ namespace Embedded.Openings.UI
             this.btnPreview.TabIndex = 7;
             this.btnPreview.Text = "Показать";
             this.btnPreview.UseVisualStyleBackColor = true;
+            this.btnPreview.Click += new System.EventHandler(this.btnPreview_Click);
             // 
             // btnAddToModel
             // 
@@ -362,6 +363,7 @@ namespace Embedded.Openings.UI
             this.btnAddToModel.TabIndex = 6;
             this.btnAddToModel.Text = "Создать";
             this.btnAddToModel.UseVisualStyleBackColor = true;
+            this.btnAddToModel.Click += new System.EventHandler(this.btnAddToModel_Click);
             // 
             // lblBreak
             // 
@@ -574,10 +576,12 @@ namespace Embedded.Openings.UI
             this.Controls.Add(this.tlpForm);
             this.Name = "OpeningForm";
             this.Text = "Form1";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form_Closed);
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Form_KeyDown);
             toolStrip1.ResumeLayout(false);
             toolStrip1.PerformLayout();
             this.tlpForm.ResumeLayout(false);
-            this.tabControl1.ResumeLayout(false);
+            this.tabCtrlMain.ResumeLayout(false);
             this.tabCreate.ResumeLayout(false);
             this.tableLayoutPanel2.ResumeLayout(false);
             this.tableLayoutPanel2.PerformLayout();
@@ -603,7 +607,7 @@ namespace Embedded.Openings.UI
         #endregion
 
         private System.Windows.Forms.TableLayoutPanel tlpForm;
-        public System.Windows.Forms.TabControl tabControl1;
+        public System.Windows.Forms.TabControl tabCtrlMain;
         private System.Windows.Forms.TabPage tabCreate;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel3;

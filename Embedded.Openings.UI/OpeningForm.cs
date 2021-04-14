@@ -158,7 +158,7 @@ public partial class OpeningForm : Form
         //InvokeSafe(startPrimitiveAction_);
     }
 
-    private void PenetrationForm_FormClosed(object sender, FormClosedEventArgs e)
+    private void Form_Closed(object sender, FormClosedEventArgs e)
     {
         InvokeSafe(onCloseFormAction_);
     }
@@ -175,7 +175,7 @@ public partial class OpeningForm : Form
         }
     }
 
-    private void PenetrationForm_KeyDown(object sender, KeyEventArgs e)
+    private void Form_KeyDown(object sender, KeyEventArgs e)
     {
         ;
     }

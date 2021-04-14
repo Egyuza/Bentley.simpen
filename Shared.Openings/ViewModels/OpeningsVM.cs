@@ -93,7 +93,7 @@ public class OpeningsVM : BentleyInteropBase
     public void showForm()
     {
         initializeForm();
-        WindowHelper.show(form_, "simpen::Penetration");
+        WindowHelper.show(form_, "Embedded::Openings");
     }
 
     private void initializeForm()
@@ -102,34 +102,23 @@ public class OpeningsVM : BentleyInteropBase
             return;
         }
         form_ = new OpeningForm();
+
+        form_.tabCtrlMain.TabPages.RemoveByKey("tabCreate");
+        form_.tabCtrlMain.TabPages.RemoveByKey("tabUpdate");
+
         form_.Text = $"Проёмы v{AssemblyVersion.VersionStr}" 
             + (isDebugMode_ ? " [DEBUG]" : string.Empty);
 
-        //form_.setColumns(getColumns_());
+        form_.setOnCloseFormAction (groupModel_.clearContext);
+        form_.setDataSource_Create(groupModel_.TaskTable);
 
-        DataTable dataTable = new DataTable();
-        dataTable.Columns.Add("First", typeof(string));
-        dataTable.Columns.Add("Second", typeof(bool));
-        dataTable.Columns.Add("Third", typeof(string));
+            //form_.setDataRowsAddedAction(rowsAdded);
+        form_.setPreviewAction(groupModel_.preview);
+        form_.setCreateAction(groupModel_.addToModel);
 
-        dataTable.Rows.Add(new object[] { new { First = "1.1", Second = true, Third = "3.1" } });
-        form_.setDataSource_Create(dataTable);
+            //form_.dgvCreationTasks.SelectionChanged += DgvCreationTasks_SelectionChanged;
+            //form_.dgvCreationTasks.CellMouseDoubleClick += DgvCreationTasks_CellMouseDoubleClick;
 
-        var row = dataTable.Rows.Add("123", false, "safd");
-        row.SetField("First", "QQQ");
-
-        //form_.setBinding("lblSelectionCount", "Text",
-        //    groupModel_, nameof(groupModel_.SelectionCount), 
-        //    BindinUpdateMode.ControlOnly);
-
-        //form_.setDataRowsAddedAction(rowsAdded);
-        //form_.setPreviewAction(groupModel_.preview);
-        //form_.setCreateAction(groupModel_.addToModel);
-        //form_.setOnCloseFormAction (groupModel_.clearContext);
-
-        //form_.dgvCreationTasks.SelectionChanged += DgvCreationTasks_SelectionChanged;
-        //form_.dgvCreationTasks.CellMouseDoubleClick += DgvCreationTasks_CellMouseDoubleClick;
-                
         #if DEBUG
             // form_.tabControl1.TabPages.RemoveAt(0); // TODO временно до отладки и ввода в работу        
         #endif
@@ -175,7 +164,7 @@ public class OpeningsVM : BentleyInteropBase
         columns.Add(column);
         
         column = new DataGridViewTextBoxColumn();
-        column.DataPropertyName = "Name";
+
         column.Name = ColumnName.TYPE_SIZE;
         column.ReadOnly = true;
         column.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;

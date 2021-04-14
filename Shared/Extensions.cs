@@ -79,6 +79,12 @@ static class Extensions
         return false;
     }
 
+    public static XElement getChildByRegexPath(this XElement source, string path)
+    {
+        string propName;
+        return getChildByRegexPath(source, path, out propName);
+    }
+
     public static XElement getChildByRegexPath(this XElement source, string path, 
         out string propName)
     {
@@ -98,8 +104,7 @@ static class Extensions
                     {
                         propName = subEl.Name.LocalName;
                         return subEl;
-                    }
-                    
+                    }                    
                     curElement = subEl;
                     break;
                 }

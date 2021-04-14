@@ -8,6 +8,7 @@ public enum TFFormTypeEnum
     TF_SLAB_FORM_ELM   = 42,
     TF_SMOOTH_FORM_ELM = 45,
     TF_ARC_FORM_ELM = 44,
+    TF_EBREP_ELM = 60,
 
     UNDEFINED = -1
 

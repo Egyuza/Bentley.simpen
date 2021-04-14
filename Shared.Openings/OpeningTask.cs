@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Text;
 
+using BCOM = Bentley.Interop.MicroStationDGN;
+
 namespace Embedded.Openings.Shared
 {
 public class OpeningTask
@@ -9,6 +11,12 @@ public class OpeningTask
     public double Height {get; set;}
     public double Width {get; set;}
     public double Depth {get; set;}
+
+	public BCOM.Point3d Origin { get; set; }
+
+	public BCOM.Point3d HeigthVec {get; set;}
+	public BCOM.Point3d WidthVec {get; set;}
+	public BCOM.Point3d DepthVec {get; set;}
 
     public string Code {get; set;}
 

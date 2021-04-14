@@ -37,7 +37,7 @@ public class test
 }
 
 
-static class ElementHelper
+public static class ElementHelper
 {
     public static XDocument getSp3dXDocument(Element element, 
         bool includeRelations = true)
@@ -671,8 +671,6 @@ static class ElementHelper
     public static bool getFacePlaneByLabel(out BCOM.Plane3d plane,
         BCOM.Element element, TFCOM.TFdFaceLabel faceLabel)
     {
-        plane = new BCOM.Plane3d();
-
         TFCOM.TFBrepList brepList; // = AppTF.CreateTFBrep();
         //brepList.InitFromElement(element, App.ActiveModelReference);
 
@@ -681,6 +679,14 @@ static class ElementHelper
 
         string options = string.Empty;
         formRecipeList.GetBrepList(out brepList, false, false, false, ref options);
+
+        return getFacePlaneByLabel(out plane, brepList, faceLabel);
+    }
+
+    public static bool getFacePlaneByLabel(out BCOM.Plane3d plane,
+        TFCOM.TFBrepList brepList, TFCOM.TFdFaceLabel faceLabel)
+    {
+        plane = new BCOM.Plane3d();
 
         var faceList = brepList.GetFacesByLabel(faceLabel) as TFCOM.TFBrepFaceListClass;
         if (faceList != null)
@@ -697,6 +703,62 @@ static class ElementHelper
         return false;
     }
 
+    public static BCOM.Plane3d ToPlane3d(this TFCOM.TFPlane tfPlane)
+    {
+        BCOM.Plane3d plane3D;
+        BCOM.Point3d nor;
+        tfPlane.GetVector(out plane3D.Origin, out nor);
+        tfPlane.GetNormal(out plane3D.Normal);
+
+        return plane3D;
+    }
+
+    public static IEnumerable<TFCOM.TFBrepFaceListClass> GetFacesEx(
+        this TFCOM.TFBrepList brepList)
+    {
+        var res = new HashSet<TFCOM.TFBrepFaceListClass>();
+
+        var faceList = brepList.GetFaces() as TFCOM.TFBrepFaceListClass;
+        if (faceList.GetCount() == 0)
+            return res;
+
+        res.Add(faceList.AsTFBrepFace as TFCOM.TFBrepFaceListClass);
+        while(null != (faceList = faceList.GetNext() as TFCOM.TFBrepFaceListClass))
+        {
+            res.Add(faceList.AsTFBrepFace as TFCOM.TFBrepFaceListClass);
+        }
+        return res;
+    }
+
+    public static bool IsVectorParallelTo(this BCOM.Point3d self, BCOM.Point3d other)
+    {
+        return App.Vector3dAreVectorsParallel(self.ToVector3d(), other.ToVector3d());
+    }
+
+    public static bool IsParallelTo(this BCOM.Vector3d self, BCOM.Vector3d other)
+    {
+        return App.Vector3dAreVectorsParallel(self, other);
+    }
+
+    public static bool IsPlanarAndIntersectsElement(
+        this TFCOM.TFBrepFace face, BCOM.Element element, out TFCOM.TFPlane tfPlane)
+    {
+        if (face.IsPlanar(out tfPlane))
+        {
+            //faceList.AsTFBrepFace.GetLabel(out faceLabel);
+            BCOM.Point3d[] faceVerts;
+            face.GetVertexLocations(out faceVerts);
+            var faceShape = App.CreateShapeElement1(null, faceVerts);
+
+            BCOM.Range3d result = new BCOM.Range3d();
+            if (App.Range3dIntersect2(ref result, element.Range, faceShape.Range))
+            {
+                return  true;
+            }
+        }
+        return false;
+    }
+
     public static TFFormTypeEnum ParseFormType(int formType)
     {
         try
@@ -708,17 +770,25 @@ static class ElementHelper
             return TFFormTypeEnum.UNDEFINED;
         }
     }
-    public static BCOM.Plane3d GetPlane3DByPoints(BCOM.Point3d[] polygon)
+
+
+
+    public static bool GetPlane3DByPoints(out BCOM.Plane3d plane, BCOM.Point3d[] polygon)
     {
-        BCOM.Plane3d plane3D = new BCOM.Plane3d();
+        plane = new BCOM.Plane3d();
         BCOM.ShapeElement shape = App.CreateShapeElement1(null, polygon);
         if (shape.IsPlanar)
         {
-            plane3D.Origin = shape.Centroid();
-            plane3D.Normal = shape.Normal;
-        }
+            plane.Origin = shape.Centroid();
+            plane.Normal = shape.Normal;
+            return true;
+        }        
+        return false;
+    }
 
-        return plane3D;
+    public static bool IsParallelTo(this BCOM.Plane3d self, BCOM.Plane3d plane) {
+
+        return IsPlanesAreParallel(self, plane);
     }
 
     public static bool IsPlanesAreParallel(BCOM.Plane3d first, BCOM.Plane3d second) {
@@ -729,12 +799,82 @@ static class ElementHelper
             App.Point3dAreVectorsParallel(first.Normal, secondNegateNormal));
     }
 
+    public static BCOM.Point3d ProjectToPlane3d(this BCOM.Point3d pt,
+        BCOM.Plane3d plane)
+    {
+        return App.Point3dProjectToPlane3d(pt, plane, null, false);
+    }
+
+
+    private static BCOM.Plane3d? planeXY_;
+    private static BCOM.Plane3d? planeXZ_;
+    private static BCOM.Plane3d? planeYZ_;
+    public static BCOM.Plane3d GetPlane3dXY(this BCOM.Application app)
+    {
+        if (planeXY_ == null)
+        {
+            planeXY_ = new BCOM.Plane3d() {
+                Origin = App.Point3dZero(),
+                Normal = app.Point3dFromXYZ(0, 0, 1)
+            };
+        }
+        return planeXY_.Value;
+    }
+    public static BCOM.Plane3d GetPlane3dXZ(this BCOM.Application app)
+    {
+        if (planeXZ_ == null)
+        {
+            planeXZ_ = new BCOM.Plane3d() {
+                Origin = App.Point3dZero(),
+                Normal = app.Point3dFromXYZ(0, 1, 0)
+            };
+        }
+        return planeXZ_.Value;
+    }
+    public static BCOM.Plane3d GetPlane3dYZ(this BCOM.Application app)
+    {
+        if (planeYZ_ == null)
+        {
+            planeYZ_ = new BCOM.Plane3d() {
+                Origin = App.Point3dZero(),
+                Normal = app.Point3dFromXYZ(1, 0, 0)
+            };
+        }
+        return planeYZ_.Value;
+    }
+
+    public static BCOM.Point3d AddScaled(this BCOM.Point3d pt, 
+        BCOM.Point3d vector, double scale)
+    {
+        return App.Point3dAddScaled(pt, vector, scale);
+    }
+
+    public static BCOM.Point3d Normalize(this BCOM.Point3d pt)
+    {
+        return App.Point3dNormalize(pt);
+    }
+    public static BCOM.Vector3d Normalize(this BCOM.Vector3d vec)
+    {
+        return App.Vector3dNormalize(vec);
+    }
+
+    public static BCOM.Vector3d ToVector3d(this BCOM.Point3d pt)
+    {
+        return App.Vector3dFromPoint3d(pt);
+    }
+
+    public static BCOM.Point3d ToPoint3d(this BCOM.Vector3d vec)
+    {
+        return App.Point3dFromVector3d(vec);
+    }
+
     private static BCOM.Application App
     {
         get { return BMI.Utilities.ComApp; }
     }
 
-    private static TFCOM.TFApplication _tfApp;    static TFCOM.TFApplication AppTF
+    private static TFCOM.TFApplication _tfApp;    
+    static TFCOM.TFApplication AppTF
     {
         get
         {
