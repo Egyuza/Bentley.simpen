@@ -57,12 +57,12 @@ namespace Embedded.Penetrations.Shared.sp3d
                 xDoc.Root.Add(XElement.Parse(xmlText));
             }
 
-            foreach (var propMap in Sp3dToDataGroupMapping.Instance.Items)
+            foreach (var propMap in Sp3dToDGMapping.Instance.Items)
             {                
                 foreach (string path in propMap.Sp3dXmlPaths)
                 {
                     string propName, value;
-                    var xEl = xDoc.Root.getChildByRegexPath(path, out propName);
+                    var xEl = xDoc.Root.GetChildByRegexPath(path, out propName);
                     //var xEl = xDoc.Root.XPathSelectElement(path);
                     if (xEl != null)
                     {

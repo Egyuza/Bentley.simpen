@@ -9,6 +9,7 @@ using TFCOM = Bentley.Interop.TFCom;
 using Shared.Bentley;
 using Shared;
 using System.Data;
+using Embedded.Openings.Shared.Mapping;
 
 #if V8i
 using Bentley.Internal.MicroStation.Elements;
@@ -53,23 +54,60 @@ static class OpeningHelper
             return this.Length.CompareTo(other.Length);
         }
     }
+    public struct FaceInfo
+    {
+        public BCOM.Point3d Normal;
+        public double Area;
+    }
 
-    public static bool getFromElement(Element element, out OpeningTask task)
+    public static bool getFromElement(Element element, XDocument attrsXDoc,
+        out OpeningTask task)
     {
         task = new OpeningTask();
         XDocument xDoc = ElementHelper.getSp3dXDocument(element);
 
-        string propName;
-        var checkNode = xDoc.Root.getChildByRegexPath("P3DEquipment");
+        XElement mainNode = xDoc.Root.GetChild(SP3D_OPENING_TAG);
 
-        if (checkNode == null)
+        if (mainNode == null)
             return false;
 
-        // TODO
-        task.Code = xDoc.Root.
-            getChildByRegexPath("P3DEquipment/Name", out propName)?.Value;
+        if (!mainNode.GetChild("Description").Value.Contains("Opening"))
+        {
+            return false;
+        }
 
-        BCOM.Element bcomEl = element.AsElementCOM();
+        string UID = mainNode.GetChild("UID").Value.Trim();
+
+        XElement additionalNode = attrsXDoc?.Root.Nodes().FirstOrDefault(x => 
+            ((XElement)x).Name.LocalName == SP3D_OPENING_TAG && 
+            ((XElement)x).GetChild("UID").Value.Contains(UID)
+        ) as XElement;
+
+        if (additionalNode != null)
+        {
+            foreach(XElement node in additionalNode.Nodes().ToList())
+            {
+                XElement matchNode = mainNode.GetChild(node.Name.LocalName);
+                if (matchNode != null)
+                {
+                    // TODO расскоментировать, если верно:
+                    // matchNode.ReplaceWith(node);
+                }
+                else
+                {
+                    mainNode.Add(node);
+                }
+            }
+        }
+
+        // TODO
+        //task.Code = xDoc.Root.
+        //    getChildByRegexPath("P3DEquipment/Name", out propName)?.Value;
+        //string propName;
+
+        Sp3dToDGMapping.Instance.LoadValuesFromXDoc(xDoc, task.DataGroupPropsValues);
+
+        BCOM.Element bcomEl = element.ToElementCOM();
 
         var tfEl = AppTF.CreateTFElement();
         tfEl.InitFromElement(bcomEl);
@@ -80,7 +118,7 @@ static class OpeningHelper
         //    return false;
         //}
 
-        BCOM.CellElement cell = element.AsCellElementCOM();
+        BCOM.CellElement cell = element.ToCellElementCOM();
        // BCOM.Point3d[] verts = cell.AsSmartSolidElement.GetVertices();
 
         var brep = AppTF.CreateTFBrep();
@@ -156,6 +194,7 @@ static class OpeningHelper
                 // TODO РАДИАЛЬНЫЕ СТЕНЫ
                 break;
             case TFFormTypeEnum.TF_EBREP_ELM:
+            case TFFormTypeEnum.TF_SMOOTH_FORM_ELM:
                 
                 TFCOM.TFBrepList brepList = AppTF.CreateTFBrep();
                 brepList.InitFromElement(formElement, App.ActiveModelReference);
@@ -331,186 +370,24 @@ static class OpeningHelper
 
             { // Высота
                 task.Height = dimensions[0].Length;
-                task.HeigthVec = dimensions[0].Vector;
+                task.HeigthVec = App.Point3dNormalize(dimensions[0].Vector);
 			}
 			{// Ширина
                 task.Width = dimensions[1].Length;
-                task.WidthVec = dimensions[1].Vector;
+                task.WidthVec = App.Point3dNormalize(dimensions[1].Vector);
 			}
 			{ // Глубина
 				BCOM.Point3d projOriginSecond = 
                     projOriginFirst.ProjectToPlane3d(planeSecond);
                 task.Depth = Math.Round(
                     App.Point3dDistance(projOriginFirst, projOriginSecond), 5);
-                task.DepthVec = 
-                    App.Point3dSubtract(projOriginSecond, projOriginFirst);                
+                task.DepthVec = App.Point3dNormalize(
+                    App.Point3dSubtract(projOriginSecond, projOriginFirst));                
 			}
 
-            return true;
-
-
-            BCOM.Point3d[] bnds  = verts;
-            BCOM.Point3d[][] facetPoints = 
-            {
-                new BCOM.Point3d[4],
-                new BCOM.Point3d[4],
-                new BCOM.Point3d[4]
-            };
-
-		    //if (formType == TF_ARC_FORM_ELM) {
-		    //	facetPoints[0][0] = bnds[0];
-		    //	facetPoints[0][1] = bnds[1];
-		    //	facetPoints[0][2] = bnds[2];
-		    //	facetPoints[0][3] = bnds[3];
-		    //	
-		    //	facetPoints[1][0] = bnds[0];
-		    //	facetPoints[1][1] = bnds[3];
-		    //	facetPoints[1][2] = bnds[4];
-		    //	facetPoints[1][3] = bnds[7];
-		    //	
-		    //	facetPoints[2][0] = bnds[3];
-		    //	facetPoints[2][1] = bnds[2];
-		    //	facetPoints[2][2] = bnds[5];
-		    //	facetPoints[2][3] = bnds[4];
-		    //}
-		    //else {
-
-		    for (int i = 0; i < 2; ++i) {
-
-			    if (i == 0) {
-				    if (formType == TFFormTypeEnum.TF_ARC_FORM_ELM) {
-					    facetPoints[0][0] = bnds[0];
-					    facetPoints[0][1] = bnds[1];
-					    facetPoints[0][2] = bnds[2];
-					    facetPoints[0][3] = bnds[3];
-					
-					    facetPoints[1][0] = bnds[0];
-					    facetPoints[1][1] = bnds[3];
-					    facetPoints[1][2] = bnds[4];
-					    facetPoints[1][3] = bnds[7];
-					
-					    facetPoints[2][0] = bnds[3];
-					    facetPoints[2][1] = bnds[2];
-					    facetPoints[2][2] = bnds[5];
-					    facetPoints[2][3] = bnds[4];
-				    }
-				    else {
-
-					    facetPoints[0][0] = bnds[0];
-					    facetPoints[0][1] = bnds[1];
-					    facetPoints[0][2] = bnds[6];
-					    facetPoints[0][3] = bnds[7];
-
-					    facetPoints[1][0] = bnds[1];
-					    facetPoints[1][1] = bnds[2];
-					    facetPoints[1][2] = bnds[5];
-					    facetPoints[1][3] = bnds[6];
-
-					    facetPoints[2][0] = bnds[4];
-					    facetPoints[2][1] = bnds[5];
-					    facetPoints[2][2] = bnds[6];
-					    facetPoints[2][3] = bnds[7];
-
-				    }
-			    }
-			    else {
-				    facetPoints[0][0] = bnds[0];
-				    facetPoints[0][1] = bnds[1];
-				    facetPoints[0][2] = bnds[7];
-				    facetPoints[0][3] = bnds[4];
-
-				    facetPoints[1][0] = bnds[1];
-				    facetPoints[1][1] = bnds[2];
-				    facetPoints[1][2] = bnds[6];
-				    facetPoints[1][3] = bnds[7];
-
-				    facetPoints[2][0] = bnds[4];
-				    facetPoints[2][1] = bnds[7];
-				    facetPoints[2][2] = bnds[6];
-				    facetPoints[2][3] = bnds[5];
-			    }
-
-                bool isValid = false;                
-
-                break;
-
-			    //for (int j = 0; j < 3; ++j) {
-       //             BCOM.Plane3d facet;
-       //             if (!ElementHelper.GetPlane3DByPoints(out facet, facetPoints[j]))
-       //                 continue;                   
-
-				   // if (ElementHelper.IsPlanesAreParallel(facet, planeFirst)) {
-       //                 // TODO
-
-					  //  var pts =  facetPoints[j];
-       //  //               new BCOM.Point3d[4];
-					  //  //for (int k = 0; k < 4; ++k) {
-       //  //                   pts[k] = facetPoints[j][k].ProjectToPlane3d(facet);
-					  //  //}
-					  //  // опорная точка Origin:
-       //                 //contourOrigin
-       //                 BCOM.ShapeElement contour = App.CreateShapeElement1(null, pts);
-       //                 BCOM.Point3d projOriginFirst = 
-       //                     contour.Centroid().ProjectToPlane3d(planeFirst);
-
-					  //  { // Высота
-       //                     task.Height = App.Point3dDistance(pts[3], pts[0]);
-       //                     task.HeigthVec = 
-       //                         App.Vector3dSubtractPoint3dPoint3d(pts[3], pts[0]);
-					  //  }
-					  //  {// Ширина
-       //                     task.Width = App.Point3dDistance(pts[1], pts[0]);
-       //                     task.WidthVec= 
-       //                         App.Vector3dSubtractPoint3dPoint3d(pts[1], pts[0]);
-					  //  }
-					  //  { // Глубина
-						 //  BCOM.Point3d projOriginSecond = 
-       //                     projOriginFirst.ProjectToPlane3d(planeSecond);
-
-       //                     task.Depth = App.Point3dDistance(
-       //                         projOriginFirst, projOriginSecond);
-       //                     task.DepthVec= 
-       //                         App.Vector3dSubtractPoint3dPoint3d(
-       //                             projOriginSecond, projOriginFirst);
-					  //  }
-       //                 isValid = true;
-					  //  break;
-				   // }
-			    //}
-
-			    //if (isValid)
-				   // break;			    
-		    }
         }
-
-        //BCOM.Point3d[] closest = new BCOM.Point3d[verts.Count()];
-        //for (int i = 0; i < verts.Count(); ++i)
-        //{
-        //    brep.FindClosestPoint(out closest[i], verts[i]);
-        //}
-
-        return true;
+        return true;	    		    
     }
-
-    public struct FaceInfo
-    {
-        public BCOM.Point3d Normal;
-        public double Area;
-    }
-
-    public static TFCOM.TFFrameListClass createFrameList(
-        OpeningTask task, BCOM.Level level)
-    {
-        BCOM.Element shape = GetOpeningShape(task);
-
-        BCOM.SmartSolidElement body = 
-            App.SmartSolid.ExtrudeClosedPlanarCurve(shape, task.Depth, 0.0, true);
-
-        var frameList = new TFCOM.TFFrameListClass();
-        frameList.Add3DElement(body);
-        return frameList;
-    }
-
 
     public static bool  getTaskDataFromDataRow(out OpeningTask task, DataRow row)
     {
@@ -526,25 +403,6 @@ static class OpeningHelper
         }
 
         return task != null;
-    }
-
-    public static BCOM.Element GetOpeningShape(OpeningTask task)
-    {
-        var bounds = new BCOM.Point3d[4];
-
-        bounds[0] = task.Origin.AddScaled(task.HeigthVec, -0.5).AddScaled(task.WidthVec, -0.5);
-        bounds[1] = task.Origin.AddScaled(task.HeigthVec, 0.5).AddScaled(task.WidthVec, -0.5);
-        bounds[2] = task.Origin.AddScaled(task.HeigthVec, 0.5).AddScaled(task.WidthVec, 0.5);
-        bounds[3] = task.Origin.AddScaled(task.HeigthVec, -0.5).AddScaled(task.WidthVec, 0.5);
-
-        var shape = App.CreateShapeElement1(null, bounds);
-        
-        if (!App.Point3dEqualTolerance(
-            shape.Normal.Normalize(), task.DepthVec.Normalize(), 0.00005))
-        {
-            shape.Reverse();
-        }
-        return shape;
     }
 
     private static bool isAvaliableTFFromType(int tftype)
@@ -565,6 +423,7 @@ static class OpeningHelper
         return false;
     }
 
+    public const string SP3D_OPENING_TAG = "P3DEquipment";
 
     static BCOM.Application App
     {

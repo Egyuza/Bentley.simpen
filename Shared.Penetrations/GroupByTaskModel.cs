@@ -413,7 +413,7 @@ public class GroupByTaskModel : NotifyPropertyChangedBase
     {
         previewTranCon_?.Reset();
 
-        PenetrHelper.runAddToModelAction(() => {
+        ElementHelper.RunByRecovertingSettings(() => {
             foreach (PenetrVueTask task in TaskSelection)
             {
                 PenetrInfo penInfo = penData_.getPenInfo(

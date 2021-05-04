@@ -186,7 +186,7 @@ public class PenetrVueTask : BentleyInteropBase, IPenetrTask
 
         if (element != null)
         {
-            Cell = element.AsCellElementCOM();
+            Cell = element.ToCellElementCOM();
             long id;
             IntPtr elRef, modelRef;
             ElementHelper.extractFromElement(element, out id, out elRef, out modelRef);
@@ -301,7 +301,7 @@ public class PenetrVueTask : BentleyInteropBase, IPenetrTask
         // Свойства DataGroup
         // task.XmlDoc.Root
 
-        foreach (var propMap in Sp3dToDataGroupMapping.Instance.Items)
+        foreach (var propMap in Sp3dToDGMapping.Instance.Items)
         {  
             if (propMap.TargetXPath == null)
                 continue;
@@ -309,7 +309,7 @@ public class PenetrVueTask : BentleyInteropBase, IPenetrTask
             foreach (string path in propMap.Sp3dXmlPaths)
             {
                 string propName;
-                var xEl = task.XmlDoc.Root.getChildByRegexPath(path, out propName);
+                var xEl = task.XmlDoc.Root.GetChildByRegexPath(path, out propName);
                 //var xEl = xDoc.Root.XPathSelectElement(path);
                 if (xEl != null)
                 {
@@ -611,7 +611,7 @@ public class PenetrVueTask : BentleyInteropBase, IPenetrTask
     }
 
     /// <summary>
-    /// Поиск коолизий и пересечений
+    /// Поиск коллизий и пересечений
     /// </summary>
     public void scanInfo()
     {

@@ -7,7 +7,7 @@ using System.Xml.Serialization;
 using Shared;
 using System.Linq;
 
-namespace Embedded.Penetrations.Shared
+namespace Shared.Bentley 
 {
     [Serializable]
     public class Sp3dToDataGroupMapProperty

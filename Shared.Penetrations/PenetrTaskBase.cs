@@ -68,7 +68,7 @@ public abstract class PenetrTaskBase : BentleyInteropBase, IPenetrTask
     {
         DataGroupPropsValues = DataGroupPropsValues ?? new Dictionary<Sp3dToDataGroupMapProperty, string>();
         DataGroupPropsValues.Clear();
-        foreach (var propMap in Sp3dToDataGroupMapping.Instance.Items)
+        foreach (var propMap in Sp3dToDGMapping.Instance.Items)
         {  
             if (propMap.TargetXPath == null)
                 continue;
@@ -94,10 +94,10 @@ public abstract class PenetrTaskBase : BentleyInteropBase, IPenetrTask
 
     public override string ToString() => Name;
 
-    public static BCOM.Level LevelMain => ElementHelper.getOrCreateLevel(LEVEL_NAME);
-    public static BCOM.Level LevelSymb => ElementHelper.getOrCreateLevel(LEVEL_SYMB_NAME);
-    public static BCOM.Level LevelFlangeSymb => ElementHelper.getOrCreateLevel(LEVEL_FLANGE_SYMB_NAME);
-    public static BCOM.Level LevelRefPoint => ElementHelper.getOrCreateLevel(LEVEL_POINT_NAME);
+    public static BCOM.Level LevelMain => ElementHelper.GetOrCreateLevel(LEVEL_NAME);
+    public static BCOM.Level LevelSymb => ElementHelper.GetOrCreateLevel(LEVEL_SYMB_NAME);
+    public static BCOM.Level LevelFlangeSymb => ElementHelper.GetOrCreateLevel(LEVEL_FLANGE_SYMB_NAME);
+    public static BCOM.Level LevelRefPoint => ElementHelper.GetOrCreateLevel(LEVEL_POINT_NAME);
 
 
     public const string CELL_NAME = "Penetration";

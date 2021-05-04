@@ -16,7 +16,7 @@ namespace Embedded.Penetrations.Shared
                 if (version_ != null)
                     return version_;
 
-                version_ = new Version(2, 19, 0, 0);
+                version_ = new Version(2, 20, 0, 0);
 
                 Version dllVersion = 
                     Assembly.GetExecutingAssembly().GetName().Version;

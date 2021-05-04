@@ -141,6 +141,34 @@ public static class BentleyExtensions
         return lhs.X == rhs.X && lhs.Y == rhs.Y && lhs.Z == rhs.Z;
     }
 
+    public static void SetByLevel(this BCOM.Settings settings, BCOM.Level level)
+    {
+        settings.Level = level;
+        settings.LineStyle = level.ElementLineStyle;
+        settings.LineWeight = level.ElementLineWeight;
+        settings.Color = level.ElementColor;
+    }
+
+    public static IEnumerable<BCOM.Element> GetProjectionElements(
+        this TFCOM.TFFrame frame)
+    {
+        var elements = new List<BCOM.Element>();
+
+        var projList = frame.GetProjectionList();
+        while (projList != null)
+        {
+            BCOM.Element element;
+            projList.AsTFProjection.GetElement(out element);
+            if (element != null)
+            {
+                elements.Add(element);
+            }
+            projList = projList.GetNext();
+        }
+
+        return elements;
+    }
+
     public static BCOM.Point3d shift(this BCOM.Point3d p3d, 
         double dX = 0.0, double dY = 0.0, double dZ = 0.0)
     {
@@ -151,7 +179,7 @@ public static class BentleyExtensions
         return pt;
     }
 
-    public static BCOM.Element AsElementCOM(this Element element)
+    public static BCOM.Element ToElementCOM(this Element element)
     {
         long id;
         BCOM.ModelReference modelRef;
@@ -169,9 +197,24 @@ public static class BentleyExtensions
         return modelRef.GetElementByID(id);
     }
 
-    public static BCOM.CellElement AsCellElementCOM(this Element element)
+    public static BCOM.CellElement ToCellElementCOM(this Element element)
     {
-        return element.AsElementCOM().AsCellElement();
+        return element.ToElementCOM().AsCellElement();
+    }
+
+    public static Element ToElement(this BCOM.Element bcomElement)
+    {
+    #if CONNECT
+        id = element.ElementId;
+        modelRef = App.MdlGetModelReferenceFromModelRefP(
+            (long)element.GetNativeDgnModelRef());
+    #elif V8i
+        return Element.ElementFactory(
+            (IntPtr)bcomElement.MdlElementRef(), 
+            (IntPtr)bcomElement.ModelReference.MdlModelRefP()
+        );
+    #endif
+
     }
 
     public static bool IsCompundCell(this BCOM.Element element)

@@ -65,7 +65,7 @@ public class PenetrPrimitiveCmd : BentleyInteropBase, BCOM.IPrimitiveCommandEven
             userTask.FlangesType, 
             userTask.DiameterType.Number);
                 
-        PenetrHelper.runAddToModelAction(() => { 
+        ElementHelper.RunByRecovertingSettings(() => { 
             PenetrHelper.addToModel(userTask, penInfo);
         });
     }

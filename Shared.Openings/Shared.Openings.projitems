@@ -11,8 +11,15 @@
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)AssemblyVersion.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\GroupByTaskModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Opening.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)OpeningHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)OpeningTask.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Mapping\Sp3dToDGMapping.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\OpeningsVM.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="$(MSBuildThisFileDirectory)Mapping\Sp3dToDataGroupOpenningMapping.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 </Project>

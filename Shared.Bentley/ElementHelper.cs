@@ -407,6 +407,24 @@ public static class ElementHelper
         return App.CreateLineElement1(null, verts);
     }
 
+    public static BCOM.LineElement createCrossInContour(
+        BCOM.VertexList contour)
+    {
+        BCOM.Point3d[] shapeVerts = contour.GetVertices();
+        var shape = App.CreateShapeElement1(null, shapeVerts);
+        BCOM.Point3d centroid = shape.Centroid();
+
+        var points = new List<BCOM.Point3d>();
+
+        foreach (BCOM.Point3d vert in shapeVerts)
+        {
+            points.Add(vert);
+            points.Add(centroid);
+        }
+
+        return App.CreateLineElement1(null, points.ToArray());
+    }
+
     public static BCOM.ArcElement createCircle(
         double diameter, BCOM.Point3d? origin = null)
     {
@@ -478,7 +496,7 @@ public static class ElementHelper
         return getMiddlePoint(element.Range.Low,element.Range.High);
     }
 
-    public static BCOM.Level getOrCreateLevel(string name)
+    public static BCOM.Level GetOrCreateLevel(string name)
     {
         BCOM.Levels levels = App.ActiveDesignFile.Levels;
         levels.IncludeHidden = true;
@@ -671,8 +689,7 @@ public static class ElementHelper
     public static bool getFacePlaneByLabel(out BCOM.Plane3d plane,
         BCOM.Element element, TFCOM.TFdFaceLabel faceLabel)
     {
-        TFCOM.TFBrepList brepList; // = AppTF.CreateTFBrep();
-        //brepList.InitFromElement(element, App.ActiveModelReference);
+        TFCOM.TFBrepList brepList;
 
         var formRecipeList = new TFCOM.TFFormRecipeListClass();
         formRecipeList.InitFromElement(element);
@@ -687,18 +704,22 @@ public static class ElementHelper
         TFCOM.TFBrepList brepList, TFCOM.TFdFaceLabel faceLabel)
     {
         plane = new BCOM.Plane3d();
+        TFCOM.TFPlane tfPlane;
 
-        var faceList = brepList.GetFacesByLabel(faceLabel) as TFCOM.TFBrepFaceListClass;
-        if (faceList != null)
+        var faceList = 
+            brepList.GetFacesByLabel(faceLabel) as TFCOM.TFBrepFaceListClass;
+        if (faceList != null && faceList.IsPlanar(out tfPlane))
         {
-            TFCOM.TFPlane tfPlane;
-            if (faceList.IsPlanar(out tfPlane))
-            {
-                faceList.AsTFBrepFace.GetCenter(out plane.Origin);
-                tfPlane.GetNormal(out plane.Normal);
+            tfPlane.GetNormal(out plane.Normal);
 
-                return true;
+            {   // origin:
+                BCOM.Point3d[] verts;
+                faceList.AsTFBrepFace.GetVertexLocations(out verts);
+                BCOM.ShapeElement shape = App.CreateShapeElement1(null, verts);
+
+                plane.Origin = shape.Centroid();
             }
+            return true;            
         }
         return false;
     }
@@ -866,6 +887,74 @@ public static class ElementHelper
     public static BCOM.Point3d ToPoint3d(this BCOM.Vector3d vec)
     {
         return App.Point3dFromVector3d(vec);
+    }
+
+    public static void RunByRecovertingSettings (Action action, params object[] args)
+    {
+        var activeSets = App.ActiveSettings;
+
+        BCOM.Level activeLevel = activeSets.Level;
+        BCOM.LineStyle activeLineStyle = activeSets.LineStyle;
+        int activeLineWeight = activeSets.LineWeight;
+        int activeColor = activeSets.Color;
+
+        try
+        {
+            action?.DynamicInvoke(args);
+        }
+        catch (Exception ex)
+        {
+            ex.ShowMessage();
+        }
+        finally
+        {
+            activeSets.Level = activeLevel;
+            activeSets.LineStyle = activeLineStyle;
+            activeSets.LineWeight = activeLineWeight;
+            activeSets.Color = activeColor;
+        }
+    }
+
+    public static void AddProjection(this TFCOM.TFFrameList frameList, 
+        BCOM.Element element, string projectionName, BCOM.Level level)
+    {
+        TFCOM.TFProjectionList tfProjection = AppTF.CreateTFProjection((string)null);
+        tfProjection.Init();
+        element.Level = level;
+
+        ElementHelper.setSymbologyByLevel(element);
+        tfProjection.AsTFProjection.SetDefinitionName(projectionName);
+        tfProjection.AsTFProjection.SetEmbeddedElement(element);
+        tfProjection.AsTFProjection.SetIsDoubleSided(true);
+
+        TFCOM.TFProjectionList projectionList = frameList.AsTFFrame.GetProjectionList();
+        if (projectionList == null)
+        {
+            frameList.AsTFFrame.SetProjectionList(tfProjection);
+        }
+        else
+        {
+            projectionList.Append(tfProjection);
+        }
+    }
+
+    /// <summary>
+    /// без этого кода не срабатывает перфорация в стенке/плите
+    /// судя по всему инициализирует обновление объектов, с которыми
+    /// взаимодействует frame
+    /// </summary>
+    public static void ApplyPerforatorInModel(this TFCOM.TFFrameList frameList)
+    {
+        AppTF.ModelReferenceUpdateAutoOpeningsByFrame(
+            App.ActiveModelReference, frameList.AsTFFrame, true, false, 
+            TFCOM.TFdFramePerforationPolicy.tfdFramePerforationPolicyNone);
+    }
+
+    public static void AddToModel(this TFCOM.TFFrameList frameList, 
+        BCOM.ModelReference model = null)
+    {
+        model = model ?? App.ActiveModelReference;
+        AppTF.ModelReferenceAddFrameList(App.ActiveModelReference, frameList);
     }
 
     private static BCOM.Application App

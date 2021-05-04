@@ -108,36 +108,7 @@ public static class PenetrHelper
         return cylinder.transformByTask(task, shiftZ: length/2.0);
     }
 
-    public static void runAddToModelAction(Action action, params object[] args)
-    {
-        var activeSets = App.ActiveSettings;
 
-        BCOM.Level activeLevel = activeSets.Level;
-        BCOM.LineStyle activeLineStyle = activeSets.LineStyle;
-        int activeLineWeight = activeSets.LineWeight;
-        int activeColor = activeSets.Color;
-
-        try
-        {
-            action?.DynamicInvoke(args);
-        }
-        catch (Exception ex)
-        {
-            ex.ShowMessage();
-        }
-        finally
-        {
-            activeSets.Level = activeLevel;
-            activeSets.LineStyle = activeLineStyle;
-            activeSets.LineWeight = activeLineWeight;
-            activeSets.Color = activeColor;
-        }
-    }
-
-    public static void addToModel(TFCOM.TFFrameList frameList)
-    {
-        AppTF.ModelReferenceAddFrameList(App.ActiveModelReference, frameList);
-    }
 
     public static void addToModel(IPenetrTask task, PenetrInfo penInfo)
     {
@@ -160,8 +131,8 @@ public static class PenetrHelper
             addPerforator(frameList, 
                 task, penInfo, PenetrTaskBase.LevelSymb, false);
 
-            applyPerforatorInModel(frameList);
-            addToModel(frameList);
+            frameList.ApplyPerforatorInModel();
+            frameList.AddToModel();
                 
             BCOM.Element bcomElem;
             frameList.GetElement(out bcomElem);   
@@ -477,28 +448,28 @@ public static class PenetrHelper
         double length = task.LengthCm *10 / taskUOR.activeSubPerMaster;
 
         App.Point3dZero();
-        addProjectionToFrame(frame, ElementHelper.createCrossRound(pipeInsideDiam)
+        frame.AddProjection(ElementHelper.createCrossRound(pipeInsideDiam)
             .transformByTask(task), "cross", PenetrTaskBase.LevelSymb);
-        addProjectionToFrame(frame, ElementHelper.createCircle(pipeInsideDiam)
+        frame.AddProjection(ElementHelper.createCircle(pipeInsideDiam)
             .transformByTask(task), "circle", PenetrTaskBase.LevelSymb);
-        addProjectionToFrame(frame, ElementHelper.createCrossRound(pipeInsideDiam)
+        frame.AddProjection(ElementHelper.createCrossRound(pipeInsideDiam)
             .transformByTask(task, shiftZ: length), "cross", PenetrTaskBase.LevelSymb);
-        addProjectionToFrame(frame, ElementHelper.createCircle(pipeInsideDiam)
+        frame.AddProjection(ElementHelper.createCircle(pipeInsideDiam)
             .transformByTask(task, shiftZ: length), "circle", PenetrTaskBase.LevelSymb);
         if (task.FlangesCount > 0)
         {
-            addProjectionToFrame(frame, ElementHelper.createCircle(flangeOutsideDiam).
+            frame.AddProjection(ElementHelper.createCircle(flangeOutsideDiam).
                 transformByTask(task, 0.0, 0.0, -task.FlangeWallOffset), 
                 "flange", PenetrTaskBase.LevelFlangeSymb);
 
             if (task.FlangesCount == 2)
             {
-                addProjectionToFrame(frame, ElementHelper.createCircle(flangeOutsideDiam).
+                frame.AddProjection(ElementHelper.createCircle(flangeOutsideDiam).
                     transformByTask(task, 0.0, 0.0, length + task.FlangeWallOffset), 
                     "flange", PenetrTaskBase.LevelFlangeSymb);
             }
         }
-        addProjectionToFrame(frame, ElementHelper.createPoint().transformByTask(task), 
+        frame.AddProjection(ElementHelper.createPoint().transformByTask(task), 
             "refPoint", PenetrTaskBase.LevelRefPoint);
     }
 
@@ -566,40 +537,7 @@ public static class PenetrHelper
 
     }
 
-    /// <summary>
-    /// без этого кода не срабатывает перфорация в стенке/плите
-    /// судя по всему инициализирует обновление объектов, с которыми
-    /// взаимодействует frame
-    /// </summary>
-    public static void applyPerforatorInModel(TFCOM.TFFrameList frameList)
-    {
-        AppTF.ModelReferenceUpdateAutoOpeningsByFrame(
-            App.ActiveModelReference, frameList.AsTFFrame, true, false, 
-            TFCOM.TFdFramePerforationPolicy.tfdFramePerforationPolicyNone);
-    }
-
-    public static void addProjectionToFrame(TFCOM.TFFrameList frameList, 
-        BCOM.Element element, string projectionName, BCOM.Level level)
-    {
-        TFCOM.TFProjectionList tfProjection = AppTF.CreateTFProjection((string)null);
-        tfProjection.Init();
-        element.Level = level;
-
-        ElementHelper.setSymbologyByLevel(element);
-        tfProjection.AsTFProjection.SetDefinitionName(projectionName);
-        tfProjection.AsTFProjection.SetEmbeddedElement(element);
-        tfProjection.AsTFProjection.SetIsDoubleSided(true);
-
-        TFCOM.TFProjectionList projectionList = frameList.AsTFFrame.GetProjectionList();
-        if (projectionList == null)
-        {
-            frameList.AsTFFrame.SetProjectionList(tfProjection);
-        }
-        else
-        {
-            projectionList.Append(tfProjection);
-        }
-    }
+  
 
     public static T transformByTask<T>(this T element, IPenetrTask task,
             double shiftX = 0.0, double shiftY = 0.0, double shiftZ = 0.0)

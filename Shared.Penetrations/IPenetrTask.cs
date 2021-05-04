@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Shared.Bentley;
+using System.Collections.Generic;
 using BCOM = Bentley.Interop.MicroStationDGN;
 
 namespace Embedded.Penetrations.Shared

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
@@ -13,19 +14,23 @@ namespace Embedded.Openings.UI
 {
 public partial class OpeningForm : Form
 {
+    public delegate void LoadXmlAttrsAction(string uri);
     public delegate void PreviewAction();
     public delegate void CreateAction();
+    public delegate void SetReadOnlyAction(bool readOnly);
 
     public delegate void StartDefaultAction();
 
     public delegate void OnCloseFormAction();
     public delegate void DataRowsAddedAction(IEnumerable<DataGridViewRow> rows);
 
+    private LoadXmlAttrsAction loadXmlAttrsAction_;
     private PreviewAction previewAction_;
     private CreateAction createAction_;
     private StartDefaultAction startDefaultAction_;
     private OnCloseFormAction onCloseFormAction_;
     private DataRowsAddedAction dataRowsAddedAction_;
+    private SetReadOnlyAction setReadOnlyAction_;
 
     static Properties.Settings Sets => Properties.Settings.Default;
 
@@ -34,6 +39,14 @@ public partial class OpeningForm : Form
     public OpeningForm()
     {
         InitializeComponent();
+        dgvCreationTasks.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+        //dgvCreationTasks.autosize
+        //dgvCreationTasks.RowPostPaint += DgvCreationTasks_RowPostPaint;
+    }
+
+    private void DgvCreationTasks_RowPostPaint(object sender, DataGridViewRowPostPaintEventArgs e)
+    {
+        dgvCreationTasks.AutoResizeColumns();
     }
 
     public void setColumns(IEnumerable<DataGridViewColumn> columns)
@@ -48,14 +61,9 @@ public partial class OpeningForm : Form
         } 
     }
 
-    public void setDataSource_Create(IBindingList bindList)
+    public void setDataSource(DataTable table)
     {
-        dgvCreationTasks.DataSource = new BindingSource(bindList, null);
-    }
-
-    public void setDataSource_Create(DataTable table)
-    {
-        dgvCreationTasks.DataSource = table;
+        dgvCreationTasks.DataSource = table;        
     }
 
     public void setStatusProject(string projectName)
@@ -72,10 +80,12 @@ public partial class OpeningForm : Form
         }        
     }
 
-    public void setStatusText(string text)
+    public void setAttrsInfoText(string text)
     {
-        statusInfo.Text = text;
-        statusInfo.Visible = !string.IsNullOrEmpty(text);
+        attrsInfoText.Text = text;
+        bool isVisible = !string.IsNullOrEmpty(text);
+        attrsInfoLabel.Visible =
+        attrsInfoText.Visible = isVisible;
     }
 
     public void setReadOnly()
@@ -85,28 +95,38 @@ public partial class OpeningForm : Form
         dgvCreationTasks.ReadOnly = true;
     }
 
-    public void setPreviewAction(PreviewAction action)
+    public void setAction_SetReadOnly(SetReadOnlyAction action)
+    {
+        setReadOnlyAction_ = action;
+    }
+
+    public void setAction_Preview(PreviewAction action)
     {
         previewAction_ = action;
     }
 
-    public void setCreateAction(CreateAction action)
+    public void setAction_LoadXmlAttrs(LoadXmlAttrsAction action)
+    {
+        loadXmlAttrsAction_ = action;
+    }
+
+    public void setAction_Create(CreateAction action)
     {
         createAction_ = action;
     }
 
-    public void setStartDefaultAction(StartDefaultAction action)
+    public void setAction_StartDefault(StartDefaultAction action)
     {
         startDefaultAction_ = action;
     }
 
 
-    public void setDataRowsAddedAction(DataRowsAddedAction action)
+    public void setAction_DataRowsAdded(DataRowsAddedAction action)
     {
         dataRowsAddedAction_ = action;
     }
 
-    public void setOnCloseFormAction(OnCloseFormAction action)
+    public void setAction_OnCloseForm(OnCloseFormAction action)
     {
         onCloseFormAction_ = action;
     }
@@ -126,6 +146,16 @@ public partial class OpeningForm : Form
         {
             rows.Add(dgvCreationTasks.Rows[i]);
         }
+        //dgvCreationTasks.PerformLayout();
+        //    //dgvCreationTasks.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCellsExceptHeader);
+
+        //foreach (DataGridViewColumn column in dgvCreationTasks.Columns)
+        //{
+        //    column.Width = Math.Max(
+        //        column.GetPreferredWidth(DataGridViewAutoSizeColumnMode.DisplayedCells, true),
+        //        column.GetPreferredWidth(DataGridViewAutoSizeColumnMode.AllCells, false)
+        //    );
+        //}
 
         InvokeSafe(dataRowsAddedAction_, rows);
     }
@@ -175,14 +205,29 @@ public partial class OpeningForm : Form
         }
     }
 
-    private void Form_KeyDown(object sender, KeyEventArgs e)
-    {
-        ;
-    }
-
     private void tabControl1_SelectedIndexChanged(object sender, EventArgs e)
     {
         InvokeSafe(startDefaultAction_);
+    }
+
+    private void chboxEdit_CheckedChanged(object sender, EventArgs e)
+    {
+        InvokeSafe(setReadOnlyAction_, !chboxEdit.Checked);
+    }
+
+    private void btnLoadXmlAttributes_Click(object sender, EventArgs e)
+    {
+        OpenFileDialog fileDialog = new OpenFileDialog()
+        {
+            Filter = "Xml files (*.xml)|*.xml"
+        };
+        DialogResult result = fileDialog.ShowDialog();
+        if (result == DialogResult.OK)
+        {
+            InvokeSafe(loadXmlAttrsAction_, fileDialog.FileName);
+            string shortName = Path.GetFileName(fileDialog.FileName);
+            setAttrsInfoText(shortName);
+        }
     }
 }
 }

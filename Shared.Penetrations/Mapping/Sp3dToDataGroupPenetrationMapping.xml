@@ -30,6 +30,11 @@
                 <Item Key="1" Value="Undefined"/>
                 <Item Key="10000" Value="yes"/>
                 <Item Key="10001" Value="no"/>
+                <Item Key="#-1" Value="Undefined"/>
+                <Item Key="#0" Value="Undefined"/>
+                <Item Key="#1" Value="Undefined"/>
+                <Item Key="#10000" Value="yes"/>
+                <Item Key="#10001" Value="no"/>
             </ValuesMap>
         </Item>
         <Item Key="TOITightness" TargetXPath="SealAttributes/@AirTight" TargetName="AirTight">
@@ -43,6 +48,11 @@
                 <Item Key="1" Value="Undefined"/>
                 <Item Key="10000" Value="yes"/>
                 <Item Key="10001" Value="no"/>
+                <Item Key="#-1" Value="Undefined"/>
+                <Item Key="#0" Value="Undefined"/>
+                <Item Key="#1" Value="Undefined"/>
+                <Item Key="#10000" Value="yes"/>
+                <Item Key="#10001" Value="no"/>
             </ValuesMap>
         </Item>
         <Item Key="TOIRadiationprotection" TargetXPath="SealAttributes/@RadiationProtect" TargetName="RadiationProtect">
@@ -56,6 +66,11 @@
                 <Item Key="1" Value="Undefined"/>
                 <Item Key="10000" Value="yes"/>
                 <Item Key="10001" Value="no"/>
+                <Item Key="#-1" Value="Undefined"/>
+                <Item Key="#0" Value="Undefined"/>
+                <Item Key="#1" Value="Undefined"/>
+                <Item Key="#10000" Value="yes"/>
+                <Item Key="#10001" Value="no"/>
             </ValuesMap>
         </Item>
         <Item Key="Oid">

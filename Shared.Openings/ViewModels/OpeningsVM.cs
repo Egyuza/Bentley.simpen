@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Text;
 using System.Windows.Forms;
+using System.Linq;
 
 
 using Shared.Bentley;
@@ -109,48 +110,111 @@ public class OpeningsVM : BentleyInteropBase
         form_.Text = $"Проёмы v{AssemblyVersion.VersionStr}" 
             + (isDebugMode_ ? " [DEBUG]" : string.Empty);
 
-        form_.setOnCloseFormAction (groupModel_.clearContext);
-        form_.setDataSource_Create(groupModel_.TaskTable);
+        form_.setAction_OnCloseForm (groupModel_.clearContext);
+        form_.setDataSource(groupModel_.TaskTable);
+        form_.dgvCreationTasks.Columns[GroupByTaskModel.FieldName.STATUS].ReadOnly = true;
+        
+        form_.setAction_SetReadOnly(SetReadOnly);
 
-            //form_.setDataRowsAddedAction(rowsAdded);
-        form_.setPreviewAction(groupModel_.preview);
-        form_.setCreateAction(groupModel_.addToModel);
+        form_.setAction_DataRowsAdded(rowsAdded_);
+        form_.setAction_Create(addToModel_);
+        form_.setAction_Preview(preview_);
 
-            //form_.dgvCreationTasks.SelectionChanged += DgvCreationTasks_SelectionChanged;
-            //form_.dgvCreationTasks.CellMouseDoubleClick += DgvCreationTasks_CellMouseDoubleClick;
+        form_.setAction_LoadXmlAttrs(groupModel_.loadXmlAttrs);
+
+        form_.setBinding(nameof(form_.lblSelectionCount), "Text",
+            groupModel_, nameof(groupModel_.SelectionCount), 
+            BindinUpdateMode.ControlOnly);
+
+        form_.dgvCreationTasks.ReadOnly = true;
+        form_.dgvCreationTasks.ShowRowErrors = true;
+        form_.dgvCreationTasks.RowHeadersVisible = true;
+
+        form_.dgvCreationTasks.RowHeadersWidthSizeMode = DataGridViewRowHeadersWidthSizeMode.AutoSizeToAllHeaders;
+
+        form_.dgvCreationTasks.SelectionChanged += DgvCreationTasks_SelectionChanged;
+        form_.dgvCreationTasks.CellMouseDoubleClick += DgvCreationTasks_CellMouseDoubleClick;
 
         #if DEBUG
             // form_.tabControl1.TabPages.RemoveAt(0); // TODO временно до отладки и ввода в работу        
         #endif
     }
 
+    private void SetReadOnly(bool readOnly)
+    {
+        form_.dgvCreationTasks.ReadOnly = readOnly;
+        form_.dgvCreationTasks.Columns[GroupByTaskModel.FieldName.STATUS].ReadOnly = true;
+    }
+
     private void DgvCreationTasks_SelectionChanged(object sender, EventArgs e)
     {
-        var selection = new List<OpeningTask>();
+        var selection = new List<DataRow>();
         foreach(DataGridViewRow row in form_.dgvCreationTasks.SelectedRows)
         {
-            var task = (OpeningTask)row.DataBoundItem;
-            if (task != null)
+            DataRow taskRow = row.GetDataRow();
+            if (taskRow != null)
             {
-                selection.Add(task);
+                selection.Add(taskRow);
             }
         }
         groupModel_.changeSelection(selection);
     }
     private void DgvCreationTasks_CellMouseDoubleClick(object sender, DataGridViewCellMouseEventArgs e)
     {
-        OpeningTask task = 
-            (OpeningTask)form_.dgvCreationTasks.Rows[e.RowIndex].DataBoundItem;
+        if (e.RowIndex < 0)
+            return;
 
-        groupModel_.focusTaskElement(task);
+        DataGridViewRow dgvRow = form_.dgvCreationTasks.Rows[e.RowIndex];
+        DataRow row = ((DataRowView)dgvRow.DataBoundItem).Row;
+
+        groupModel_.focusTaskElement(row);
     }
 
-    private void rowsAdded(IEnumerable<DataGridViewRow> rows)
+
+    private void preview_()
     {
-        foreach (var row in rows)
+        groupModel_.preview();
+        UpdateRowsStylesByStatus();
+    }
+
+    private void addToModel_()
+    {
+        groupModel_.addToModel();
+        UpdateRowsStylesByStatus();
+    }
+
+    private void rowsAdded_(IEnumerable<DataGridViewRow> dgvRows)
+    {
+        groupModel_.rowsAdded(dgvRows.Select(x => x.GetDataRow()));
+        UpdateRowsStylesByStatus();
+    }
+
+    private void UpdateRowsStylesByStatus()
+    {
+        foreach (DataGridViewRow dgvRow in form_.dgvCreationTasks.Rows)
         {
-           
+            DataRow dataRow = dgvRow.GetDataRow();
+            var cellStyle = dgvRow.DefaultCellStyle;
+
+            string status = dataRow.Field<string>(
+                GroupByTaskModel.FieldName.STATUS).ToUpper();
+
+            switch (dataRow.Field<string>(GroupByTaskModel.FieldName.STATUS).ToUpper())
+            {
+            case "OK":
+                cellStyle.BackColor = System.Drawing.Color.White;
+                break;
+            case "DONE":
+                cellStyle.BackColor = System.Drawing.Color.YellowGreen;
+                break;
+            case "ERROR":
+                cellStyle.BackColor = System.Drawing.Color.Coral; break;
+            case "WARN":
+                cellStyle.BackColor = System.Drawing.Color.LightYellow; break;
+            }
         }
+
+        form_.dgvCreationTasks.Columns[GroupByTaskModel.FieldName.STATUS].ReadOnly = true;
     }
 
     private IEnumerable<DataGridViewColumn> getColumns_()

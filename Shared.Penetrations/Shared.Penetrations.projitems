@@ -16,8 +16,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Mapping\TagToDataGroupMapProperty.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Mapping\TagsToDataGroupConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Mapping\TagsToDataGroupMapping.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Mapping\Sp3dToDataGroupMapping.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Mapping\Sp3dToDataGroupMapProperty.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Mapping\Sp3dToDGMapping.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PenetrTaskBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PenetrLeaderInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PenetrLocateCmd.cs" />
@@ -41,10 +40,10 @@
     <Compile Include="$(MSBuildThisFileDirectory)UpdateModel.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="$(MSBuildThisFileDirectory)Mapping\TagsToDataGroupMapping.xml">
+    <Content Include="$(MSBuildThisFileDirectory)Mapping\Sp3dToDataGroupPenetrationMapping.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="$(MSBuildThisFileDirectory)Mapping\Sp3dToDataGroupMapping.xml">
+    <Content Include="$(MSBuildThisFileDirectory)Mapping\TagsToDataGroupMapping.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

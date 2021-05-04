@@ -1,0 +1,61 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Sp3dToDataGroupMapping>
+    <Items>
+        <Item Key="Code" TargetXPath="Opening/@PartCode" TargetName="PartCode">
+            <Sp3dXmlPaths>
+                <string>P3DEquipment/Name</string>
+            </Sp3dXmlPaths>
+        </Item>
+        <Item Key="TOIWaterResistance" TargetXPath="SealAttributes/@WaterTight" TargetName="WaterTight">
+          <Sp3dXmlPaths>
+            <string>P3DEquipment/TOIWaterResistance</string>
+          </Sp3dXmlPaths>
+          <ValuesMap>
+            <Item Key="-1" Value="Undefined"/>
+            <Item Key="0" Value="Undefined"/>
+            <Item Key="1" Value="Undefined"/>
+            <Item Key="10000" Value="yes"/>
+            <Item Key="10001" Value="no"/>
+            <Item Key="#-1" Value="Undefined"/>
+            <Item Key="#0" Value="Undefined"/>
+            <Item Key="#1" Value="Undefined"/>
+            <Item Key="#10000" Value="yes"/>
+            <Item Key="#10001" Value="no"/>
+          </ValuesMap>
+        </Item>
+        <Item Key="TOITightness" TargetXPath="SealAttributes/@AirTight" TargetName="AirTight">
+          <Sp3dXmlPaths>
+            <string>P3DEquipment/TOITightness</string>
+          </Sp3dXmlPaths>
+          <ValuesMap>
+            <Item Key="-1" Value="Undefined"/>
+            <Item Key="0" Value="Undefined"/>
+            <Item Key="1" Value="Undefined"/>
+            <Item Key="10000" Value="yes"/>
+            <Item Key="10001" Value="no"/>
+            <Item Key="#-1" Value="Undefined"/>
+            <Item Key="#0" Value="Undefined"/>
+            <Item Key="#1" Value="Undefined"/>
+            <Item Key="#10000" Value="yes"/>
+            <Item Key="#10001" Value="no"/>
+          </ValuesMap>
+        </Item>
+        <Item Key="TOIRadiationprotection" TargetXPath="SealAttributes/@RadiationProtect" TargetName="RadiationProtect">
+          <Sp3dXmlPaths>
+            <string>P3DEquipment/TOIRadiationprotection</string>
+          </Sp3dXmlPaths>
+          <ValuesMap>
+            <Item Key="-1" Value="Undefined"/>
+            <Item Key="0" Value="Undefined"/>
+            <Item Key="1" Value="Undefined"/>
+            <Item Key="10000" Value="yes"/>
+            <Item Key="10001" Value="no"/>
+            <Item Key="#-1" Value="Undefined"/>
+            <Item Key="#0" Value="Undefined"/>
+            <Item Key="#1" Value="Undefined"/>
+            <Item Key="#10000" Value="yes"/>
+            <Item Key="#10001" Value="no"/>
+          </ValuesMap>
+        </Item>
+    </Items>
+</Sp3dToDataGroupMapping>

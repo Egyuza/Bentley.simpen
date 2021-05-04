@@ -101,7 +101,7 @@ public class PenetrLeaderInfo : BentleyInteropBase
     //    return defaultValue;
     //}
 
-    public static BCOM.Level Level => ElementHelper.getOrCreateLevel("C-LEADER-EMB");
+    public static BCOM.Level Level => ElementHelper.GetOrCreateLevel("C-LEADER-EMB");
 
     public const string LEADER_ARROW_DX = "AEP_EMB_LEADER_ARROW_DX";
     public const string LEADER_ARROW_DY = "AEP_EMB_LEADER_ARROW_DY";

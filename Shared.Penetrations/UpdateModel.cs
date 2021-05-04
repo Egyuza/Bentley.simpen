@@ -248,10 +248,11 @@ class UpdateModel : BentleyInteropBase
             if (updateImidiatly)
             {
                 Point3d origin = frame.Get3DElement().AsCellElement().Origin;
-                PenetrHelper.addProjectionToFrame(frame,
+                frame.AddProjection(
                     ElementHelper.createPoint(origin),
                     "refPoint",
-                    PenetrTaskBase.LevelRefPoint);
+                    PenetrTaskBase.LevelRefPoint
+                );
             }
         }
     }

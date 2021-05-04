@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
@@ -79,13 +80,24 @@ static class Extensions
         return false;
     }
 
-    public static XElement getChildByRegexPath(this XElement source, string path)
+    public static XElement GetChild(this XElement source, string regexp)
     {
-        string propName;
-        return getChildByRegexPath(source, path, out propName);
+        Regex regex = new Regex(regexp);
+        foreach(XElement child in source.Nodes())
+        {
+            if (regex.IsMatch(child.Name.LocalName))
+                return child;
+        }
+        return null;
     }
 
-    public static XElement getChildByRegexPath(this XElement source, string path, 
+    public static XElement GetChildByRegexPath(this XElement source, string path)
+    {
+        string propName;
+        return GetChildByRegexPath(source, path, out propName);
+    }
+
+    public static XElement GetChildByRegexPath(this XElement source, string path, 
         out string propName)
     {
         propName = null;
@@ -114,6 +126,12 @@ static class Extensions
         }
 
         return null;
+    }
+
+    public static DataRow GetDataRow(this DataGridViewRow dgvRow)
+    {
+        var dataRowView = dgvRow.DataBoundItem as DataRowView;
+        return dataRowView?.Row;
     }
 
 }

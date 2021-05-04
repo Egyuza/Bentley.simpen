@@ -28,7 +28,7 @@ public class TagsToDataGroupMapping
 
     private static TagsToDataGroupMapping read() =>
         XmlSerializerEx.FromXmlFile<TagsToDataGroupMapping>( 
-            WorkspaceHelper.GetConfigVariable(CfgVariables.TAGS_DG_MAP_FILE_PATH)
+            WorkspaceHelper.GetConfigVariable(CfgVariables.PEN_TAGS_DG_MAP_FILE_PATH)
         );
 }
 }
