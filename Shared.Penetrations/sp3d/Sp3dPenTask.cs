@@ -1,14 +1,17 @@
 ﻿using Embedded.Penetrations.Shared;
 using Shared;
+using Shared.Bentley;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 using System.Xml.Linq;
 
+using BCOM = Bentley.Interop.MicroStationDGN;
+
 namespace Embedded.Penetrations.Shared.sp3d
 {
-    public class Sp3dPenTask
+    public class Sp3dPenTask : BentleyInteropBase
     {
         public enum TaskType
         {
@@ -24,21 +27,23 @@ namespace Embedded.Penetrations.Shared.sp3d
                     TaskType.Unknown));
 
         public string Oid { get; set; }
+        public string UID { get; set; }
         public string Code { get; set; }
         public string Name{ get; set; }
 
-        public int Length { get; set; }
-        public int PipeThick { get; set; }
-        public int PipeDiametr { get; set; }
+        //public int Length { get; set; }
+        //public int PipeThick { get; set; }
+        //public int PipeDiametr { get; set; }
 
-        public int FlangeThick { get; set; }
-        public int FlangeDiametr { get; set; }
-        public int FlangesNum { get; set; }
-        public int FlangesPos { get; set; }
+        //public int FlangeThick { get; set; }
+        //public int FlangeDiametr { get; set; }
+        //public int FlangesNum { get; set; }
+        //public int FlangesPos { get; set; }
 
-        public double[] Location { get; set; }
+        public BCOM.Point3d Location { get; set; }
+        public BCOM.Matrix3d Rotation { get; set; }
 
-        public bool IsValid
+        public bool IsValid // TODO
         {
             get 
             {
@@ -46,16 +51,19 @@ namespace Embedded.Penetrations.Shared.sp3d
             }
         }
 
-        public Sp3dPenTask(IEnumerable<string> sp3dXmlData)
-        {
-            if (sp3dXmlData == null)
-                return;
+        public XDocument XAttrDoc { get; private set; }
 
-            var xDoc = XDocument.Parse("<Root></Root>");
-            foreach (string xmlText in sp3dXmlData)
-            {
-                xDoc.Root.Add(XElement.Parse(xmlText));
-            }
+        public Sp3dPenTask(XDocument xDoc)
+        {
+            XAttrDoc = xDoc;
+
+            Oid = getOid_(xDoc);
+            UID = getUID_(xDoc);
+            TypeName = getTypeName_(xDoc);
+            Code = getCode_(xDoc);
+            Name = getDescription_(xDoc);
+            Location = getLocation_(xDoc);
+            Rotation = getRotation_(xDoc);
 
             foreach (var propMap in Sp3dToDGMapping.Instance.Items)
             {                
@@ -70,37 +78,206 @@ namespace Embedded.Penetrations.Shared.sp3d
                         switch (propMap.Key)
                         {
                         case "Type": this.TypeName = value; break;
-                        case "Oid": this.Oid = value; break;
+                        //case "Oid": this.Oid = value; break;
                         case "Code": this.Code = value; break;
                         case "Name": this.Name = value; break;
-                        case "Length": this.Length = int.Parse(value); break;
-                        case "PipeDiametr": this.PipeDiametr = int.Parse(value); break;
-                        case "PipeThick": this.PipeThick = int.Parse(value); break;
-                        case "FlangeDiametr": this.FlangeDiametr = int.Parse(value); break;
-                        case "FlangeThick": this.FlangeThick = int.Parse(value); break;
-                        case "FlangesNum": this.FlangesNum = int.Parse(value); break;
-                        case "FlangesPos": this.FlangesPos = int.Parse(value); break;
-                        case "Location": 
-                        {
-                            Location = Location ?? new double[3];
-                            string sprtr = CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator;
-                            string strValueCorrect = value.Replace(".", sprtr).Replace(",", sprtr);
-                            double valueDbl = double.Parse(strValueCorrect);
-                            string propNameUpper = propName.ToUpper();
-
-                            if (propNameUpper.EndsWith("X"))
-                                Location[0] = valueDbl;
-                            else if (propNameUpper.EndsWith("Y"))
-                                Location[1] = valueDbl;
-                            else if (propNameUpper.EndsWith("Z"))
-                                Location[2] = valueDbl;
-                            break;
-                        }
+                        //case "Length": this.Length = int.Parse(value); break;
+                        //case "PipeDiametr": this.PipeDiametr = int.Parse(value); break;
+                        //case "PipeThick": this.PipeThick = int.Parse(value); break;
+                        //case "FlangeDiametr": this.FlangeDiametr = int.Parse(value); break;
+                        //case "FlangeThick": this.FlangeThick = int.Parse(value); break;
+                        //case "FlangesNum": this.FlangesNum = int.Parse(value); break;
+                        //case "FlangesPos": this.FlangesPos = int.Parse(value); break;
                         }
                     }
                 }
             }
         }
+        private string getUID_(XDocument xdoc)
+        {
+            foreach(string path in new string[] {
+                "P3DEquipment/UID", "P3DHangerStdComponent/UID"})
+            {
+                XElement tag = xdoc.Root.GetChildByRegexPath(path);
+                if (tag != null)
+                    return tag.Value;
+            }
+            return string.Empty;
+        }
+
+        private string getOid_(XDocument xdoc)
+        {
+            foreach(string path in new string[] {
+                "P3DEquipment/Oid", "P3DHangerStdComponent/Oid"})
+            {
+                XElement tag = xdoc.Root.GetChildByRegexPath(path);
+                if (tag != null)
+                    return tag.Value;
+            }
+            return string.Empty;
+        }
+
+        private string getTypeName_(XDocument xdoc)
+        {
+            foreach(string path in new string[] {
+                "P3DEquipment/CatalogPartNumber", "P3DHangerStdComponent/Description"})
+            {
+                XElement tag = xdoc.Root.GetChildByRegexPath(path);
+                if (tag != null)
+                    return tag.Value;
+            }
+            return string.Empty;
+        }
+
+        private string getCode_(XDocument xdoc)
+        {
+            foreach(string path in new string[] {
+                "P3DEquipment/Name", "P3DHangerPipeSupport/Name"})
+            {
+                XElement tag = xdoc.Root.GetChildByRegexPath(path);
+                if (tag != null)
+                    return tag.Value;
+            }
+            return string.Empty;
+        }
+
+        private string getDescription_(XDocument xdoc)
+        {
+            foreach(string path in new string[] {
+                "P3DEquipment/Description", "P3DHangerPipeSupport/Description"})
+            {
+                XElement tag = xdoc.Root.GetChildByRegexPath(path);
+                if (tag != null)
+                    return tag.Value;
+            }
+            return string.Empty;
+        }
+
+        private BCOM.Point3d getLocation_(XDocument xdoc)
+        {
+            BCOM.Point3d pt = App.Point3dZero();
+
+            foreach(XElement tag in xdoc.Root.Elements())
+            {
+                string tagName = tag.Name.LocalName;
+                if (!tagName.IsMatch("(P3DEquipment)|(P3DHangerPipeSupport)"))
+                    continue;      
+
+                foreach(XElement node in tag.Elements())
+                {
+                    string name = node.Name.LocalName;
+                    if (name.IsMatch("Location"))
+                    {
+                        if (name.IsMatch("X$"))
+                            pt.X = node.Value.ToDouble();
+                        else if (name.IsMatch("Y$"))
+                            pt.Y = node.Value.ToDouble();
+                        else if (name.IsMatch("Z$"))
+                            pt.Z = node.Value.ToDouble();
+                    }
+                }
+            }
+            return pt;
+        }
+
+        private BCOM.Matrix3d getRotation_(XDocument xdoc)
+        {
+            BCOM.Matrix3d rot = App.Matrix3dIdentity();
+            foreach(XElement tag in xdoc.Root.Elements())
+            {
+                string tagName = tag.Name.LocalName;
+                if (!tagName.IsMatch("(P3DEquipment)|(P3DHangerPipeSupport)"))
+                    continue;
+
+                foreach(XElement node in tag.Elements())
+                {
+                    string name = node.Name.LocalName;
+                    if (name.IsMatch("OrientationMatrix"))
+                    {
+                        if (name.IsMatch("x0$"))
+                            rot.RowX.X = node.Value.ToDouble();
+                        else if (name.IsMatch("x1$"))
+                            rot.RowX.Y = node.Value.ToDouble();
+                        else if (name.IsMatch("x2$"))
+                            rot.RowX.Z = node.Value.ToDouble();
+                        else if (name.IsMatch("y0$"))
+                            rot.RowY.X = node.Value.ToDouble();
+                        else if (name.IsMatch("y1$"))
+                            rot.RowY.Y = node.Value.ToDouble();
+                        else if (name.IsMatch("y2$"))
+                            rot.RowY.Z = node.Value.ToDouble();
+                        else if (name.IsMatch("z0$"))
+                            rot.RowZ.X = node.Value.ToDouble();
+                        else if (name.IsMatch("z1$"))
+                            rot.RowZ.Y = node.Value.ToDouble();
+                        else if (name.IsMatch("z2$"))
+                            rot.RowZ.Z = node.Value.ToDouble();
+                    }
+                }
+            }
+
+            rot.RowX = RoundTool.roundExt(rot.RowX, 0.00001);
+            rot.RowY = RoundTool.roundExt(rot.RowY, 0.00001);
+            rot.RowZ = RoundTool.roundExt(rot.RowZ, 0.00001);
+
+            return rot;
+        }
+
+        //public Sp3dPenTask(IEnumerable<string> sp3dXmlData)
+        //{
+        //    if (sp3dXmlData == null)
+        //        return;
+
+        //    var xDoc = XDocument.Parse("<Root></Root>");
+        //    foreach (string xmlText in sp3dXmlData)
+        //    {
+        //        xDoc.Root.Add(XElement.Parse(xmlText));
+        //    }
+
+        //    foreach (var propMap in Sp3dToDGMapping.Instance.Items)
+        //    {                
+        //        foreach (string path in propMap.Sp3dXmlPaths)
+        //        {
+        //            string propName, value;
+        //            var xEl = xDoc.Root.GetChildByRegexPath(path, out propName);
+        //            //var xEl = xDoc.Root.XPathSelectElement(path);
+        //            if (xEl != null)
+        //            {
+        //                value = xEl.Value;
+        //                switch (propMap.Key)
+        //                {
+        //                case "Type": this.TypeName = value; break;
+        //                case "Oid": this.Oid = value; break;
+        //                case "Code": this.Code = value; break;
+        //                case "Name": this.Name = value; break;
+        //                case "Length": this.Length = int.Parse(value); break;
+        //                case "PipeDiametr": this.PipeDiametr = int.Parse(value); break;
+        //                case "PipeThick": this.PipeThick = int.Parse(value); break;
+        //                case "FlangeDiametr": this.FlangeDiametr = int.Parse(value); break;
+        //                case "FlangeThick": this.FlangeThick = int.Parse(value); break;
+        //                case "FlangesNum": this.FlangesNum = int.Parse(value); break;
+        //                case "FlangesPos": this.FlangesPos = int.Parse(value); break;
+        //                case "Location": 
+        //                {
+        //                    Location = Location ?? new double[3];
+        //                    string sprtr = CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator;
+        //                    string strValueCorrect = value.Replace(".", sprtr).Replace(",", sprtr);
+        //                    double valueDbl = double.Parse(strValueCorrect);
+        //                    string propNameUpper = propName.ToUpper();
+
+        //                    if (propNameUpper.EndsWith("X"))
+        //                        Location[0] = valueDbl;
+        //                    else if (propNameUpper.EndsWith("Y"))
+        //                        Location[1] = valueDbl;
+        //                    else if (propNameUpper.EndsWith("Z"))
+        //                        Location[2] = valueDbl;
+        //                    break;
+        //                }
+        //                }
+        //            }
+        //        }
+        //    }
+        //}
     }
 }
 

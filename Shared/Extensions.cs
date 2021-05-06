@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Windows.Forms;
 using System.Xml.Linq;
 
@@ -11,10 +12,24 @@ namespace Shared
 {
 static class Extensions
 {
+    
+    public static bool AnyColumnHasError(this DataRow row)
+    {
+        return row.GetColumnsInError().Length > 0;
+    }
+
     public static void ShowMessage(this Exception ex, string text = null)
     {
         text = text == null ? ex.Message : text + $"\nException: {ex.Message}";
         MessageBox.Show(text, "Exception", MessageBoxButtons.OK, MessageBoxIcon.Error);
+    }
+
+    public static double ToDouble(this string value)
+    {
+        var culture = Thread.CurrentThread.CurrentCulture;
+        string delimeter = culture.NumberFormat.NumberDecimalSeparator;
+        string prepaired = value.Replace(".", delimeter).Replace(",", delimeter);
+        return double.Parse(prepaired);
     }
 
     public static double ToDouble(this float value)

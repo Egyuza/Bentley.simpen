@@ -13,6 +13,9 @@ using Shared.Bentley;
 
 using Bentley.Building.DataGroupSystem.Serialization;
 using Bentley.Building.DataGroupSystem;
+using System.Data;
+using System.Xml.Linq;
+using Bentley.Internal.MicroStation;
 
 #if V8i
 using Bentley.MicroStation;
@@ -38,8 +41,38 @@ public class GroupByTaskModel : NotifyPropertyChangedBase
             SelectionCount = "SelectionCount";
     }
 
-    public BindingList<PenetrVueTask> TaskSelection {get; private set;} 
-    public int SelectionCount => TaskSelection.Count;
+    public class PropKey
+    {
+        public const string 
+            CODE = "Code",
+            NAME = "Name";
+    }
+
+    public class FieldName
+    {
+        public const string 
+            STATUS = "Status",
+            FLANGES = "Flanges",
+            DIAMETER = "Diameter",
+            LENGTH = "Length(cm)",
+            REF_POINT1 = "RefPoint1",
+            REF_POINT2 = "RefPoint2",
+            REF_POINT3 = "RefPoint3";
+    }
+
+    public DataTable TaskTable {get; private set;}
+
+    public int SelectionCount => TaskTable.Rows.Count;
+
+    public XDocument AttrsXDoc {get; set;}
+
+    public PenetrVueTask GetTask(DataRow dataRow)
+    {
+        if (!rowsToTasks_.ContainsKey(dataRow))
+            return null;
+
+        return rowsToTasks_[dataRow];
+    }
 
     public IList<DiameterType> getDiametersList(PenetrVueTask task)
     {
@@ -50,13 +83,34 @@ public class GroupByTaskModel : NotifyPropertyChangedBase
         return penData_.getFlangeNumbersSort();
     }
 
-    public bool IsDatasourceRefreshRequired {get; set;}
-
     private GroupByTaskModel()
     {
         penData_ = PenetrDataSource.Instance;
-        TaskSelection = new BindingList<PenetrVueTask>();
+
+        TaskTable = new DataTable();
+        TaskTable.Columns.Add(FieldName.STATUS, typeof(string));
+        TaskTable.Columns.Add(PropKey.CODE, typeof(string));
+        TaskTable.Columns.Add(PropKey.NAME, typeof(string));
+        TaskTable.Columns.Add(FieldName.FLANGES, typeof(long));
+        TaskTable.Columns.Add(FieldName.DIAMETER, typeof(string));
+        TaskTable.Columns.Add(FieldName.LENGTH, typeof(int));
+        TaskTable.Columns.Add(FieldName.REF_POINT1, typeof(string));
+        TaskTable.Columns.Add(FieldName.REF_POINT2, typeof(string));
+        TaskTable.Columns.Add(FieldName.REF_POINT3, typeof(string));
+
+        foreach(Sp3dToDataGroupMapProperty item in Sp3dToDGMapping.Instance.Items)
+        {
+            if (item.Key == PropKey.CODE || item.Key == PropKey.NAME)
+                continue;
+
+            if (!string.IsNullOrEmpty(item.TargetXPath))
+            {
+                TaskTable.Columns.Add(item.TargetName, typeof(string));
+            }
+        }
+        TaskTable.RowChanged += TaskTable_RowChanged;
         signOnNotify(NP.SelectionCount, NP.TaskSelection);
+
 
         BCOM.Point3d zero = App.Point3dZero();
         BCOM.LineElement line = App.CreateLineElement2(null, zero, zero);       
@@ -75,6 +129,91 @@ public class GroupByTaskModel : NotifyPropertyChangedBase
             BCOM.MsdTransientFlags.Overlay | BCOM.MsdTransientFlags.Snappable | BCOM.MsdTransientFlags.IncludeInPlot,
             BCOM.MsdViewMask.AllViews, 
             BCOM.MsdDrawingMode.Temporary);
+    }
+
+    public void loadXmlAttrs(string uri)
+    {
+        AttrsXDoc = XDocument.Load(uri);
+        foreach(XElement xEl in AttrsXDoc.Root.Nodes())
+        {
+            foreach(XElement child in xEl.Nodes().ToList())
+            {
+                foreach(var attr in child.Attributes())
+                {
+                    xEl.Add(XElement.Parse(
+                        $"<{attr.Name}>{attr.Value}</{attr.Name}>"));
+                }
+                child.Remove();
+            }
+        }
+    }
+
+    private bool IsRunning_TaskTable_RowChanged_;
+    private void TaskTable_RowChanged(object sender, DataRowChangeEventArgs e)
+    {
+        if (IsRunning_TaskTable_RowChanged_)
+            return;
+
+        IsRunning_TaskTable_RowChanged_ = true;
+
+        try
+        {
+            taskTable_RowChanged_(e.Row);
+        }
+        finally
+        {
+            IsRunning_TaskTable_RowChanged_ = false;
+        }
+    }
+
+    private void taskTable_RowChanged_(DataRow row)
+    {
+        if (!rowsToTasks_.ContainsKey(row))
+            return;
+
+        PenetrVueTask task = rowsToTasks_[row];
+
+        // TODO
+        task.Code = row.Field<string>(PropKey.CODE);
+        task.DiameterTypeStr = row.Field<string>(FieldName.DIAMETER);
+        task.FlangesType = row.Field<long>(FieldName.FLANGES);
+        task.LengthCm = row.Field<int>(FieldName.LENGTH);
+
+        { // RefPoints:
+            task.SetRefPoint(0, row.Field<string>(FieldName.REF_POINT1));
+            task.SetRefPoint(1, row.Field<string>(FieldName.REF_POINT2));
+            task.SetRefPoint(2, row.Field<string>(FieldName.REF_POINT3));
+        }
+
+        foreach(Sp3dToDataGroupMapProperty dgProp in task.DataGroupPropsValues.Keys.ToList())
+        {
+            foreach(string key in new string[] {dgProp.Key, dgProp.TargetName})
+            {
+                if (dgProp.Key == PropKey.CODE)
+                {
+                    task.DataGroupPropsValues[dgProp] = task.Code;
+                }
+                else if(dgProp.Key == PropKey.NAME)
+                {
+                    task.DataGroupPropsValues[dgProp] = task.Name;
+                }
+                else if(row.Table.Columns.Contains(key))
+                {
+                    task.DataGroupPropsValues[dgProp]= row.Field<string>(key);
+                }
+            }
+        }
+
+        { // ! обновление DataRow
+            row.BeginEdit();
+            row.SetField(PropKey.NAME, task.Name);
+
+            row.SetField(FieldName.REF_POINT1, task.GetRefPointCoords(0));
+            row.SetField(FieldName.REF_POINT2, task.GetRefPointCoords(1));
+            row.SetField(FieldName.REF_POINT3, task.GetRefPointCoords(2));
+
+            row.EndEdit();
+        }        
     }
 
     private AddIn.SelectionChangedEventArgs.ActionKind lastSelectionAction_;
@@ -101,18 +240,20 @@ public class GroupByTaskModel : NotifyPropertyChangedBase
             switch (eventArgs.Action)
             {
             case AddIn.SelectionChangedEventArgs.ActionKind.SetEmpty:
-                tasks_.Clear();
-                tasksBuf_.Clear();
                 previewTranCon_.Reset();
-                TaskSelection.Clear();
+                TaskTable.Clear();
+                taskElemsToRows_.Clear();
+                rowsToTasks_.Clear();
                 break;
             case AddIn.SelectionChangedEventArgs.ActionKind.Remove:
             {
                 Element element = ElementHelper.getElement(eventArgs);
-                if (tasks_.ContainsKey(element.ElementRef))
+                if (taskElemsToRows_.ContainsKey(element))
                 {
-                    TaskSelection.Remove(tasks_[element.ElementRef]);
-                    tasks_.Remove(element.ElementRef);
+                    DataRow row = taskElemsToRows_[element];
+                    rowsToTasks_.Remove(row);
+                    TaskTable.Rows.Remove(row);
+                    taskElemsToRows_.Remove(element);
                 }
                 break;
             }
@@ -120,55 +261,58 @@ public class GroupByTaskModel : NotifyPropertyChangedBase
             {
                 Element element = ElementHelper.getElement(eventArgs);
 
-        #if DEBUG
-                //BCOM.Element comEl = ElementHelper.getElementCOM(element);                
-
-                //if (comEl.IsCompundCell())
-                //{
-                //    var cell = comEl.AsCellElement();
-                //    var pointEl = ElementHelper.createPoint(cell.Origin);
-                //    pointEl.Level.ElementLineWeight = 10;
-
-                //    previewTranCon_.AppendCopyOfElement(pointEl);
-                //}
-        #endif
-
                 PenetrVueTask task;
-                if (PenetrVueTask.getFromElement(element, out task) &&
-                    !tasks_.ContainsKey(element.ElementRef))
+                if (PenetrVueTask.getFromElement(element, AttrsXDoc, out task) &&
+                    !taskElemsToRows_.ContainsKey(element) && 
+                    null == rowsToTasks_.Values.FirstOrDefault(x => x.Oid == task.Oid))
                 {
-                    tasksBuf_.Add(element.ElementRef, task);
-                    tasks_.Add(element.ElementRef, task);
+                    TaskTable.BeginLoadData();
+                    DataRow row = TaskTable.Rows.Add();
+
+                    row.SetField(PropKey.CODE, task.Code);
+                    row.SetField(PropKey.NAME, task.Name);
+                    row.SetField(FieldName.FLANGES, task.FlangesType);
+                    row.SetField(FieldName.DIAMETER, task.DiameterTypeStr);
+                    row.SetField(FieldName.LENGTH, task.LengthCm);
+
+                    row.SetField<string>(FieldName.REF_POINT1, task.GetRefPointCoords(0));
+                    row.SetField<string>(FieldName.REF_POINT2, task.GetRefPointCoords(1));
+                    row.SetField<string>(FieldName.REF_POINT3, task.GetRefPointCoords(2));
+                    
+                    foreach(var pair in task.DataGroupPropsValues)
+                    {
+                        Sp3dToDataGroupMapProperty dgProp = pair.Key;
+                        if (TaskTable.Columns.Contains(dgProp.TargetName))
+                        {
+                            row.SetField(dgProp.TargetName, pair.Value);
+                        }
+                    }
+
+                    taskElemsToRows_.Add(element, row);
+                    rowsToTasks_.Add(row, task);                    
+                    TaskTable.AcceptChanges();
+                    TaskTable.EndLoadData();
                 }
+
                 break;
             }
-            case AddIn.SelectionChangedEventArgs.ActionKind.SetChanged:
-            {
-                if (lastSelectionAction_ != 
-                    AddIn.SelectionChangedEventArgs.ActionKind.New)
-                {
-                    break;
-                }
-                
-                TaskSelection.RaiseListChangedEvents = false;
-                foreach (PenetrVueTask task in tasksBuf_.Values)
-                {
-                    //Logger.Log.Info($"Выбор объекта заадния {task.ToString()}");
-                    TaskSelection.Add(task);
-                }
-                tasksBuf_.Clear();
-                TaskSelection.RaiseListChangedEvents = true;
-                break;
-            }
+            //case AddIn.SelectionChangedEventArgs.ActionKind.SetChanged:
+            //{
+            //    if (lastSelectionAction_ != 
+            //        AddIn.SelectionChangedEventArgs.ActionKind.New)
+            //    {
+            //        break;
+            //    }
+            //    break;
+            //}
             }
            
-            TaskSelection.ResetBindings();
+            //TaskSelection.ResetBindings();
             OnPropertyChanged(NP.TaskSelection);
         }
         catch (Exception ex)
         {
-            // todo обработать
-            ex.ShowMessage();
+            ex.AddToMessageCenter();
         }
         finally
         {
@@ -300,7 +444,7 @@ public class GroupByTaskModel : NotifyPropertyChangedBase
         catch (Exception ex)
         {
             // todo обработать
-            ex.ShowMessage();
+            ex.AddToMessageCenter();
         }
         finally
         {
@@ -314,12 +458,14 @@ public class GroupByTaskModel : NotifyPropertyChangedBase
 
     public long ProjectId => penData_.ProjectId;
 
-    public void changeSelection(IEnumerable<PenetrVueTask> selection)
+    public void changeSelection(IEnumerable<DataRow> selection)
     {
         selectionTranCon_?.Reset();
 
-        foreach (PenetrVueTask task in selection)
+        foreach (DataRow taskRow in selection)
         {
+            PenetrVueTask task  = rowsToTasks_[taskRow];
+
             BCOM.ModelReference modelRef = task.ModelRef;
             BCOM.View view = ViewHelper.getActiveView();
 
@@ -354,9 +500,10 @@ public class GroupByTaskModel : NotifyPropertyChangedBase
         }
     }
 
-    public void focusTaskElement(PenetrVueTask task)
+    public void focusTaskElement(DataRow row)
     {
-        ViewHelper.zoomToElement(task.getElement());
+        Element element = taskElemsToRows_.FirstOrDefault(x => x.Value == row).Key;       
+        ViewHelper.zoomToElement(element.ToElementCOM());
     }
 
     public void preview()
@@ -365,63 +512,111 @@ public class GroupByTaskModel : NotifyPropertyChangedBase
 
         try
         {
-            foreach (PenetrVueTask task in TaskSelection)
+            foreach (DataRow row in TaskTable.Rows)
             {
-                PenetrInfo penInfo = penData_.getPenInfo(
-                    task.FlangesType, task.DiameterType.Number);
-                
-        //#if DEBUG
-        //        var cylinder = 
-        //            PenetrHelper.getPenElementWithoutFlanges(task, penInfo);
+                PenetrVueTask task  = rowsToTasks_[row];
 
-        //        previewTranCon_.AppendCopyOfElement(cylinder);
-        //        continue;
-        //#endif
+                var penetration = new Penetration(task);
+                penetration.AddProjection();
 
-                TFCOM.TFFrameList frameList = 
-                    PenetrHelper.createFrameList(task, penInfo, PenetrTaskBase.LevelMain);
-                
-                previewTranCon_.AppendCopyOfElement(
-                        frameList.AsTFFrame.Get3DElement());
+                previewTranCon_.AppendCopyOfElement(penetration.GetElement());
 
-                var projList = frameList.AsTFFrame.GetProjectionList();
-                
-                if (projList == null) 
-                    continue;
-
-                do
+                foreach(BCOM.Element projElement in penetration.GetProjections())
                 {
-                    try
-                    {
-                        BCOM.Element projEl = null;
-                        projList.AsTFProjection.GetElement(out projEl);
-                        if(projEl != null)
-                            previewTranCon_.AppendCopyOfElement(projEl);
-                    }
-                    catch (Exception) { /* !не требует обработки  */ }               
-                } while ((projList = projList.GetNext()) != null);
+                    previewTranCon_.AppendCopyOfElement(projElement);
+                }
             }
-
         }
         catch (Exception ex) // TODO
         {
-            // ex.ShowMessage();
+            ex.AddToMessageCenter();
         }
+
+
+        //try
+        //{
+        //    //foreach (PenetrVueTask task in TaskSelection)
+        //    //{
+        //    //    PenetrInfo penInfo = penData_.getPenInfo(
+        //    //        task.FlangesType, task.DiameterType.Number);                
+
+        //    //    TFCOM.TFFrameList frameList = 
+        //    //        PenetrHelper.createFrameList(task, penInfo, PenetrTaskBase.LevelMain);
+                
+        //    //    previewTranCon_.AppendCopyOfElement(
+        //    //            frameList.AsTFFrame.Get3DElement());
+
+        //    //    var projList = frameList.AsTFFrame.GetProjectionList();
+                
+        //    //    if (projList == null) 
+        //    //        continue;
+
+        //    //    do
+        //    //    {
+        //    //        try
+        //    //        {
+        //    //            BCOM.Element projEl = null;
+        //    //            projList.AsTFProjection.GetElement(out projEl);
+        //    //            if(projEl != null)
+        //    //                previewTranCon_.AppendCopyOfElement(projEl);
+        //    //        }
+        //    //        catch (Exception) { /* !не требует обработки  */ }               
+        //    //    } while ((projList = projList.GetNext()) != null);
+        //    //}
+
+        //}
+        //catch (Exception ex) // TODO
+        //{
+        //    ex.AddToMessageCenter();
+        //}
     }
     
     public void addToModel()
     {
         previewTranCon_?.Reset();
 
-        ElementHelper.RunByRecovertingSettings(() => {
-            foreach (PenetrVueTask task in TaskSelection)
-            {
-                PenetrInfo penInfo = penData_.getPenInfo(
-                    task.FlangesType, task.DiameterType.Number);
+        Session.Instance.StartUndoGroup();
 
-                PenetrHelper.addToModel(task, penInfo);
+        ElementHelper.RunByRecovertingSettings(() => {
+
+            foreach (DataRow row in TaskTable.Rows)
+            {
+                Session.Instance.SetUndoMark();
+
+                PenetrVueTask task  = rowsToTasks_[row];
+                try
+                {
+                    var penetr = new Penetration(task);
+                    penetr.AddPerforation();
+                    penetr.AddProjection();
+                    penetr.AddToModel(false);
+
+                    row.SetField(FieldName.STATUS, "DONE");
+                    // TODO статус о выполнении
+                }
+                catch (Exception ex)
+                {
+                    // TODO статус о выполнении
+                    row.SetField(FieldName.STATUS, "ERROR");
+                    Session.Instance.Keyin("undo");
+                    var last = App.ActiveModelReference.GetLastValidGraphicalElement();
+                    last?.Rewrite();
+                }                
             }
         });
+
+        Session.Instance.EndUndoGroup();
+
+
+        //ElementHelper.RunByRecovertingSettings(() => {
+        //    //foreach (PenetrVueTask task in TaskSelection)
+        //    //{
+        //    //    PenetrInfo penInfo = penData_.getPenInfo(
+        //    //        task.FlangesType, task.DiameterType.Number);
+
+        //    //    PenetrHelper.addToModel(task, penInfo);
+        //    //}
+        //});
 
         //var activeSets = App.ActiveSettings;
 
@@ -443,7 +638,7 @@ public class GroupByTaskModel : NotifyPropertyChangedBase
         //}
         //catch (Exception ex)
         //{
-        //    ex.ShowMessage();
+        //    ex.AddToMessageCenter();
         //}
         //finally
         //{
@@ -523,21 +718,26 @@ public class GroupByTaskModel : NotifyPropertyChangedBase
         previewTranCon_?.Reset();
         selectionTranCon_?.Reset();
 
-        tasks_.Clear();
-        TaskSelection.Clear();
-        TaskSelection.ResetBindings();
+        taskElemsToRows_.Clear();
+        TaskTable.Clear();
         OnPropertyChanged(NP.TaskSelection);
     }
 
     private PenetrDataSource penData_; // TODO переименовать
 
-    private Dictionary<IntPtr, PenetrVueTask> tasks_ = 
-        new Dictionary<IntPtr, PenetrVueTask>();
-    private Dictionary<IntPtr, PenetrVueTask> tasksBuf_ = 
-        new Dictionary<IntPtr, PenetrVueTask>();    
+    private Dictionary<DataRow, PenetrVueTask> rowsToTasks_ = 
+        new Dictionary<DataRow, PenetrVueTask>();
+
+    private Dictionary<Element, DataRow> taskElemsToRows_ = 
+        new Dictionary<Element, DataRow>();
 
     private BCOM.TransientElementContainer selectionTranCon_;
     private BCOM.TransientElementContainer previewTranCon_;
+
+        //private Dictionary<IntPtr, PenetrVueTask> tasks_ = 
+        //    new Dictionary<IntPtr, PenetrVueTask>();
+        //private Dictionary<IntPtr, PenetrVueTask> tasksBuf_ = 
+        //    new Dictionary<IntPtr, PenetrVueTask>();
 
     private static BCOM.Application App => BMI.Utilities.ComApp;
 

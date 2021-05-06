@@ -33,6 +33,18 @@ public abstract class BentleyInteropBase
         }
     }
 
+    protected void CatchExceptionsByMessageCenter(Action action)
+    {
+        try
+        {
+            action.Invoke();
+        }
+        catch (Exception ex)
+        {
+            App.MessageCenter.AddMessage(ex.Message, ex.StackTrace, BCOM.MsdMessageCenterPriority.Error, false);
+        }
+    }
+
     protected readonly static BCOM.Point3d XAxis = App.Point3dFromXYZ(1, 0, 0);
     protected readonly static BCOM.Point3d YAxis = App.Point3dFromXYZ(0, 1, 0);
     protected readonly static BCOM.Point3d ZAxis = App.Point3dFromXYZ(0, 0, 1);

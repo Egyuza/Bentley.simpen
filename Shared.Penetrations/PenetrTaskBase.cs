@@ -31,6 +31,8 @@ public abstract class PenetrTaskBase : BentleyInteropBase, IPenetrTask
         set { location_ = RoundTool.roundExt(value, /* 5 мм */ 5 / UOR.activeSubPerMaster); }
     }
 
+    public BCOM.Point3d?[] RefPoints {get; private set;}
+
     public BCOM.Matrix3d Rotation {get; set;}
 
     public int FlangesCount => 

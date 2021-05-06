@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.ComponentModel;
 
 using Shared;
+using System.Data;
+using System.IO;
 
 namespace Embedded.Penetrations.UI
 {
@@ -18,6 +20,9 @@ namespace Embedded.Penetrations.UI
 
 public partial class PenetrationForm : Form
 {
+    public delegate void ShowErrorMessageAction(Exception ex);
+
+    public delegate void LoadXmlAttrsAction(string uri);
     public delegate void PreviewAction();
     public delegate void CreateAction();
     public delegate void ScanForUpdateAction(TreeView treeView);
@@ -27,10 +32,28 @@ public partial class PenetrationForm : Form
     public delegate void StartPrimitiveAction();
     public delegate void SingleSelectFlangeTypeAction(long flangeType);
     public delegate void SingleSelectDiameterTypeAction(object diameterType);
-    public delegate void SingleSelectLengthAction(int length);    
+    public delegate void SingleSelectLengthAction(int length);
 
     public delegate void OnCloseFormAction();
     public delegate void DataRowsAddedAction(IEnumerable<DataGridViewRow> rows);
+
+    public delegate void SetReadOnlyAction(bool readOnly);
+
+    private ShowErrorMessageAction showErrorMessageAction_;
+    private LoadXmlAttrsAction loadXmlAttrsAction_;
+    private PreviewAction previewAction_;
+    private CreateAction createAction_;
+    private ScanForUpdateAction scanForUpdateAction_;
+    private UpdateNodeDoubleClickAction updateNodeDoubleClickAction_;
+    private UpdateAction updateAction_;
+    private StartPrimitiveAction startPrimitiveAction_;
+    private StartDefaultAction startDefaultAction_;
+    private SingleSelectFlangeTypeAction singleSelectFlangeTypeAction_;
+    private SingleSelectDiameterTypeAction singleSelectDiameterTypeAction_;
+    private SingleSelectLengthAction singleSelectLengthAction_;
+    private OnCloseFormAction onCloseFormAction_;
+    private DataRowsAddedAction dataRowsAddedAction_;
+    private SetReadOnlyAction setReadOnlyAction_;
 
     static Properties.Settings Sets => Properties.Settings.Default;
 
@@ -43,8 +66,8 @@ public partial class PenetrationForm : Form
         { // ПОСТРОЕНИЕ:
             dgvCreationTasks.AutoGenerateColumns = false;
             dgvCreationTasks.EnableHeadersVisualStyles = false;
-            dgvCreationTasks.Columns.Clear();
-            dgvCreationTasks.AutoSize = false;
+            //dgvCreationTasks.Columns.Clear();
+            //dgvCreationTasks.AutoSize = false;
 
             dgvCreationTasks.RowsAdded += DgvFields_RowsAdded;
             dgvCreationTasks.DataError += DgvFields_DataError;  
@@ -83,6 +106,11 @@ public partial class PenetrationForm : Form
             }
             dgvCreationTasks.Columns.Add(column);
         } 
+    }
+
+    public void setDataSource(DataTable table)
+    {
+        dgvCreationTasks.DataSource = table;    
     }
 
     public void setDataSource_Create(IBindingList bindList)
@@ -171,6 +199,14 @@ public partial class PenetrationForm : Form
         }        
     }
 
+    public void setAttrsInfoText(string text)
+    {
+        attrsInfoText.Text = text;
+        bool isVisible = !string.IsNullOrEmpty(text);
+        attrsInfoLabel.Visible =
+        attrsInfoText.Visible = isVisible;
+    }
+
     public void setStatusText(string text)
     {
         statusInfo.Text = text;
@@ -184,61 +220,76 @@ public partial class PenetrationForm : Form
         dgvCreationTasks.ReadOnly = true;
     }
 
-    public void setPreviewAction(PreviewAction action)
+    public void setAction_SetReadOnly(SetReadOnlyAction action)
+    {
+        setReadOnlyAction_ = action;
+    }
+
+    public void setAction_ShowErrorMessage(ShowErrorMessageAction action)
+    {
+        showErrorMessageAction_ = action;
+    }
+
+    public void setAction_LoadXmlAttrs(LoadXmlAttrsAction action)
+    {
+        loadXmlAttrsAction_ = action;
+    }
+
+    public void setAction_Preview(PreviewAction action)
     {
         previewAction_ = action;
     }
 
-    public void setCreateAction(CreateAction action)
+    public void setAction_Create(CreateAction action)
     {
         createAction_ = action;
     }
 
-    public void setScanForUpdateAction(ScanForUpdateAction action)
+    public void setAction_ScanForUpdate(ScanForUpdateAction action)
     {
         scanForUpdateAction_ = action;
     }
 
-    public void setUpdateNodeDoubleClickAction(UpdateNodeDoubleClickAction action)
+    public void setAction_UpdateNodeDoubleClick(UpdateNodeDoubleClickAction action)
     {
        updateNodeDoubleClickAction_ = action;
     }
 
-    public void setUpdateAction(UpdateAction action)
+    public void setAction_Update(UpdateAction action)
     {
         updateAction_ = action;
     }
 
-    public void setStartDefaultAction(StartDefaultAction action)
+    public void setAction_StartDefault(StartDefaultAction action)
     {
         startDefaultAction_ = action;
     }
 
-    public void setStartPrimitiveAction(StartPrimitiveAction action)
+    public void setAction_StartPrimitive(StartPrimitiveAction action)
     {
         startPrimitiveAction_ = action;
     }
 
-    public void setSingleSelecteFlangeType(SingleSelectFlangeTypeAction action)
+    public void setAction_SingleSelecteFlangeType(SingleSelectFlangeTypeAction action)
     {
         singleSelectFlangeTypeAction_ = action;
     }
-    public void setSingleSelecteDiameterType(SingleSelectDiameterTypeAction action)
+    public void setAction_SingleSelecteDiameterType(SingleSelectDiameterTypeAction action)
     {
         singleSelectDiameterTypeAction_ = action;
     }
 
-    public void setSingleSelecteLength(SingleSelectLengthAction action)
+    public void setAction_SingleSelecteLength(SingleSelectLengthAction action)
     {
         singleSelectLengthAction_ = action;
     }
 
-    public void setDataRowsAddedAction(DataRowsAddedAction action)
+    public void setAction_DataRowsAdded(DataRowsAddedAction action)
     {
         dataRowsAddedAction_ = action;
     }
 
-    public void setOnCloseFormAction(OnCloseFormAction action)
+    public void setAction_OnCloseForm(OnCloseFormAction action)
     {
         onCloseFormAction_ = action;
     }
@@ -303,22 +354,9 @@ public partial class PenetrationForm : Form
         }
         catch (Exception ex)
         {
-            ex.ShowMessage();
+            ShowErrorMessage(ex);
         }
     }
-
-    private PreviewAction previewAction_;
-    private CreateAction createAction_;
-    private ScanForUpdateAction scanForUpdateAction_;
-    private UpdateNodeDoubleClickAction updateNodeDoubleClickAction_;
-    private UpdateAction updateAction_;
-    private StartPrimitiveAction startPrimitiveAction_;
-    private StartDefaultAction startDefaultAction_;
-    private SingleSelectFlangeTypeAction singleSelectFlangeTypeAction_;
-    private SingleSelectDiameterTypeAction singleSelectDiameterTypeAction_;
-    private SingleSelectLengthAction singleSelectLengthAction_;
-    private OnCloseFormAction onCloseFormAction_;
-    private DataRowsAddedAction dataRowsAddedAction_;
 
     private void dgvCreationTasks_CellContentClick(object sender, DataGridViewCellEventArgs e)
     {
@@ -337,16 +375,10 @@ public partial class PenetrationForm : Form
 
     private void txtLength_TextChanged(object sender, EventArgs e)
     {
-        try
+        int length;
+        if (int.TryParse(txtLength.Text, out length))
         {
-            InvokeSafe(singleSelectLengthAction_, int.Parse(txtLength.Text));
-        }
-        catch (FormatException ex)
-        {
-            if (!string.IsNullOrEmpty(txtLength.Text))
-            {
-               ex.ShowMessage();
-            }
+            InvokeSafe(singleSelectLengthAction_, length);
         }
     }
 
@@ -363,6 +395,31 @@ public partial class PenetrationForm : Form
     private void trvUpdate_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
     {
         InvokeSafe(updateNodeDoubleClickAction_, e.Node);
+    }
+
+    private void ShowErrorMessage(Exception ex)
+    {
+        showErrorMessageAction_.Invoke(ex);
+    }
+
+    private void btnLoadXmlAttributes_Click(object sender, EventArgs e)
+    {
+        OpenFileDialog fileDialog = new OpenFileDialog()
+        {
+            Filter = "Xml files (*.xml)|*.xml"
+        };
+        DialogResult result = fileDialog.ShowDialog();
+        if (result == DialogResult.OK)
+        {
+            InvokeSafe(loadXmlAttrsAction_, fileDialog.FileName);
+            string shortName = Path.GetFileName(fileDialog.FileName);
+            setAttrsInfoText(shortName);
+        }
+    }
+
+    private void chboxEdit_CheckedChanged(object sender, EventArgs e)
+    {
+        InvokeSafe(setReadOnlyAction_, !chboxEdit.Checked);
     }
 }
 }

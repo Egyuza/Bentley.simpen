@@ -65,40 +65,7 @@ static class OpeningHelper
     {
         task = new OpeningTask();
         XDocument xDoc = ElementHelper.getSp3dXDocument(element);
-
-        XElement mainNode = xDoc.Root.GetChild(SP3D_OPENING_TAG);
-
-        if (mainNode == null)
-            return false;
-
-        if (!mainNode.GetChild("Description").Value.Contains("Opening"))
-        {
-            return false;
-        }
-
-        string UID = mainNode.GetChild("UID").Value.Trim();
-
-        XElement additionalNode = attrsXDoc?.Root.Nodes().FirstOrDefault(x => 
-            ((XElement)x).Name.LocalName == SP3D_OPENING_TAG && 
-            ((XElement)x).GetChild("UID").Value.Contains(UID)
-        ) as XElement;
-
-        if (additionalNode != null)
-        {
-            foreach(XElement node in additionalNode.Nodes().ToList())
-            {
-                XElement matchNode = mainNode.GetChild(node.Name.LocalName);
-                if (matchNode != null)
-                {
-                    // TODO расскоментировать, если верно:
-                    // matchNode.ReplaceWith(node);
-                }
-                else
-                {
-                    mainNode.Add(node);
-                }
-            }
-        }
+        xDoc.Merge(attrsXDoc);
 
         // TODO
         //task.Code = xDoc.Root.

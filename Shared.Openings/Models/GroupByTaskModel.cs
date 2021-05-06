@@ -44,20 +44,19 @@ public class GroupByTaskModel : NotifyPropertyChangedBase
 
     public class FieldName
     {
-        public const string CODE = "Code";
-        public const string STATUS = "Status";
-        public const string HEIGHT = "Height";
-        public const string WIDTH = "Width";
-        public const string DEPTH = "Depth";
+        public const string 
+            CODE = "Code",
+            STATUS = "Status",
+            HEIGHT = "Height",
+            WIDTH = "Width",
+            DEPTH = "Depth";
     }
 
     public DataTable TaskTable {get; private set;}
 
     public int SelectionCount => TaskTable.Rows.Count;
 
-    public bool IsDatasourceRefreshRequired {get; set;}
-
-    private XDocument AttrsXDoc_;
+    public XDocument AttrsXDoc {get; set;}
 
     private GroupByTaskModel()
     {
@@ -101,15 +100,15 @@ public class GroupByTaskModel : NotifyPropertyChangedBase
 
     public void loadXmlAttrs(string uri)
     {
-        AttrsXDoc_ = XDocument.Load(uri);
-        foreach(XElement xEl in AttrsXDoc_.Root.Nodes())
+        AttrsXDoc = XDocument.Load(uri);
+        foreach(XElement xEl in AttrsXDoc.Root.Nodes())
         {
             foreach(XElement child in xEl.Nodes().ToList())
             {
                 foreach(var attr in child.Attributes())
                 {
-                    xEl.Add(
-                        XElement.Parse($"<{attr.Name}>{attr.Value}</{attr.Name}>"));
+                    xEl.Add(XElement.Parse(
+                        $"<{attr.Name}>{attr.Value}</{attr.Name}>"));
                 }
                 child.Remove();
             }
@@ -184,7 +183,7 @@ public class GroupByTaskModel : NotifyPropertyChangedBase
                 Element element = ElementHelper.getElement(eventArgs);
 
                 OpeningTask task;
-                if (OpeningHelper.getFromElement(element, AttrsXDoc_, out task) &&
+                if (OpeningHelper.getFromElement(element, AttrsXDoc, out task) &&
                     !taskElemsToRows_.ContainsKey(element))
                 {
                     DataRow row = TaskTable.Rows.Add();
@@ -237,7 +236,7 @@ public class GroupByTaskModel : NotifyPropertyChangedBase
         catch (Exception ex)
         {
             // todo обработать
-            ex.ShowMessage();
+            ex.AddToMessageCenter();
         }
         finally
         {
@@ -369,8 +368,7 @@ public class GroupByTaskModel : NotifyPropertyChangedBase
         }
         catch (Exception ex)
         {
-            // todo обработать
-            ex.ShowMessage();
+            ex.AddToMessageCenter();
         }
         finally
         {
@@ -386,7 +384,6 @@ public class GroupByTaskModel : NotifyPropertyChangedBase
         ViewHelper.zoomToElement(element.ToElementCOM());
     }
 
-
     public void changeSelection(IEnumerable<DataRow> selection)
     {
         selectionTranCon_?.Reset();
@@ -400,38 +397,6 @@ public class GroupByTaskModel : NotifyPropertyChangedBase
                 continue;
 
             selectionTranCon_.AppendCopyOfElement(element.ToElementCOM());
-
-            //BCOM.ModelReference modelRef = task.ModelRef;
-            //BCOM.View view = ViewHelper.getActiveView();
-
-            //var taskUOR = new UOR(task.ModelRef);
-            //var activeUOR = new UOR(App.ActiveModelReference);
-
-            //List<long> itemsIds = new List<long> {task.elemId};
-            //// добавляем фланцы:
-            //foreach (PenetrTaskFlange flangeTask in task.FlangesGeom) 
-            //{
-            //    itemsIds.Add(flangeTask.elemId);
-            //}
-
-            //foreach (long id in itemsIds)
-            //{
-            //    BCOM.Element temp = modelRef.GetElementByID(id).Clone();
-            //    temp.Color = 2; // зелёный
-            //    temp.LineWeight = 5;
-
-            //#if CONNECT
-            //    // для версии CONNECT требуется поправка
-            //    // в V8i возмоно она производится автоматически
-            //    BCOM.Attachment attachment = task.getAttachment();
-            //    if (attachment != null)
-            //    {
-            //        temp.Transform(attachment.GetReferenceToMasterTransform());
-            //    }
-            //#endif
-
-            //    selectionTranCon_.AppendCopyOfElement(temp);
-            //}
         }
     }
 
@@ -473,7 +438,7 @@ public class GroupByTaskModel : NotifyPropertyChangedBase
         }
         catch (Exception ex) // TODO
         {
-            // ex.ShowMessage();
+            ex.AddToMessageCenter();
         }
     }
     

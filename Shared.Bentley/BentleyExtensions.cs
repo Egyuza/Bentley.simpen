@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Windows.Forms;
 using BCOM = Bentley.Interop.MicroStationDGN;
 using TFCOM = Bentley.Interop.TFCom;
@@ -257,14 +258,15 @@ public static class BentleyExtensions
     /// <summary> Оповещение - вывод текста ошибки </summary>
     public static void Alert(this Exception ex) // TODO   
     {
-        #if CONNECT
-            // MessageCenter.Instance.ShowErrorMessage(ex.Message, ex.StackTrace, true);
-        #else  
-            // TODO          
-        #endif
-        MessageBox.Show(ex.Message, "Exception", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        
+        AddToMessageCenter(ex, true);
     }
+
+    public static void AddToMessageCenter(this Exception ex, bool openAlertDialog = false) // TODO   
+    {
+        string progName = Assembly.GetExecutingAssembly().GetName().Name;
+        MessageCenter.AddMessage($"{progName}: {ex.Message}", ex.StackTrace, BCOM.MsdMessageCenterPriority.Error, openAlertDialog);
+    }
+
     /// <summary> Оповещение - вывод текста ошибки </summary>
     public static void AlertIfDebug(this Exception ex)
     {
@@ -280,20 +282,6 @@ public static class BentleyExtensions
                 errMessage, details, BCOM.MsdMessageCenterPriority.Error, true);
         #endif
     }
-
-    /// <summary> Оповещение - вывод текста ошибки </summary>
-    public static void Alert(string text)
-    {
-        // todo !  в MessageCenter?
-        #if CONNECT
-            NotificationManager.OpenMessageBox(
-                NotificationManager.MessageBoxType.Ok, text, 
-                NotificationManager.MessageBoxIconType.Critical);
-        #elif V8i
-            MessageBox.Show(text, "Exception", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        #endif
-    }
-
 
     public static double getHeight(this BCOM.Range3d range)
     {

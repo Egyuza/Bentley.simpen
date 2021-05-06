@@ -85,20 +85,17 @@ public class PenetrVueTask : BentleyInteropBase, IPenetrTask
     public double getFlangeShift(bool first, double flangeThick)
     {
         return (first ? 1 : -1) * (flangeThick / 2 - 1);
-    }
+    }     
 
-    public string RefPoint1 => Location.ToStringEx();
-    public string RefPoint2 { get; private set; }
-    public string RefPoint3 { get; private set; }
-
-    //public ulong ElementId {get; private set; }
-    public string Code { get; private set; }
+    public string Code { get; set; }
     public string Oid { get; private set; }
+    public string UID { get; private set; }
     public string User { get; private set; }
     public string Path { get; private set; }
     public TaskTypeEnum TaskType { get; private set; }
 
     public BCOM.CellElement Cell { get; private set; }
+
 
     private BCOM.Point3d rawLocation_;
     private BCOM.Point3d? projectLocationOnForm_ = null;
@@ -106,6 +103,9 @@ public class PenetrVueTask : BentleyInteropBase, IPenetrTask
     /// <summary> корректируется по проекции на объект </summary>
     public BCOM.Point3d Location => projectLocationOnForm_ ?? 
         RoundTool.roundExt(rawLocation_, /* 5 мм */ 5 / UOR.activeSubPerMaster);
+
+    public BCOM.Point3d?[] RefPoints {get; private set;} = new BCOM.Point3d?[3];
+    
     public BCOM.Matrix3d Rotation { get; private set; }
 
     private BCOM.Point3d? correctiveAngles_;
@@ -152,26 +152,18 @@ public class PenetrVueTask : BentleyInteropBase, IPenetrTask
     {
     }
 
-    public static bool getFromElement(Element element, out PenetrVueTask penTask)
+    public static bool getFromElement(Element element, XDocument attrsXDoc, out PenetrVueTask penTask)
     {
-        Sp3dTask_Old taskOld = null;
         penTask = null;
 
-        if (element.isElementSp3dTask_Old(out taskOld) &&
-            (taskOld.isPipe() || taskOld.isPipeOld() || taskOld.isEquipment()))
-        {
-            penTask = new PenetrVueTask(element, taskOld);
-        }
-        else
-        {
-            IEnumerable<string> sp3dXmlData = 
-                ElementHelper.getSp3dXmlData(element);
-            Sp3dPenTask sp3dTask = new Sp3dPenTask(sp3dXmlData);
+        XDocument xDoc = ElementHelper.getSp3dXDocument(element);
+        xDoc.Merge(attrsXDoc);
 
-            if (sp3dTask.Type == Sp3dPenTask.TaskType.Pipe && sp3dTask.IsValid)
-            {
-                penTask = new PenetrVueTask(element, sp3dTask);                
-            }
+        Sp3dPenTask sp3dTask = new Sp3dPenTask(xDoc);
+        if (sp3dTask.Type == Sp3dPenTask.TaskType.Pipe && sp3dTask.IsValid)
+        {
+            penTask = new PenetrVueTask(element, sp3dTask);
+            Sp3dToDGMapping.Instance.LoadValuesFromXDoc(xDoc, penTask.DataGroupPropsValues);
         }
         
         return penTask != null ? penTask.isValid : false;
@@ -212,48 +204,91 @@ public class PenetrVueTask : BentleyInteropBase, IPenetrTask
 
         initialize_(element);
 
-        if (task.Location != null)
-        {
-            rawLocation_ = Cell.Origin;
-            rawLocation_ = App.Point3dFromXYZ(
-                task.Location[0] * 1000, task.Location[1] * 1000, task.Location[2] * 1000);
-        }
-        else
-        {
-            rawLocation_ = Cell.Origin;
-        }
-        
-        Rotation = Cell.Rotation;
+        Oid = task.Oid;
+        UID = task.UID;
 
+        rawLocation_ = (!App.Point3dEqual(task.Location, App.Point3dZero()))
+            ?  task.Location :  Cell.Origin;
+
+        if (ModelRef.IsAttachmentOf(App.ActiveModelReference))
+        {
+            rawLocation_ = App.Point3dScale(rawLocation_, UOR.subPerMaster);
+        }
+
+        Rotation = task.Rotation;
+        
+        Code = task.Code;
         // разбор типоразмера:
         parseTypeSize(task.Name);
-        Code = task.Code;
 
-        testScan();
-
-        //findFlangesOld();
-        scanInfo();
-    }
-    
-    private void testScan() 
-    {
-        if (Cell == null)
-            return;
-
-        var surfaces = new List<BCOM.Element>();
-        collectSubElementsByType(Cell, ref surfaces, BCOM.MsdElementType.Surface);
-
-        if (surfaces.Count > 0)
+        if (task.XAttrDoc.Root.GetChild("P3DEquipment") != null)
+            TaskType = TaskTypeEnum.PipeEquipment;
+        else if (task.XAttrDoc.Root.GetChild("P3DHangerPipeSupport") != null && 
+            task.XAttrDoc.Root.GetChild("P3DHangerStdComponent") != null)
         {
-            ;
+            TaskType = TaskTypeEnum.PipeOld;
         }
         else
         {
-            var cones = new List<BCOM.ConeElement>();
-            collectSubElementsByType(Cell, ref cones);
-            ;
+            TaskType = TaskTypeEnum.Pipe;
+        }
+
+        if (TaskType == TaskTypeEnum.Pipe)
+            findFlanges();
+        else
+            findFlangesOld();
+
+        scanInfo();
+
+        // важно в конце - после определения пересечений
+        RefPoints[0] = Location;
+    }
+
+    public void SetRefPoint(int index, string coords)
+    {
+        BCOM.Point3d? pointInfo = ElementHelper.GetPoint3d(coords);
+
+        if (!pointInfo.HasValue)            
+            RefPoints[index] = null;
+        else if (index < RefPoints.Length)
+        {
+            BCOM.Point3d pt = RoundTool.roundExt(
+                pointInfo.Value, /* 5 мм */ 5 / UOR.activeSubPerMaster);
+            RefPoints[index] = pt;
         }
     }
+
+    public BCOM.Point3d? GetRefPoint(int index)
+    {
+        return RefPoints[index];
+    }
+
+    public string GetRefPointCoords(int index)
+    {
+        var pt = GetRefPoint(index);
+        return pt.HasValue ? pt.Value.ToStringEx() : null;
+    }
+
+    
+    //private void testScan() 
+    //{
+    //    if (Cell == null)
+    //        return;
+
+    //    var surfaces = new List<BCOM.Element>();
+    //    collectSubElementsByType(Cell, ref surfaces, BCOM.MsdElementType.Surface);
+
+    //    if (surfaces.Count > 0)
+    //    {
+    //        ;
+    //    }
+    //    else
+    //    {
+    //        var cones = new List<BCOM.ConeElement>();
+    //        collectSubElementsByType(Cell, ref cones);
+    //        ;
+    //    }
+    //}
 
     private PenetrVueTask(Element element, Sp3dTask_Old task) 
     {

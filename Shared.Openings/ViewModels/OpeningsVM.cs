@@ -103,6 +103,7 @@ public class OpeningsVM : BentleyInteropBase
             return;
         }
         form_ = new OpeningForm();
+        form_.setAction_ShowErrorMessage(showErrorMessage_);
 
         form_.tabCtrlMain.TabPages.RemoveByKey("tabCreate");
         form_.tabCtrlMain.TabPages.RemoveByKey("tabUpdate");
@@ -112,14 +113,14 @@ public class OpeningsVM : BentleyInteropBase
 
         form_.setAction_OnCloseForm (groupModel_.clearContext);
         form_.setDataSource(groupModel_.TaskTable);
-        form_.dgvCreationTasks.Columns[GroupByTaskModel.FieldName.STATUS].ReadOnly = true;
         
-        form_.setAction_SetReadOnly(SetReadOnly);
+        form_.setAction_SetReadOnly(setReadOnly_);
 
         form_.setAction_DataRowsAdded(rowsAdded_);
         form_.setAction_Create(addToModel_);
         form_.setAction_Preview(preview_);
 
+        groupModel_.AttrsXDoc = null;
         form_.setAction_LoadXmlAttrs(groupModel_.loadXmlAttrs);
 
         form_.setBinding(nameof(form_.lblSelectionCount), "Text",
@@ -127,10 +128,8 @@ public class OpeningsVM : BentleyInteropBase
             BindinUpdateMode.ControlOnly);
 
         form_.dgvCreationTasks.ReadOnly = true;
+        ensureReadOnlyColumns();
         form_.dgvCreationTasks.ShowRowErrors = true;
-        form_.dgvCreationTasks.RowHeadersVisible = true;
-
-        form_.dgvCreationTasks.RowHeadersWidthSizeMode = DataGridViewRowHeadersWidthSizeMode.AutoSizeToAllHeaders;
 
         form_.dgvCreationTasks.SelectionChanged += DgvCreationTasks_SelectionChanged;
         form_.dgvCreationTasks.CellMouseDoubleClick += DgvCreationTasks_CellMouseDoubleClick;
@@ -140,10 +139,21 @@ public class OpeningsVM : BentleyInteropBase
         #endif
     }
 
-    private void SetReadOnly(bool readOnly)
+    private void showErrorMessage_(Exception ex)
+    {
+        ex.AddToMessageCenter();
+    }
+
+    private void ensureReadOnlyColumns()
+    {
+        var columns = form_.dgvCreationTasks.Columns;
+        columns[GroupByTaskModel.FieldName.STATUS].ReadOnly = true;
+    }
+
+    private void setReadOnly_(bool readOnly)
     {
         form_.dgvCreationTasks.ReadOnly = readOnly;
-        form_.dgvCreationTasks.Columns[GroupByTaskModel.FieldName.STATUS].ReadOnly = true;
+        ensureReadOnlyColumns();
     }
 
     private void DgvCreationTasks_SelectionChanged(object sender, EventArgs e)
@@ -215,60 +225,6 @@ public class OpeningsVM : BentleyInteropBase
         }
 
         form_.dgvCreationTasks.Columns[GroupByTaskModel.FieldName.STATUS].ReadOnly = true;
-    }
-
-    private IEnumerable<DataGridViewColumn> getColumns_()
-    {
-        var columns = new List<DataGridViewColumn>();
-        
-        DataGridViewColumn column = new DataGridViewTextBoxColumn();
-        column.DataPropertyName = "Code";
-        column.Name = ColumnName.CODE;
-        column.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
-        columns.Add(column);
-        
-        column = new DataGridViewTextBoxColumn();
-
-        column.Name = ColumnName.TYPE_SIZE;
-        column.ReadOnly = true;
-        column.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
-        columns.Add(column);
-
-        //var cmboxColumn = new DataGridViewComboBoxColumn();
-        //column = cmboxColumn; // НВС
-        //cmboxColumn.DataPropertyName = "FlangesType";
-        //cmboxColumn.Name = ColumnName.FLANGES;
-        //cmboxColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
-        //cmboxColumn.DataSource = groupModel_.getFlangeNumbersSort();
-        //columns.Add(cmboxColumn);
-        
-        //column = new DataGridViewComboBoxColumn();
-        //column.DataPropertyName = "DiameterTypeStr";
-        //column.Name = ColumnName.DIAMETER;
-        //column.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
-        //columns.Add(column);
-        
-        //column = new DataGridViewTextBoxColumn();
-        //column.DataPropertyName = "Length";
-        //column.Name = ColumnName.LENGTH;
-        //column.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
-        //columns.Add(column);
-
-        //column = new DataGridViewTextBoxColumn();
-        //column.DataPropertyName = 
-        //column.Name = ColumnName.REF_POINT1;
-        //column.ReadOnly = true;
-        //column.AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
-        //columns.Add(column);
-
-        //column = new DataGridViewTextBoxColumn();
-        //column.DataPropertyName = "Test.First().Value";
-        //column.Name = "new";
-        //column.ReadOnly = true;
-        //column.AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
-        //columns.Add(column);
-
-        return columns;
     }
 
     private GroupByTaskModel groupModel_;

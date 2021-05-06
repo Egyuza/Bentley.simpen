@@ -6,6 +6,7 @@ using BCOM = Bentley.Interop.MicroStationDGN;
 using TFCOM = Bentley.Interop.TFCom;
 
 using Shared;
+using System.Linq;
 
 #if V8i
 using BMI = Bentley.MicroStation.InteropServices;
@@ -52,6 +53,41 @@ public static class ElementHelper
             XmlDoc.Root.Add(XElement.Parse(xmlText));
         }
         return XmlDoc;
+    }
+
+    public static void Merge(this XDocument xDoc, 
+        XDocument other, string keyTagName = "UID")
+    {
+        foreach(XElement targetNode in xDoc.Root.Elements())
+        {
+            var relTag = targetNode.GetChild(keyTagName);
+            if (relTag == null)
+                continue;
+
+            string relTagValue = relTag.Value.Trim();
+
+            XElement additionalNode = other?.Root.Elements().FirstOrDefault(x => 
+                x.GetChild(keyTagName) != null &&
+                x.GetChild(keyTagName).Value.Contains(relTagValue)
+            );
+
+            if (additionalNode != null)
+            {
+                foreach(XElement subNode in additionalNode.Elements().ToList())
+                {
+                    XElement matchNode = targetNode.GetChild(subNode.Name.LocalName);
+                    if (matchNode != null)
+                    {
+                        // TODO расскоментировать, если верно:
+                        // matchNode.ReplaceWith(node);
+                    }
+                    else
+                    {
+                        targetNode.Add(subNode);
+                    }
+                }
+            }
+        }
     }
 
 
@@ -378,6 +414,38 @@ public static class ElementHelper
         return modelRef.GetElementByID(element.ElementId);
     }
 #endif
+
+    public static BCOM.Point3d? GetPoint3d(string coords)
+    {
+        BCOM.Point3d pt;
+
+        if (getPoint3d(coords, out pt))
+            return pt;
+
+        return null;
+    }
+
+    public static bool getPoint3d(string coords, out BCOM.Point3d pt)
+    {
+        pt = App.Point3dZero();
+
+        if (string.IsNullOrEmpty(coords))
+            return false;
+
+        string[] sval = coords.Split(',');
+
+        try
+        {
+            pt = App.Point3dFromXYZ(
+                sval[0].ToDouble(), sval[1].ToDouble(), sval[2].ToDouble());
+            return true;
+        }
+        catch (Exception) {}
+        {       
+        }
+
+        return false;
+    }
 
     public static BCOM.Element createPoint(BCOM.Point3d? origin = null)
     {

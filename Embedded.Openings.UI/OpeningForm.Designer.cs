@@ -30,9 +30,9 @@ namespace Embedded.Openings.UI
         private void InitializeComponent()
         {
             System.Windows.Forms.ToolStrip toolStrip1;
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
             this.toolStripLabel1 = new System.Windows.Forms.ToolStripLabel();
             this.statusProject = new System.Windows.Forms.ToolStripLabel();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
@@ -53,8 +53,9 @@ namespace Embedded.Openings.UI
             this.tlpSets = new System.Windows.Forms.TableLayoutPanel();
             this.dgvCreationTasks = new System.Windows.Forms.DataGridView();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
+            this.btnScanGroup = new System.Windows.Forms.Button();
             this.btnLoadXmlAttributes = new System.Windows.Forms.Button();
-            this.button1 = new System.Windows.Forms.Button();
             this.lblSelectionCount = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.btnAddToModel = new System.Windows.Forms.Button();
@@ -70,7 +71,6 @@ namespace Embedded.Openings.UI
             this.label4 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.trvUpdate = new System.Windows.Forms.TreeView();
-            this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             toolStrip1 = new System.Windows.Forms.ToolStrip();
             toolStrip1.SuspendLayout();
             this.tlpForm.SuspendLayout();
@@ -84,10 +84,10 @@ namespace Embedded.Openings.UI
             this.tlpSets.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvCreationTasks)).BeginInit();
             this.panel1.SuspendLayout();
+            this.flowLayoutPanel1.SuspendLayout();
             this.tabUpdate.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             this.flowLayoutPanel2.SuspendLayout();
-            this.flowLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // toolStrip1
@@ -106,9 +106,9 @@ namespace Embedded.Openings.UI
             this.attrsInfoLabel,
             this.toolStripProgressBar1,
             this.attrsInfoText});
-            toolStrip1.Location = new System.Drawing.Point(0, 335);
+            toolStrip1.Location = new System.Drawing.Point(0, 272);
             toolStrip1.Name = "toolStrip1";
-            toolStrip1.Size = new System.Drawing.Size(585, 28);
+            toolStrip1.Size = new System.Drawing.Size(439, 23);
             toolStrip1.TabIndex = 4;
             toolStrip1.Text = "toolStrip1";
             // 
@@ -116,26 +116,26 @@ namespace Embedded.Openings.UI
             // 
             this.toolStripLabel1.ForeColor = System.Drawing.SystemColors.ControlDark;
             this.toolStripLabel1.Name = "toolStripLabel1";
-            this.toolStripLabel1.Size = new System.Drawing.Size(50, 25);
+            this.toolStripLabel1.Size = new System.Drawing.Size(50, 20);
             this.toolStripLabel1.Text = "Проект:";
             // 
             // statusProject
             // 
             this.statusProject.ForeColor = System.Drawing.Color.Red;
             this.statusProject.Name = "statusProject";
-            this.statusProject.Size = new System.Drawing.Size(84, 25);
+            this.statusProject.Size = new System.Drawing.Size(84, 20);
             this.statusProject.Text = "Не определён";
             // 
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(6, 28);
+            this.toolStripSeparator2.Size = new System.Drawing.Size(6, 23);
             // 
             // attrsInfoLabel
             // 
             this.attrsInfoLabel.ForeColor = System.Drawing.SystemColors.ControlDark;
             this.attrsInfoLabel.Name = "attrsInfoLabel";
-            this.attrsInfoLabel.Size = new System.Drawing.Size(98, 25);
+            this.attrsInfoLabel.Size = new System.Drawing.Size(98, 20);
             this.attrsInfoLabel.Text = "Файл атрибутов:";
             this.attrsInfoLabel.Visible = false;
             // 
@@ -143,7 +143,7 @@ namespace Embedded.Openings.UI
             // 
             this.toolStripProgressBar1.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
             this.toolStripProgressBar1.Name = "toolStripProgressBar1";
-            this.toolStripProgressBar1.Size = new System.Drawing.Size(133, 25);
+            this.toolStripProgressBar1.Size = new System.Drawing.Size(100, 20);
             this.toolStripProgressBar1.Visible = false;
             // 
             // attrsInfoText
@@ -151,7 +151,7 @@ namespace Embedded.Openings.UI
             this.attrsInfoText.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this.attrsInfoText.ForeColor = System.Drawing.Color.OliveDrab;
             this.attrsInfoText.Name = "attrsInfoText";
-            this.attrsInfoText.Size = new System.Drawing.Size(16, 25);
+            this.attrsInfoText.Size = new System.Drawing.Size(16, 20);
             this.attrsInfoText.Text = "...";
             this.attrsInfoText.Visible = false;
             // 
@@ -169,8 +169,8 @@ namespace Embedded.Openings.UI
             this.tlpForm.RowCount = 2;
             this.tlpForm.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tlpForm.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tlpForm.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
-            this.tlpForm.Size = new System.Drawing.Size(585, 363);
+            this.tlpForm.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tlpForm.Size = new System.Drawing.Size(439, 295);
             this.tlpForm.TabIndex = 5;
             // 
             // tabCtrlMain
@@ -183,17 +183,16 @@ namespace Embedded.Openings.UI
             this.tabCtrlMain.Margin = new System.Windows.Forms.Padding(0);
             this.tabCtrlMain.Name = "tabCtrlMain";
             this.tabCtrlMain.SelectedIndex = 0;
-            this.tabCtrlMain.Size = new System.Drawing.Size(585, 335);
+            this.tabCtrlMain.Size = new System.Drawing.Size(439, 272);
             this.tabCtrlMain.TabIndex = 2;
             // 
             // tabCreate
             // 
             this.tabCreate.Controls.Add(this.tableLayoutPanel2);
-            this.tabCreate.Location = new System.Drawing.Point(4, 25);
-            this.tabCreate.Margin = new System.Windows.Forms.Padding(4);
+            this.tabCreate.Location = new System.Drawing.Point(4, 22);
             this.tabCreate.Name = "tabCreate";
-            this.tabCreate.Padding = new System.Windows.Forms.Padding(4);
-            this.tabCreate.Size = new System.Drawing.Size(577, 306);
+            this.tabCreate.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
+            this.tabCreate.Size = new System.Drawing.Size(431, 246);
             this.tabCreate.TabIndex = 2;
             this.tabCreate.Text = "Построение";
             this.tabCreate.UseVisualStyleBackColor = true;
@@ -204,14 +203,14 @@ namespace Embedded.Openings.UI
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel2.Controls.Add(this.flowLayoutPanel3, 0, 1);
             this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel2.Location = new System.Drawing.Point(4, 4);
+            this.tableLayoutPanel2.Location = new System.Drawing.Point(3, 3);
             this.tableLayoutPanel2.Margin = new System.Windows.Forms.Padding(0);
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
             this.tableLayoutPanel2.RowCount = 2;
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
-            this.tableLayoutPanel2.Size = new System.Drawing.Size(569, 298);
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanel2.Size = new System.Drawing.Size(425, 240);
             this.tableLayoutPanel2.TabIndex = 2;
             // 
             // flowLayoutPanel3
@@ -222,10 +221,10 @@ namespace Embedded.Openings.UI
             this.flowLayoutPanel3.Controls.Add(this.button2);
             this.flowLayoutPanel3.Controls.Add(this.button3);
             this.flowLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.flowLayoutPanel3.Location = new System.Drawing.Point(0, 264);
+            this.flowLayoutPanel3.Location = new System.Drawing.Point(0, 211);
             this.flowLayoutPanel3.Margin = new System.Windows.Forms.Padding(0);
             this.flowLayoutPanel3.Name = "flowLayoutPanel3";
-            this.flowLayoutPanel3.Size = new System.Drawing.Size(569, 34);
+            this.flowLayoutPanel3.Size = new System.Drawing.Size(425, 29);
             this.flowLayoutPanel3.TabIndex = 5;
             // 
             // btnStartPrimitive
@@ -233,11 +232,10 @@ namespace Embedded.Openings.UI
             this.btnStartPrimitive.AutoSize = true;
             this.btnStartPrimitive.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.btnStartPrimitive.Enabled = false;
-            this.btnStartPrimitive.Location = new System.Drawing.Point(4, 4);
-            this.btnStartPrimitive.Margin = new System.Windows.Forms.Padding(4);
-            this.btnStartPrimitive.MinimumSize = new System.Drawing.Size(100, 0);
+            this.btnStartPrimitive.Location = new System.Drawing.Point(3, 3);
+            this.btnStartPrimitive.MinimumSize = new System.Drawing.Size(75, 0);
             this.btnStartPrimitive.Name = "btnStartPrimitive";
-            this.btnStartPrimitive.Size = new System.Drawing.Size(100, 26);
+            this.btnStartPrimitive.Size = new System.Drawing.Size(77, 23);
             this.btnStartPrimitive.TabIndex = 7;
             this.btnStartPrimitive.Text = "Установить";
             this.btnStartPrimitive.UseVisualStyleBackColor = true;
@@ -246,11 +244,10 @@ namespace Embedded.Openings.UI
             // 
             this.button2.AutoSize = true;
             this.button2.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.button2.Location = new System.Drawing.Point(112, 4);
-            this.button2.Margin = new System.Windows.Forms.Padding(4);
-            this.button2.MinimumSize = new System.Drawing.Size(100, 0);
+            this.button2.Location = new System.Drawing.Point(86, 3);
+            this.button2.MinimumSize = new System.Drawing.Size(75, 0);
             this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(100, 26);
+            this.button2.Size = new System.Drawing.Size(75, 23);
             this.button2.TabIndex = 13;
             this.button2.Text = "Применить";
             this.button2.UseVisualStyleBackColor = true;
@@ -261,11 +258,10 @@ namespace Embedded.Openings.UI
             this.button3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.button3.AutoSize = true;
             this.button3.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.button3.Location = new System.Drawing.Point(220, 4);
-            this.button3.Margin = new System.Windows.Forms.Padding(4);
-            this.button3.MinimumSize = new System.Drawing.Size(100, 0);
+            this.button3.Location = new System.Drawing.Point(167, 3);
+            this.button3.MinimumSize = new System.Drawing.Size(75, 0);
             this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(190, 26);
+            this.button3.Size = new System.Drawing.Size(150, 23);
             this.button3.TabIndex = 14;
             this.button3.Text = "Выйти из редактирования";
             this.button3.UseVisualStyleBackColor = true;
@@ -274,10 +270,9 @@ namespace Embedded.Openings.UI
             // tabGroupByTask
             // 
             this.tabGroupByTask.Controls.Add(this.tlpMain);
-            this.tabGroupByTask.Location = new System.Drawing.Point(4, 25);
-            this.tabGroupByTask.Margin = new System.Windows.Forms.Padding(4);
+            this.tabGroupByTask.Location = new System.Drawing.Point(4, 22);
             this.tabGroupByTask.Name = "tabGroupByTask";
-            this.tabGroupByTask.Size = new System.Drawing.Size(577, 306);
+            this.tabGroupByTask.Size = new System.Drawing.Size(431, 246);
             this.tabGroupByTask.TabIndex = 0;
             this.tabGroupByTask.Text = "Групповой по заданию";
             this.tabGroupByTask.UseVisualStyleBackColor = true;
@@ -294,8 +289,8 @@ namespace Embedded.Openings.UI
             this.tlpMain.Name = "tlpMain";
             this.tlpMain.RowCount = 2;
             this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 69F));
-            this.tlpMain.Size = new System.Drawing.Size(577, 306);
+            this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 56F));
+            this.tlpMain.Size = new System.Drawing.Size(431, 246);
             this.tlpMain.TabIndex = 1;
             // 
             // grbxTasks
@@ -305,8 +300,7 @@ namespace Embedded.Openings.UI
             this.grbxTasks.Location = new System.Drawing.Point(1, 1);
             this.grbxTasks.Margin = new System.Windows.Forms.Padding(1);
             this.grbxTasks.Name = "grbxTasks";
-            this.grbxTasks.Padding = new System.Windows.Forms.Padding(4);
-            this.grbxTasks.Size = new System.Drawing.Size(575, 235);
+            this.grbxTasks.Size = new System.Drawing.Size(429, 188);
             this.grbxTasks.TabIndex = 7;
             this.grbxTasks.TabStop = false;
             this.grbxTasks.Text = "Задания:";
@@ -317,13 +311,13 @@ namespace Embedded.Openings.UI
             this.tlpSets.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tlpSets.Controls.Add(this.dgvCreationTasks, 0, 0);
             this.tlpSets.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tlpSets.Location = new System.Drawing.Point(4, 19);
+            this.tlpSets.Location = new System.Drawing.Point(3, 16);
             this.tlpSets.Margin = new System.Windows.Forms.Padding(0);
             this.tlpSets.Name = "tlpSets";
             this.tlpSets.RowCount = 1;
             this.tlpSets.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tlpSets.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 198F));
-            this.tlpSets.Size = new System.Drawing.Size(567, 212);
+            this.tlpSets.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 174F));
+            this.tlpSets.Size = new System.Drawing.Size(423, 169);
             this.tlpSets.TabIndex = 1;
             // 
             // dgvCreationTasks
@@ -334,24 +328,24 @@ namespace Embedded.Openings.UI
             this.dgvCreationTasks.BackgroundColor = System.Drawing.SystemColors.Control;
             this.dgvCreationTasks.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.dgvCreationTasks.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.Single;
-            dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle4.BackColor = System.Drawing.SystemColors.ControlLight;
-            dataGridViewCellStyle4.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            dataGridViewCellStyle4.ForeColor = System.Drawing.SystemColors.WindowText;
-            dataGridViewCellStyle4.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle4.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dgvCreationTasks.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle4;
+            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.ControlLight;
+            dataGridViewCellStyle1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dgvCreationTasks.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
             this.dgvCreationTasks.ColumnHeadersHeight = 29;
             this.dgvCreationTasks.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
-            dataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle5.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle5.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            dataGridViewCellStyle5.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
-            dataGridViewCellStyle5.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle5.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle5.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.dgvCreationTasks.DefaultCellStyle = dataGridViewCellStyle5;
+            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
+            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.dgvCreationTasks.DefaultCellStyle = dataGridViewCellStyle2;
             this.dgvCreationTasks.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgvCreationTasks.EditMode = System.Windows.Forms.DataGridViewEditMode.EditOnEnter;
             this.dgvCreationTasks.EnableHeadersVisualStyles = false;
@@ -360,19 +354,19 @@ namespace Embedded.Openings.UI
             this.dgvCreationTasks.MultiSelect = false;
             this.dgvCreationTasks.Name = "dgvCreationTasks";
             this.dgvCreationTasks.ReadOnly = true;
-            dataGridViewCellStyle6.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle6.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle6.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            dataGridViewCellStyle6.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle6.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle6.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dgvCreationTasks.RowHeadersDefaultCellStyle = dataGridViewCellStyle6;
+            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle3.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dgvCreationTasks.RowHeadersDefaultCellStyle = dataGridViewCellStyle3;
             this.dgvCreationTasks.RowHeadersVisible = false;
             this.dgvCreationTasks.RowHeadersWidth = 51;
             this.dgvCreationTasks.RowTemplate.DefaultCellStyle.ForeColor = System.Drawing.Color.Black;
             this.dgvCreationTasks.RowTemplate.Height = 20;
             this.dgvCreationTasks.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvCreationTasks.Size = new System.Drawing.Size(567, 211);
+            this.dgvCreationTasks.Size = new System.Drawing.Size(423, 168);
             this.dgvCreationTasks.TabIndex = 2;
             this.dgvCreationTasks.DataError += new System.Windows.Forms.DataGridViewDataErrorEventHandler(this.DgvFields_DataError);
             this.dgvCreationTasks.RowsAdded += new System.Windows.Forms.DataGridViewRowsAddedEventHandler(this.DgvFields_RowsAdded);
@@ -386,59 +380,72 @@ namespace Embedded.Openings.UI
             this.panel1.Controls.Add(this.btnPreview);
             this.panel1.Controls.Add(this.chboxEdit);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel1.Location = new System.Drawing.Point(0, 237);
+            this.panel1.Location = new System.Drawing.Point(0, 190);
             this.panel1.Margin = new System.Windows.Forms.Padding(0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(577, 69);
+            this.panel1.Size = new System.Drawing.Size(431, 56);
             this.panel1.TabIndex = 8;
+            // 
+            // flowLayoutPanel1
+            // 
+            this.flowLayoutPanel1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.flowLayoutPanel1.AutoSize = true;
+            this.flowLayoutPanel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.flowLayoutPanel1.Controls.Add(this.btnScanGroup);
+            this.flowLayoutPanel1.Controls.Add(this.btnLoadXmlAttributes);
+            this.flowLayoutPanel1.Location = new System.Drawing.Point(1, 31);
+            this.flowLayoutPanel1.Margin = new System.Windows.Forms.Padding(0);
+            this.flowLayoutPanel1.Name = "flowLayoutPanel1";
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(187, 25);
+            this.flowLayoutPanel1.TabIndex = 14;
+            // 
+            // btnScanGroup
+            // 
+            this.btnScanGroup.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.btnScanGroup.AutoSize = true;
+            this.btnScanGroup.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.btnScanGroup.Location = new System.Drawing.Point(2, 0);
+            this.btnScanGroup.Margin = new System.Windows.Forms.Padding(2, 0, 0, 2);
+            this.btnScanGroup.MinimumSize = new System.Drawing.Size(75, 0);
+            this.btnScanGroup.Name = "btnScanGroup";
+            this.btnScanGroup.Size = new System.Drawing.Size(83, 23);
+            this.btnScanGroup.TabIndex = 12;
+            this.btnScanGroup.Text = "Сканировать";
+            this.btnScanGroup.UseVisualStyleBackColor = true;
+            this.btnScanGroup.Visible = false;
             // 
             // btnLoadXmlAttributes
             // 
             this.btnLoadXmlAttributes.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.btnLoadXmlAttributes.AutoSize = true;
             this.btnLoadXmlAttributes.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.btnLoadXmlAttributes.Location = new System.Drawing.Point(110, 0);
-            this.btnLoadXmlAttributes.Margin = new System.Windows.Forms.Padding(3, 0, 0, 3);
-            this.btnLoadXmlAttributes.MinimumSize = new System.Drawing.Size(100, 0);
+            this.btnLoadXmlAttributes.Location = new System.Drawing.Point(87, 0);
+            this.btnLoadXmlAttributes.Margin = new System.Windows.Forms.Padding(2, 0, 0, 2);
+            this.btnLoadXmlAttributes.MinimumSize = new System.Drawing.Size(75, 0);
             this.btnLoadXmlAttributes.Name = "btnLoadXmlAttributes";
-            this.btnLoadXmlAttributes.Size = new System.Drawing.Size(126, 26);
+            this.btnLoadXmlAttributes.Size = new System.Drawing.Size(100, 23);
             this.btnLoadXmlAttributes.TabIndex = 13;
             this.btnLoadXmlAttributes.Text = "Файл атрибутов";
             this.btnLoadXmlAttributes.UseVisualStyleBackColor = true;
             this.btnLoadXmlAttributes.Click += new System.EventHandler(this.btnLoadXmlAttributes_Click);
             // 
-            // button1
-            // 
-            this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.button1.AutoSize = true;
-            this.button1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.button1.Location = new System.Drawing.Point(3, 0);
-            this.button1.Margin = new System.Windows.Forms.Padding(3, 0, 0, 3);
-            this.button1.MinimumSize = new System.Drawing.Size(100, 0);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(104, 26);
-            this.button1.TabIndex = 12;
-            this.button1.Text = "Сканировать";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Visible = false;
-            // 
             // lblSelectionCount
             // 
             this.lblSelectionCount.AutoSize = true;
-            this.lblSelectionCount.Location = new System.Drawing.Point(73, 7);
-            this.lblSelectionCount.Margin = new System.Windows.Forms.Padding(0, 7, 4, 4);
+            this.lblSelectionCount.Location = new System.Drawing.Point(55, 6);
+            this.lblSelectionCount.Margin = new System.Windows.Forms.Padding(0, 6, 3, 3);
             this.lblSelectionCount.Name = "lblSelectionCount";
-            this.lblSelectionCount.Size = new System.Drawing.Size(15, 16);
+            this.lblSelectionCount.Size = new System.Drawing.Size(13, 13);
             this.lblSelectionCount.TabIndex = 11;
             this.lblSelectionCount.Text = "0";
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(4, 7);
-            this.label1.Margin = new System.Windows.Forms.Padding(3, 7, 0, 0);
+            this.label1.Location = new System.Drawing.Point(3, 6);
+            this.label1.Margin = new System.Windows.Forms.Padding(2, 6, 0, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(69, 16);
+            this.label1.Size = new System.Drawing.Size(55, 13);
             this.label1.TabIndex = 10;
             this.label1.Text = "Выбрано:";
             // 
@@ -447,11 +454,11 @@ namespace Embedded.Openings.UI
             this.btnAddToModel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnAddToModel.AutoSize = true;
             this.btnAddToModel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.btnAddToModel.Location = new System.Drawing.Point(474, 40);
-            this.btnAddToModel.Margin = new System.Windows.Forms.Padding(3, 0, 0, 3);
-            this.btnAddToModel.MinimumSize = new System.Drawing.Size(100, 0);
+            this.btnAddToModel.Location = new System.Drawing.Point(354, 31);
+            this.btnAddToModel.Margin = new System.Windows.Forms.Padding(2, 0, 0, 2);
+            this.btnAddToModel.MinimumSize = new System.Drawing.Size(75, 0);
             this.btnAddToModel.Name = "btnAddToModel";
-            this.btnAddToModel.Size = new System.Drawing.Size(100, 26);
+            this.btnAddToModel.Size = new System.Drawing.Size(75, 23);
             this.btnAddToModel.TabIndex = 6;
             this.btnAddToModel.Text = "Создать";
             this.btnAddToModel.UseVisualStyleBackColor = true;
@@ -462,11 +469,11 @@ namespace Embedded.Openings.UI
             this.btnPreview.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnPreview.AutoSize = true;
             this.btnPreview.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.btnPreview.Location = new System.Drawing.Point(371, 40);
-            this.btnPreview.Margin = new System.Windows.Forms.Padding(3, 0, 0, 3);
-            this.btnPreview.MinimumSize = new System.Drawing.Size(100, 0);
+            this.btnPreview.Location = new System.Drawing.Point(276, 31);
+            this.btnPreview.Margin = new System.Windows.Forms.Padding(2, 0, 0, 2);
+            this.btnPreview.MinimumSize = new System.Drawing.Size(75, 0);
             this.btnPreview.Name = "btnPreview";
-            this.btnPreview.Size = new System.Drawing.Size(100, 26);
+            this.btnPreview.Size = new System.Drawing.Size(75, 23);
             this.btnPreview.TabIndex = 7;
             this.btnPreview.Text = "Просмотр";
             this.btnPreview.UseVisualStyleBackColor = true;
@@ -476,10 +483,10 @@ namespace Embedded.Openings.UI
             // 
             this.chboxEdit.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.chboxEdit.AutoSize = true;
-            this.chboxEdit.Location = new System.Drawing.Point(363, 3);
-            this.chboxEdit.Margin = new System.Windows.Forms.Padding(4, 0, 0, 0);
+            this.chboxEdit.Location = new System.Drawing.Point(261, 2);
+            this.chboxEdit.Margin = new System.Windows.Forms.Padding(3, 0, 0, 0);
             this.chboxEdit.Name = "chboxEdit";
-            this.chboxEdit.Size = new System.Drawing.Size(211, 20);
+            this.chboxEdit.Size = new System.Drawing.Size(167, 17);
             this.chboxEdit.TabIndex = 8;
             this.chboxEdit.Text = "разрешить редактирование";
             this.chboxEdit.UseVisualStyleBackColor = true;
@@ -488,10 +495,9 @@ namespace Embedded.Openings.UI
             // tabUpdate
             // 
             this.tabUpdate.Controls.Add(this.tableLayoutPanel1);
-            this.tabUpdate.Location = new System.Drawing.Point(4, 25);
-            this.tabUpdate.Margin = new System.Windows.Forms.Padding(4);
+            this.tabUpdate.Location = new System.Drawing.Point(4, 22);
             this.tabUpdate.Name = "tabUpdate";
-            this.tabUpdate.Size = new System.Drawing.Size(577, 306);
+            this.tabUpdate.Size = new System.Drawing.Size(431, 246);
             this.tabUpdate.TabIndex = 1;
             this.tabUpdate.Text = "Обновление";
             this.tabUpdate.UseVisualStyleBackColor = true;
@@ -509,8 +515,8 @@ namespace Embedded.Openings.UI
             this.tableLayoutPanel1.RowCount = 2;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(577, 306);
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(431, 246);
             this.tableLayoutPanel1.TabIndex = 2;
             // 
             // flowLayoutPanel2
@@ -524,19 +530,18 @@ namespace Embedded.Openings.UI
             this.flowLayoutPanel2.Controls.Add(this.label4);
             this.flowLayoutPanel2.Controls.Add(this.label5);
             this.flowLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.flowLayoutPanel2.Location = new System.Drawing.Point(4, 217);
-            this.flowLayoutPanel2.Margin = new System.Windows.Forms.Padding(4);
+            this.flowLayoutPanel2.Location = new System.Drawing.Point(3, 173);
             this.flowLayoutPanel2.Name = "flowLayoutPanel2";
-            this.flowLayoutPanel2.Size = new System.Drawing.Size(569, 85);
+            this.flowLayoutPanel2.Size = new System.Drawing.Size(425, 70);
             this.flowLayoutPanel2.TabIndex = 5;
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(8, 7);
-            this.label2.Margin = new System.Windows.Forms.Padding(8, 7, 0, 4);
+            this.label2.Location = new System.Drawing.Point(6, 6);
+            this.label2.Margin = new System.Windows.Forms.Padding(6, 6, 0, 3);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(69, 16);
+            this.label2.Size = new System.Drawing.Size(54, 13);
             this.label2.TabIndex = 10;
             this.label2.Text = "Найдено:";
             // 
@@ -544,10 +549,10 @@ namespace Embedded.Openings.UI
             // 
             this.label3.AutoSize = true;
             this.flowLayoutPanel2.SetFlowBreak(this.label3, true);
-            this.label3.Location = new System.Drawing.Point(77, 7);
-            this.label3.Margin = new System.Windows.Forms.Padding(0, 7, 4, 4);
+            this.label3.Location = new System.Drawing.Point(60, 6);
+            this.label3.Margin = new System.Windows.Forms.Padding(0, 6, 3, 3);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(15, 16);
+            this.label3.Size = new System.Drawing.Size(13, 13);
             this.label3.TabIndex = 11;
             this.label3.Text = "0";
             // 
@@ -555,11 +560,10 @@ namespace Embedded.Openings.UI
             // 
             this.btnScan.AutoSize = true;
             this.btnScan.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.btnScan.Location = new System.Drawing.Point(4, 31);
-            this.btnScan.Margin = new System.Windows.Forms.Padding(4);
-            this.btnScan.MinimumSize = new System.Drawing.Size(100, 0);
+            this.btnScan.Location = new System.Drawing.Point(3, 25);
+            this.btnScan.MinimumSize = new System.Drawing.Size(75, 0);
             this.btnScan.Name = "btnScan";
-            this.btnScan.Size = new System.Drawing.Size(104, 26);
+            this.btnScan.Size = new System.Drawing.Size(83, 23);
             this.btnScan.TabIndex = 13;
             this.btnScan.Text = "Сканировать";
             this.btnScan.UseVisualStyleBackColor = true;
@@ -568,11 +572,10 @@ namespace Embedded.Openings.UI
             // 
             this.btnUpdate.AutoSize = true;
             this.btnUpdate.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.btnUpdate.Location = new System.Drawing.Point(116, 31);
-            this.btnUpdate.Margin = new System.Windows.Forms.Padding(4);
-            this.btnUpdate.MinimumSize = new System.Drawing.Size(100, 0);
+            this.btnUpdate.Location = new System.Drawing.Point(92, 25);
+            this.btnUpdate.MinimumSize = new System.Drawing.Size(75, 0);
             this.btnUpdate.Name = "btnUpdate";
-            this.btnUpdate.Size = new System.Drawing.Size(100, 26);
+            this.btnUpdate.Size = new System.Drawing.Size(75, 23);
             this.btnUpdate.TabIndex = 6;
             this.btnUpdate.Text = "Обновить";
             this.btnUpdate.UseVisualStyleBackColor = true;
@@ -581,10 +584,10 @@ namespace Embedded.Openings.UI
             // 
             this.label4.AutoSize = true;
             this.flowLayoutPanel2.SetFlowBreak(this.label4, true);
-            this.label4.Location = new System.Drawing.Point(224, 34);
-            this.label4.Margin = new System.Windows.Forms.Padding(4, 7, 4, 0);
+            this.label4.Location = new System.Drawing.Point(173, 28);
+            this.label4.Margin = new System.Windows.Forms.Padding(3, 6, 3, 0);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(0, 16);
+            this.label4.Size = new System.Drawing.Size(0, 13);
             this.label4.TabIndex = 12;
             // 
             // label5
@@ -592,10 +595,10 @@ namespace Embedded.Openings.UI
             this.label5.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.label5.AutoSize = true;
             this.label5.ForeColor = System.Drawing.SystemColors.ControlDark;
-            this.label5.Location = new System.Drawing.Point(8, 65);
-            this.label5.Margin = new System.Windows.Forms.Padding(8, 4, 4, 4);
+            this.label5.Location = new System.Drawing.Point(6, 54);
+            this.label5.Margin = new System.Windows.Forms.Padding(6, 3, 3, 3);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(118, 16);
+            this.label5.Size = new System.Drawing.Size(92, 13);
             this.label5.TabIndex = 9;
             this.label5.Text = "Сатусная строка";
             this.label5.Visible = false;
@@ -605,32 +608,17 @@ namespace Embedded.Openings.UI
             this.trvUpdate.BackColor = System.Drawing.SystemColors.ActiveBorder;
             this.trvUpdate.CheckBoxes = true;
             this.trvUpdate.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.trvUpdate.Location = new System.Drawing.Point(4, 4);
-            this.trvUpdate.Margin = new System.Windows.Forms.Padding(4);
+            this.trvUpdate.Location = new System.Drawing.Point(3, 3);
             this.trvUpdate.Name = "trvUpdate";
-            this.trvUpdate.Size = new System.Drawing.Size(569, 205);
+            this.trvUpdate.Size = new System.Drawing.Size(425, 164);
             this.trvUpdate.TabIndex = 6;
-            // 
-            // flowLayoutPanel1
-            // 
-            this.flowLayoutPanel1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.flowLayoutPanel1.AutoSize = true;
-            this.flowLayoutPanel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.flowLayoutPanel1.Controls.Add(this.button1);
-            this.flowLayoutPanel1.Controls.Add(this.btnLoadXmlAttributes);
-            this.flowLayoutPanel1.Location = new System.Drawing.Point(1, 40);
-            this.flowLayoutPanel1.Margin = new System.Windows.Forms.Padding(0);
-            this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(236, 29);
-            this.flowLayoutPanel1.TabIndex = 14;
             // 
             // OpeningForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(585, 363);
+            this.ClientSize = new System.Drawing.Size(439, 295);
             this.Controls.Add(this.tlpForm);
-            this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "OpeningForm";
             this.Text = "Form1";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form_Closed);
@@ -650,13 +638,13 @@ namespace Embedded.Openings.UI
             ((System.ComponentModel.ISupportInitialize)(this.dgvCreationTasks)).EndInit();
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
+            this.flowLayoutPanel1.ResumeLayout(false);
+            this.flowLayoutPanel1.PerformLayout();
             this.tabUpdate.ResumeLayout(false);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
             this.flowLayoutPanel2.ResumeLayout(false);
             this.flowLayoutPanel2.PerformLayout();
-            this.flowLayoutPanel1.ResumeLayout(false);
-            this.flowLayoutPanel1.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -698,7 +686,7 @@ namespace Embedded.Openings.UI
         private System.Windows.Forms.ToolStripLabel attrsInfoText;
         public System.Windows.Forms.Label lblSelectionCount;
         private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button btnScanGroup;
         private System.Windows.Forms.Button btnLoadXmlAttributes;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
     }

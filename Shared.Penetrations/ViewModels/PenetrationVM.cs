@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using Embedded.Penetrations.UI;
 
 using Shared.Bentley;
 using Shared;
+using System.Data;
 
 namespace Embedded.Penetrations.Shared
 {
@@ -94,7 +96,7 @@ public class PenetrationVM : BentleyInteropBase
     public void showForm()
     {
         initializeForm();
-        WindowHelper.show(form_, "simpen::Penetration");
+        WindowHelper.show(form_, "Embedded::Penetration");
     }
 
     private void initializeForm()
@@ -103,6 +105,8 @@ public class PenetrationVM : BentleyInteropBase
             return;
         }
         form_ = new PenetrationForm();
+        form_.setAction_ShowErrorMessage(showErrorMessage_);
+
         form_.Text = $"Проходки v{AssemblyVersion.VersionStr}" 
             + (isDebugMode_ ? " [DEBUG]" : string.Empty);
 
@@ -126,25 +130,39 @@ public class PenetrationVM : BentleyInteropBase
             }
         }
 
-        form_.setColumns(getColumns_());
+        form_.dgvCreationTasks.AutoGenerateColumns = false;
+        form_.dgvCreationTasks.AutoSizeColumnsMode = 
+            DataGridViewAutoSizeColumnsMode.AllCells;
 
-        form_.setDataSource_Create(groupModel_.TaskSelection);
+        form_.setColumns(getColumns_(groupModel_.TaskTable));
+        form_.setDataSource(groupModel_.TaskTable);
+
+        groupModel_.AttrsXDoc = null;
+        form_.setAction_LoadXmlAttrs(groupModel_.loadXmlAttrs);        
+
         form_.setBinding("lblSelectionCount", "Text",
             groupModel_, nameof(groupModel_.SelectionCount), 
             BindinUpdateMode.ControlOnly);
 
-        form_.setDataRowsAddedAction(rowsAdded);
-        form_.setPreviewAction(groupModel_.preview);
-        form_.setCreateAction(groupModel_.addToModel);
-        form_.setOnCloseFormAction (groupModel_.clearContext);
+        form_.setAction_DataRowsAdded(rowsAdded_);
+        form_.setAction_Create(addToModel_);
+        form_.setAction_Preview(preview_);
+        form_.setAction_OnCloseForm (groupModel_.clearContext);
 
+        form_.setAction_StartPrimitive(singleModel_.startPrimitive);
+        form_.setAction_StartDefault(singleModel_.startDefaultCommand);
 
-        form_.setStartPrimitiveAction(singleModel_.startPrimitive);
-        form_.setStartDefaultAction(singleModel_.startDefaultCommand);
+        form_.setAction_ScanForUpdate(updateModel_.scanForUpdate);
+        form_.setAction_Update(updateModel_.runUpdate);
+        form_.setAction_UpdateNodeDoubleClick(updateModel_.updateNodeDoubleClick);
 
-        form_.setScanForUpdateAction(updateModel_.scanForUpdate);
-        form_.setUpdateAction(updateModel_.runUpdate);
-        form_.setUpdateNodeDoubleClickAction(updateModel_.updateNodeDoubleClick);
+        form_.dgvCreationTasks.SelectionChanged += DgvCreationTasks_SelectionChanged;
+        form_.dgvCreationTasks.CellMouseDoubleClick += DgvCreationTasks_CellMouseDoubleClick;
+
+        form_.dgvCreationTasks.ShowRowErrors = true;
+        form_.dgvCreationTasks.ReadOnly = true;
+        form_.setAction_SetReadOnly(setReadOnly_);
+        ensureReadOnlyColumns();
 
         ///
         /// Single =========================
@@ -176,55 +194,84 @@ public class PenetrationVM : BentleyInteropBase
         form_.numAngleY.setBinding("Value", userTask, nameof(userTask.userAngleY));
         form_.numAngleZ.setBinding("Value", userTask, nameof(userTask.userAngleZ));
 
-        form_.setSingleSelecteFlangeType(singleModel_.setFlangeType);
-        form_.setSingleSelecteDiameterType(singleModel_.setDiameterType);
-        form_.setSingleSelecteLength(singleModel_.setLength);
+        form_.setAction_SingleSelecteFlangeType(singleModel_.setFlangeType);
+        form_.setAction_SingleSelecteDiameterType(singleModel_.setDiameterType);
+        form_.setAction_SingleSelecteLength(singleModel_.setLength);
 
         form_.cbxDiameter.DataSource = singleModel_.CurrentDiameters;
         form_.cbxFlanges.DataSource = 
             PenetrDataSource.Instance.getFlangeNumbersSort();
         form_.cbxFlanges.SelectedIndex = 0;
         form_.cbxDiameter.SelectedIndex = 0;
-
-        form_.dgvCreationTasks.SelectionChanged += DgvCreationTasks_SelectionChanged;
-        form_.dgvCreationTasks.CellMouseDoubleClick += DgvCreationTasks_CellMouseDoubleClick;
                 
         #if DEBUG
             // form_.tabControl1.TabPages.RemoveAt(0); // TODO временно до отладки и ввода в работу        
         #endif
     }
 
+    private void showErrorMessage_(Exception ex)
+    {
+        ex.AddToMessageCenter();
+    }
+
+    private void ensureReadOnlyColumns()
+    {
+        var columns = form_.dgvCreationTasks.Columns;
+        columns[GroupByTaskModel.FieldName.STATUS].ReadOnly = 
+        columns[GroupByTaskModel.PropKey.NAME].ReadOnly = true;
+    }
+
+    private void setReadOnly_(bool readOnly)
+    {
+        form_.dgvCreationTasks.ReadOnly = readOnly;
+        ensureReadOnlyColumns();
+    }
+
     private void DgvCreationTasks_SelectionChanged(object sender, EventArgs e)
     {
-        var selection = new List<PenetrVueTask>();
+        var selection = new List<DataRow>();
         foreach(DataGridViewRow row in form_.dgvCreationTasks.SelectedRows)
         {
-            var task = (PenetrVueTask)row.DataBoundItem;
-            if (task != null)
+            DataRow taskRow = row.GetDataRow();
+            if (taskRow != null)
             {
-                selection.Add(task);
+                selection.Add(taskRow);
             }
         }
         groupModel_.changeSelection(selection);
     }
     private void DgvCreationTasks_CellMouseDoubleClick(object sender, DataGridViewCellMouseEventArgs e)
     {
-        PenetrVueTask task = 
-            (PenetrVueTask)form_.dgvCreationTasks.Rows[e.RowIndex].DataBoundItem;
+        if (e.RowIndex < 0)
+            return;
 
-        groupModel_.focusTaskElement(task);
+        DataGridViewRow dgvRow = form_.dgvCreationTasks.Rows[e.RowIndex];
+        groupModel_.focusTaskElement(dgvRow.GetDataRow());
     }
 
-    private void rowsAdded(IEnumerable<DataGridViewRow> rows)
+    private void preview_()
+    {
+        groupModel_.preview();
+        UpdateRowsStylesByStatus();
+    }
+
+    private void addToModel_()
+    {
+        groupModel_.addToModel();
+        UpdateRowsStylesByStatus();
+    }
+
+    private void rowsAdded_(IEnumerable<DataGridViewRow> rows)
     {
         foreach (var row in rows)
         {
-            var comboCell = 
-                row.Cells[ColumnName.DIAMETER] as DataGridViewComboBoxCell;
+            var comboCell = row.Cells[GroupByTaskModel.FieldName.DIAMETER] as DataGridViewComboBoxCell;
 
-            PenetrVueTask task = (PenetrVueTask)row.DataBoundItem;
+            PenetrVueTask task = groupModel_.GetTask(row.GetDataRow());
+            if (task == null)
+                continue;
 
-            var diameters = groupModel_.getDiametersList(task);
+            IList<DiameterType> diameters = groupModel_.getDiametersList(task);
             var diamStrList = new List<string>();
             DiameterType matchValue = null;
             foreach (DiameterType diamType in diameters)
@@ -252,60 +299,85 @@ public class PenetrationVM : BentleyInteropBase
 
                 comboCell.ErrorText = "невалидное значение диаметра";
             }
+
+            DataRow dataRow = row.GetDataRow();
+            if (!dataRow.HasErrors && !dataRow.AnyColumnHasError())
+            {
+                dataRow.SetField(GroupByTaskModel.FieldName.STATUS, "OK");
+            }
+            else
+            {
+                dataRow.SetField(GroupByTaskModel.FieldName.STATUS, "ERROR");
+            }
+        }
+        UpdateRowsStylesByStatus();
+
+        try
+        {
+            var tabCtrl = form_.tabCtrlMain;
+            if (tabCtrl.SelectedTab.Name != "tabGroupByTask")
+            {
+                tabCtrl.SelectedTab = tabCtrl.TabPages["tabGroupByTask"];
+                form_.Refresh();
+            }
+        }
+        catch (Exception)
+        {
         }
     }
 
-    private IEnumerable<DataGridViewColumn> getColumns_()
+    private void UpdateRowsStylesByStatus()
+    {
+        foreach (DataGridViewRow dgvRow in form_.dgvCreationTasks.Rows)
+        {
+            DataRow dataRow = dgvRow.GetDataRow();
+            var cellStyle = dgvRow.DefaultCellStyle;
+
+            string status = dataRow.Field<string>(
+                GroupByTaskModel.FieldName.STATUS)?.ToUpper();
+
+            switch (status)
+            {
+            case "OK":
+                cellStyle.BackColor = System.Drawing.Color.White;
+                break;
+            case "DONE":
+                cellStyle.BackColor = System.Drawing.Color.YellowGreen;
+                break;
+            case "ERROR":
+                cellStyle.BackColor = System.Drawing.Color.Coral; break;
+            case "WARN":
+                cellStyle.BackColor = System.Drawing.Color.LightYellow; break;
+            }
+        }
+    }
+
+    private IEnumerable<DataGridViewColumn> getColumns_(DataTable dataTable)
     {
         var columns = new List<DataGridViewColumn>();
-        
-        DataGridViewColumn column = new DataGridViewTextBoxColumn();
-        column.DataPropertyName = "Code";
-        column.Name = ColumnName.CODE;
-        column.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
-        columns.Add(column);
-        
-        column = new DataGridViewTextBoxColumn();
-        column.DataPropertyName = "Name";
-        column.Name = ColumnName.TYPE_SIZE;
-        column.ReadOnly = true;
-        column.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
-        columns.Add(column);
 
-        var cmboxColumn = new DataGridViewComboBoxColumn();
-        column = cmboxColumn; // НВС
-        cmboxColumn.DataPropertyName = "FlangesType";
-        cmboxColumn.Name = ColumnName.FLANGES;
-        cmboxColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
-        cmboxColumn.DataSource = groupModel_.getFlangeNumbersSort();
-        columns.Add(cmboxColumn);
-        
-        column = new DataGridViewComboBoxColumn();
-        column.DataPropertyName = "DiameterTypeStr";
-        column.Name = ColumnName.DIAMETER;
-        column.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
-        columns.Add(column);
-        
-        column = new DataGridViewTextBoxColumn();
-        column.DataPropertyName = "Length";
-        column.Name = ColumnName.LENGTH;
-        column.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
-        columns.Add(column);
+        foreach(DataColumn dataColumn in dataTable.Columns)
+        {
+            DataGridViewColumn column;
 
-        column = new DataGridViewTextBoxColumn();
-        column.DataPropertyName = 
-        column.Name = ColumnName.REF_POINT1;
-        column.ReadOnly = true;
-        column.AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
-        columns.Add(column);
-
-        //column = new DataGridViewTextBoxColumn();
-        //column.DataPropertyName = "Test.First().Value";
-        //column.Name = "new";
-        //column.ReadOnly = true;
-        //column.AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
-        //columns.Add(column);
-
+            switch (dataColumn.ColumnName)
+            {
+            case GroupByTaskModel.FieldName.FLANGES:
+                var cmboxColumn = new DataGridViewComboBoxColumn();
+                cmboxColumn.DataSource = groupModel_.getFlangeNumbersSort();
+                column = cmboxColumn;
+                break;
+            case GroupByTaskModel.FieldName.DIAMETER:
+                column = new DataGridViewComboBoxColumn();
+                break;
+            default:
+                column = new DataGridViewTextBoxColumn();
+                break;
+            }
+            column.DataPropertyName = dataColumn.ColumnName;
+            column.Name = dataColumn.ColumnName;
+            columns.Add(column);
+        }
         return columns;
     }
 
@@ -316,16 +388,16 @@ public class PenetrationVM : BentleyInteropBase
 
 }
 
-static class ColumnName
-{
-    public static readonly string CODE = "KKS код";
-    public static readonly string TYPE_SIZE = "Типоразмер";
-    public static readonly string FLANGES = "Фланцы";
-    public static readonly string DIAMETER = "Диаметр";
-    public static readonly string LENGTH = "Длина(см)";
-    public static readonly string REF_POINT1 = "RefPoint1";
-    public static readonly string REF_POINT2 = "RefPoint2";
-    public static readonly string REF_POINT3 = "RefPoint3";
-}
+//static class ColumnName
+//{
+//    public static readonly string CODE = "KKS код";
+//    public static readonly string TYPE_SIZE = "Типоразмер";
+//    public static readonly string FLANGES = "Фланцы";
+//    public static readonly string DIAMETER = "Диаметр";
+//    public static readonly string LENGTH = "Длина(см)";
+//    public static readonly string REF_POINT1 = "RefPoint1";
+//    public static readonly string REF_POINT2 = "RefPoint2";
+//    public static readonly string REF_POINT3 = "RefPoint3";
+//}
 
 }

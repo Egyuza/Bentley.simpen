@@ -14,6 +14,8 @@ namespace Embedded.Openings.UI
 {
 public partial class OpeningForm : Form
 {
+    public delegate void ShowErrorMessageAction(Exception ex);
+    
     public delegate void LoadXmlAttrsAction(string uri);
     public delegate void PreviewAction();
     public delegate void CreateAction();
@@ -24,6 +26,7 @@ public partial class OpeningForm : Form
     public delegate void OnCloseFormAction();
     public delegate void DataRowsAddedAction(IEnumerable<DataGridViewRow> rows);
 
+    private ShowErrorMessageAction showErrorMessageAction_;
     private LoadXmlAttrsAction loadXmlAttrsAction_;
     private PreviewAction previewAction_;
     private CreateAction createAction_;
@@ -98,6 +101,11 @@ public partial class OpeningForm : Form
     public void setAction_SetReadOnly(SetReadOnlyAction action)
     {
         setReadOnlyAction_ = action;
+    }
+
+    public void setAction_ShowErrorMessage(ShowErrorMessageAction action)
+    {
+        showErrorMessageAction_ = action;
     }
 
     public void setAction_Preview(PreviewAction action)
@@ -213,6 +221,11 @@ public partial class OpeningForm : Form
     private void chboxEdit_CheckedChanged(object sender, EventArgs e)
     {
         InvokeSafe(setReadOnlyAction_, !chboxEdit.Checked);
+    }
+
+    private void ShowErrorMessage(Exception ex)
+    {
+        showErrorMessageAction_.Invoke(ex);
     }
 
     private void btnLoadXmlAttributes_Click(object sender, EventArgs e)

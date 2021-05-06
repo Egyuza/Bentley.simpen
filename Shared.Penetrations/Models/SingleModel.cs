@@ -46,7 +46,10 @@ public class SingleModel : NotifyPropertyChangedBase
     public SingleModel()
     {
         CurrentDiameters = new BindingList<DiameterType>();
-        UserTask = new PenetrUserTask();
+        UserTask = new PenetrUserTask()
+        {
+            LengthCm = 10 // делаем по умолчанию
+        };
     }
 
     public void startPrimitive()

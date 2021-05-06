@@ -21,7 +21,7 @@ internal static class WindowHelper
 
     internal static void show(Form form, string id)
     {
-        WindowManager winMngr = // вычислит только если Addin загружено в DefaultDomain
+        WindowManager winMngr = // ! вычислит только если Addin загружено в DefaultDomain
             WindowManager.GetForMicroStation();
         
         if (winMngr == null)
@@ -41,12 +41,11 @@ internal static class WindowHelper
             try
             {
                 m_window = winMngr.DockPanel(form, id,
-                    form.Text, DockLocation.Floating); // здесь вызов Frm_Load          
-                
+                    form.Text, DockLocation.Floating); // здесь вызов Frm_Load   
             }
             catch (System.Exception ex)
             {
-                ex.ShowMessage();
+                ex.Alert();
                 return;
             }
 

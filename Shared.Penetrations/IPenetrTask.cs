@@ -16,6 +16,7 @@ public interface IPenetrTask
     /// <summary> в см, кратно 5 мм </summary>
     int LengthCm {get; set;}
     BCOM.Point3d Location { get; }
+    BCOM.Point3d?[] RefPoints {get;}
     BCOM.Matrix3d Rotation {get; }
 
     BCOM.Point3d CorrectiveAngles { get; }
