@@ -27,7 +27,7 @@ static class WinFormExtensions
         }
         catch (Exception ex)
         {
-            ex.ShowMessage();
+            ex.ShowMessageBox();
         }
     }
 
@@ -60,7 +60,7 @@ static class WinFormExtensions
         }
         catch (Exception ex)
         {
-            ex.ShowMessage();
+            ex.ShowMessageBox();
         }
     }
 

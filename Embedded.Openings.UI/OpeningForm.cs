@@ -209,7 +209,7 @@ public partial class OpeningForm : Form
         }
         catch (Exception ex)
         {
-            ex.ShowMessage();
+            ex.ShowMessageBox();
         }
     }
 

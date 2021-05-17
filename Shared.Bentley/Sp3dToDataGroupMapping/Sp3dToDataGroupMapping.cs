@@ -33,7 +33,7 @@ public class Sp3dToDataGroupMapping
 
 
     public void LoadValuesFromXDoc(XDocument xDoc,
-        Dictionary<Sp3dToDataGroupMapProperty, string> targetColl)
+        Dictionary<Sp3dToDataGroupMapProperty, string> targetColl, bool includeNullValues = false)
     {
         targetColl = targetColl ?? new Dictionary<Sp3dToDataGroupMapProperty, string>();
 
@@ -42,6 +42,8 @@ public class Sp3dToDataGroupMapping
             if (propMap.TargetXPath == null)
                 continue;
             
+            bool isFound = false;
+
             foreach (string path in propMap.Sp3dXmlPaths)
             {
                 string propName;
@@ -49,9 +51,16 @@ public class Sp3dToDataGroupMapping
 
                 if (xEl != null)
                 {
+                    isFound = true;
                     string value = propMap.getMapValue(xEl.Value);
                     targetColl.Add(propMap, value);
+                    break;
                 }
+            }
+
+            if (!isFound && includeNullValues)
+            {
+                targetColl.Add(propMap, null);                
             }
         }
     }

@@ -3,6 +3,7 @@ using Embedded.Penetrations.Shared;
 using Embedded.Penetrations.Shared.Mapping;
 using System;
 using System.Windows.Forms;
+using Shared.Bentley;
 
 namespace Embedded.Penetrations
 {
@@ -29,8 +30,21 @@ static class Keyins
         }
         catch (Exception ex)
         {
-            MessageBox.Show(ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            ex.Alert();
         }
     }
+
+    public static void exportSp3dDataToCsv(string unparsed)
+    {
+        try
+        {
+            Sp3dDataExport.ExportToCsv();
+        }
+        catch (Exception ex)
+        {
+            ex.Alert();
+        }
+    }
+
 }
 }

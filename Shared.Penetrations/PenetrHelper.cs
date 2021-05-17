@@ -141,7 +141,7 @@ public static class PenetrHelper
         }        
         catch (Exception ex)
         {
-            ex.ShowMessage();
+            ex.ShowMessageBox();
         }
     }
     

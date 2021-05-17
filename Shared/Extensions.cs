@@ -18,7 +18,7 @@ static class Extensions
         return row.GetColumnsInError().Length > 0;
     }
 
-    public static void ShowMessage(this Exception ex, string text = null)
+    public static void ShowMessageBox(this Exception ex, string text = null)
     {
         text = text == null ? ex.Message : text + $"\nException: {ex.Message}";
         MessageBox.Show(text, "Exception", MessageBoxButtons.OK, MessageBoxIcon.Error);

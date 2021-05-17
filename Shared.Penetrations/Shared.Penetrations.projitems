@@ -21,6 +21,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)PenetrTaskBase.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PenetrLeaderInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PenetrLocateCmd.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sp3dDataExport.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\PenetrationVM.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PenetrDataSource.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)PenetrHelper.cs" />
