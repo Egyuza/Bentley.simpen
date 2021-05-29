@@ -23,7 +23,7 @@ namespace Embedded.Penetrations.Shared.sp3d
         public string TypeName { get; set; } // тип объекта:
         public TaskType Type => string.IsNullOrEmpty(TypeName) ? TaskType.Unknown :
             (TypeName.ToLower().Contains("penflange") ? TaskType.Flange : 
-            (TypeName.ToLower().ContainsAny("penpipe", "penround", "pntrt", "penplate") ? TaskType.Pipe : 
+            (TypeName.ToLower().ContainsAny("penpipe", "penround", "penrnd", "pntrt", "penplate") ? TaskType.Pipe : 
                     TaskType.Unknown));
 
         public string Oid { get; set; }
@@ -144,7 +144,7 @@ namespace Embedded.Penetrations.Shared.sp3d
         private string getDescription_(XDocument xdoc)
         {
             foreach(string path in new string[] {
-                "P3DEquipment/Description", "P3DHangerPipeSupport/Description"})
+                "P3DEquipment/Description", "P3DHangerPipeSupport/Description", "P3DEquipment/TOICatalogType"})
             {
                 XElement tag = xdoc.Root.GetChildByRegexPath(path);
                 if (tag != null)

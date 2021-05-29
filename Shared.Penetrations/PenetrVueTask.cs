@@ -370,7 +370,7 @@ public class PenetrVueTask : BentleyInteropBase, IPenetrTask
     {
         try
         {
-            string[] parameters = description.TrimStart('T').Split('-');            
+            string[] parameters = description.TrimStart('T'/*EN*/,'Т'/*RU*/).Split('-');            
             PenCode = parameters[0]; // до ввода фиброцементного типа проходок FlangesType = int.Parse(parameters[0]);
             DiameterTypeStr = new DiameterType(int.Parse(parameters[1])).ToString();
             LengthCm = int.Parse(parameters[2]);
