@@ -587,8 +587,8 @@ public class GroupByTaskModel : NotifyPropertyChangedBase
                 try
                 {
                     var penetr = new Penetration(task);
-                    penetr.AddPerforation();
                     penetr.AddProjection();
+                    penetr.AddPerforation();
                     penetr.AddToModel(false);
 
                     row.SetField(FieldName.STATUS, "DONE");

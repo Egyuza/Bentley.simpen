@@ -1018,11 +1018,27 @@ public static class ElementHelper
             TFCOM.TFdFramePerforationPolicy.tfdFramePerforationPolicyNone);
     }
 
+    /// <summary>
+    /// Форсируем обновление для уверенности в пробитии отверстия перфоратора в стене/плите/...
+    /// </summary>
+    public static void ForceRedrawPerforator(this TFCOM.TFFrameList frameList)
+    {
+        // ! 1.предварительная трансформация "на месте"
+        var tranIdentity = App.Transform3dIdentity();
+        string emptyOption = string.Empty;
+        frameList.Transform(tranIdentity, true, emptyOption);
+        // ! 2. обновление перфоратора
+        frameList.ApplyPerforatorInModel();
+        // ! 3. перезапись
+        AppTF.ModelReferenceRewriteFrame(App.ActiveModelReference, frameList.AsTFFrame);
+    }
+
     public static void AddToModel(this TFCOM.TFFrameList frameList, 
         BCOM.ModelReference model = null)
     {
         model = model ?? App.ActiveModelReference;
         AppTF.ModelReferenceAddFrameList(App.ActiveModelReference, frameList);
+        frameList.ForceRedrawPerforator();
     }
 
     private static BCOM.Application App
