@@ -20,9 +20,9 @@ using Bentley.DgnPlatformNET.Elements;
 
 namespace Shared.Bentley
 {
-public class DataGroupHelper
+public static class DataGroupHelper
 {
-    public static bool IsElementOfCatalogType(BCOM.Element comElement, 
+    public static bool IsElementOfCatalogType(this BCOM.Element comElement, 
         string catalogTypeName)
     {
         Element element = ElementHelper.getElement(comElement);
@@ -35,27 +35,28 @@ public class DataGroupHelper
                 return true;
             }
         }
-
-        BCOM.Application app;
-
         
         return false;
     }
 
 
-    public static object GetDataGroupPropertyValue(BCOM.Element bcomElement,
+    public static object GetDataGroupPropertyValue(this BCOM.Element bcomElement,
         string propertyPath, string catalogType = null)
     {
         Element element = ElementHelper.getElement(bcomElement);
         if (element == null)
             return null;
 
-        //var schemas = DataGroupDocument.Instance.CatalogSchemas.Schemas; // НВС для позгрузки
-
         using (var catalogEditHandle = new CatalogEditHandle(element, true, true))
         {
             foreach (DataGroupProperty property in catalogEditHandle.GetProperties())
             {
+                if (catalogType != null && 
+                    !catalogType.Equals(catalogEditHandle.CatalogTypeName))
+                {
+                    continue;
+                }
+
                 if (property.Xpath.Equals(propertyPath)) 
                 {
                     return property.Value;
@@ -65,7 +66,7 @@ public class DataGroupHelper
         return null;
     }
 
-    public static bool SetDataGroupPropertyValue(BCOM.Element bcomElement,
+    public static bool SetDataGroupPropertyValue(this BCOM.Element bcomElement,
         string catalogName, string instanceName, 
         string propXpath, string propName, object value, 
         bool readOnly = false, bool visible = true)

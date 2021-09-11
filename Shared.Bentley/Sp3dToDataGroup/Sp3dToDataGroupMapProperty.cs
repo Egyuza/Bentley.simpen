@@ -47,5 +47,10 @@ namespace Shared.Bentley
         [XmlAttribute]
         public string Value { get; set; }
 
+        public override string ToString()
+        {
+            return $"'{Key}': '{Value}'";
+        }
+
     }
 }

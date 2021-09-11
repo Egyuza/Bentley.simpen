@@ -123,13 +123,13 @@ public abstract class EmbeddedBase : BentleyInteropBase
         bool res = false;
 
         CatchExceptionsByMessageCenter(() =>{
-            res = setDataGroupInstance_();
+            res = SetDataGroupInstance_();
         });
 
         return res;
     }
 
-    public bool setDataGroupInstance_()
+    private bool SetDataGroupInstance_()
     {
         BCOM.Element bcomElement;
         FrameList.GetElement(out bcomElement);
@@ -171,6 +171,7 @@ public abstract class EmbeddedBase : BentleyInteropBase
             // TODO решить проблему вылета при команде Modify DataGroup Instance
         }
     }
+        
 
     public bool AddToModel(bool recoverSettings = true, BCOM.ModelReference model = null)
     {
@@ -190,7 +191,7 @@ public abstract class EmbeddedBase : BentleyInteropBase
                 res = addToModel_(model);
             }
             // DataGroup свойства:
-            res &= setDataGroupInstance_();
+            res &= SetDataGroupInstance_();
         });
 
         return res;

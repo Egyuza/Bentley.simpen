@@ -19,9 +19,7 @@ namespace Embedded.Penetrations.Shared
 public class Sp3dToDGMapping : Sp3dToDataGroupMapping
 {
     public static Sp3dToDataGroupMapping Instance => 
-        instance_ ?? (instance_ = read(
-            WorkspaceHelper.GetConfigVariable(
-                CfgVariables.PEN_SP3D_MAP_FILE_PATH)
-        ));
+        instance_ ?? (instance_ = read(WorkspaceHelper.GetConfigVariable(
+            CfgVariables.PEN_SP3D_MAP_FILE_PATH)));
 }
 }

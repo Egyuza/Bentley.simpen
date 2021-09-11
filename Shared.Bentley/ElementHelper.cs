@@ -24,6 +24,7 @@ using Bentley.DgnPlatformNET.DgnEC;
 using Bentley.EC.Persistence.Query;
 using Bentley.ECObjects.Schema;
 using Bentley.ECObjects.Instance;
+using Bentley.MstnPlatformNET;
 #endif
 
 
@@ -190,11 +191,6 @@ public static class ElementHelper
         (IntPtr)bcomElement.ModelReference.MdlModelRefP());
     }
 
-    public static Element getElement(AddIn.SelectionChangedEventArgs eventArgs)
-    {
-        return getElement(getElementCOM(eventArgs));
-    }
-
     public static BCOM.Element getElementCOM(Element element)
     {
         var modelRef = App.MdlGetModelReferenceFromModelRefP((int)element.ModelRef);
@@ -204,6 +200,11 @@ public static class ElementHelper
     public static BCOM.Element getElementCOM(IntPtr elemRef, IntPtr modelRef)
     {
         return getElementCOM(getElement(elemRef, modelRef));
+    }
+
+    public static Element getElement(AddIn.SelectionChangedEventArgs eventArgs)
+    {
+        return getElement(getElementCOM(eventArgs));
     }
 
     public static BCOM.Element getElementCOM(AddIn.SelectionChangedEventArgs eventArgs)
@@ -218,10 +219,13 @@ public static class ElementHelper
         return cache.GetElement(index);
     }
 
+    public static IntPtr GetNativeElementRef(this Element element)
+    {
+        return element.ElementRef;
+    }   
 
-#endif
+#elif CONNECT
 
-#if CONNECT
     private static string getXmlFormECInstance(IECInstance ecInst)
     {
         string nameSpace = ecInst.ClassDefinition.Schema.NamespacePrefix;
@@ -231,14 +235,15 @@ public static class ElementHelper
         foreach (var prop in ecInst.ClassDefinition)
         {
             var propValue = ecInst.FindPropertyValue(prop.Name, false, false,false, true);
-            if (propValue != null)
+            if (propValue != null && !propValue.IsNull)
             {
                 XElement subEl = new XElement(XName.Get(propValue?.AccessString, nameSpace));
                 try
                 {
                     subEl.Value = propValue.XmlStringValue;
                 }
-                catch (Exception) {}
+                catch (NullReferenceException ex) {}
+                catch (Exception ex) {}
                 el.Add(subEl);
             }
         }
@@ -412,6 +417,23 @@ public static class ElementHelper
         var modelRef = App.MdlGetModelReferenceFromModelRefP(
             (long)element.GetNativeDgnModelRef());
         return modelRef.GetElementByID(element.ElementId);
+    }
+
+    public static Element getElement(AddIn.SelectionChangedEventArgs eventArgs)
+    {
+        return getElement(getElementCOM(eventArgs));
+    }
+
+    public static BCOM.Element getElementCOM(AddIn.SelectionChangedEventArgs eventArgs)
+    {
+        var activeModel = App.MdlGetModelReferenceFromModelRefP(
+        (int)eventArgs.DgnModelRef.GetNative());
+
+        var cache = activeModel.ElementCacheContainingFilePosition(
+            (int)eventArgs.FilePosition);
+
+        int index = cache.IndexFromFilePosition((int)eventArgs.FilePosition);
+        return cache.GetElement(index);
     }
 #endif
 
@@ -723,7 +745,6 @@ public static class ElementHelper
         {
             tag.Value = value;
             tag.Rewrite();
-            element.Rewrite();
             return true;
         }
 

@@ -18,8 +18,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Logger.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ProjectionInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)RoundTool.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Sp3dToDataGroupMapping\Sp3dToDataGroupMapping.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Sp3dToDataGroupMapping\Sp3dToDataGroupMapProperty.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sp3dToDataGroup\Sp3dToDataGroupMapping.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Sp3dToDataGroup\Sp3dToDataGroupMapProperty.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)TFFormTypeEnum.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)UOR.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewHelper.cs" />

@@ -6,6 +6,7 @@ using System.Text;
 using BCOM = Bentley.Interop.MicroStationDGN;
 using System.Linq;
 using Shared;
+using Bentley.Interop.MicroStationDGN;
 
 #if V8i
 using Bentley.Internal.MicroStation.Elements;
@@ -41,22 +42,22 @@ public class TagsToDataGroupConverter : BentleyInteropBase
         iter.Reset();
         while (iter.MoveNext())
         {
-            IEnumerable<TagToDataGroupMapProperty> mapProps;
-            if (!IsElementMatchesMapping(iter.Current, out mapProps))
+            IEnumerable<TagToDataGroupMapProperty> mapTags;
+            if (!ScanElementHasMappingTags(iter.Current, out mapTags))
                 continue;            
             
             ++summaryCount;
             var skippedProps = new List<TagToDataGroupMapProperty>();
 
-            foreach (var prop in mapProps)
+            foreach (TagToDataGroupMapProperty mapTag in mapTags)
             {
                 bool res = DataGroupHelper.SetDataGroupPropertyValue(iter.Current, 
-                    prop.DataGroupCatalogType, prop.DataGroupInstance, 
-                    prop.DataGroupXPath, prop.TagName, prop.Value);
+                    mapTag.DataGroupCatalogType, mapTag.DataGroupInstance, 
+                    mapTag.DataGroupXPath, mapTag.TagName, mapTag.Value);
 
                 if (!res)
                 {
-                    skippedProps.Add(prop);
+                    skippedProps.Add(mapTag);
                 }
             }
 
@@ -103,7 +104,7 @@ public class TagsToDataGroupConverter : BentleyInteropBase
     #if V8i
         App.MessageCenter.AddMessage(brief, builder.ToString(), BCOM.MsdMessageCenterPriority.Info, true);
     #elif CONNECT
-        MessageCenter.Instance.ShowMessage(MessageType.Info, brief, builder.ToString(), MessageAlert.Dialog);
+        Bentley.MstnPlatformNET.MessageCenter.Instance.ShowMessage(MessageType.Info, brief, builder.ToString(), MessageAlert.Dialog);
     #endif
 
         // TODO ОБРАБОТКА РЕФЕРЕНСОВ
@@ -118,8 +119,8 @@ public class TagsToDataGroupConverter : BentleyInteropBase
         //}
     }
 
-    private static bool IsElementMatchesMapping(BCOM.Element comElement, out 
-        IEnumerable<TagToDataGroupMapProperty> mapProperties)
+    public static bool ScanElementHasMappingTags(BCOM.Element comElement, out 
+        IEnumerable<TagToDataGroupMapProperty> mapTags)
     {
         var listProps = new List<TagToDataGroupMapProperty>();         
         foreach (TagToDataGroupMapProperty item in TagsToDataGroupMapping.Instance.Items)
@@ -130,48 +131,60 @@ public class TagsToDataGroupConverter : BentleyInteropBase
             if (tag != null)
             {
                 item.Value = tag.Value;
-                listProps.Add(item);                
-            }            
+                listProps.Add(item);
+            }
+        }
+
+        mapTags = listProps.Count != 0 ? listProps : null;
+        return listProps.Count != 0;
+    }
+
+    public static bool ScanElementHasMappingDataGroupProps(
+        BCOM.Element comElement, out IEnumerable<TagToDataGroupMapProperty> mapProperties)
+    {
+        var listProps = new List<TagToDataGroupMapProperty>();        
+        foreach (TagToDataGroupMapProperty item in TagsToDataGroupMapping.Instance.Items)
+        {
+            object dgValue = comElement.GetDataGroupPropertyValue(
+                item.DataGroupXPath, item.DataGroupCatalogType);
+
+            if (dgValue != null)
+            {
+                item.Value = dgValue;
+                listProps.Add(item);
+            }
         }
 
         mapProperties = listProps.Count != 0 ? listProps : null;
         return listProps.Count != 0;
     }
 
-    //private static void setMapTagOnElement(BCOM.Element element,
-    //    TagToDataGroupMapProperty mapProperty)
-    //{
-    //    object propValue = DataGroupHelper.GetDataGroupPropertyValue(
-    //            element, mapProperty.DataGroupXPath);
-
-    //    MsdTagType tagType = 
-    //        (MsdTagType)Enum.Parse(typeof(MsdTagType), mapProperty.TagType);
-
-    //    dynamic typedValue;
-    //    switch (tagType)
-    //    {
-    //        case MsdTagType.Character:
-    //            typedValue = propValue.ToString(); break;
-    //        case MsdTagType.Double:
-    //            typedValue = (double)propValue; break;
-    //        case MsdTagType.ShortInteger:
-    //            typedValue = (int)propValue; break;
-    //        case MsdTagType.LongInteger:
-    //            typedValue = (long)propValue; break;
-    //        case MsdTagType.Binary:
-    //            typedValue = (Byte[])propValue; break;
-    //        default:
-    //            typedValue = propValue; break;
-    //    }
-
-    //    ElementHelper.setTagOnElement(element, mapProperty.TagSetName,
-    //        mapProperty.TagName, propValue, tagType);
-    //}
-
-
-    protected static BCOM.Application App
+    public static bool SetMapTagOnElement(BCOM.Element element,
+        TagToDataGroupMapProperty mapProperty)
     {
-        get { return BMI.Utilities.ComApp; }
+        object propValue = DataGroupHelper.GetDataGroupPropertyValue(
+                element, mapProperty.DataGroupXPath);
+
+        if (propValue == null)
+            return false;
+
+        MsdTagType tagType;
+        if (propValue is string)
+            tagType = MsdTagType.Character;            
+        else if (propValue is double)
+            tagType = MsdTagType.Double;
+        else if (propValue is int)
+            tagType = MsdTagType.ShortInteger;
+        else if (propValue is long)
+            tagType = MsdTagType.LongInteger;
+        else if (propValue is Byte[])
+            tagType = MsdTagType.ShortInteger;
+        else
+            tagType = MsdTagType.Character;
+
+        return ElementHelper.setTagOnElement(element, mapProperty.TagSetName,
+            mapProperty.TagName, propValue, tagType);
     }
+
 }
 }

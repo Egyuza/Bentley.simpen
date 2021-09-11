@@ -15,10 +15,10 @@ using Bentley.Building.DataGroupSystem.Serialization;
 using Bentley.Building.DataGroupSystem;
 using System.Data;
 using System.Xml.Linq;
-using Bentley.Internal.MicroStation;
 
 #if V8i
 using Bentley.MicroStation;
+using Bentley.Internal.MicroStation;
 using Bentley.Internal.MicroStation.Elements;
 using BMI = Bentley.MicroStation.InteropServices;
 
@@ -240,71 +240,21 @@ public class GroupByTaskModel : NotifyPropertyChangedBase
             switch (eventArgs.Action)
             {
             case AddIn.SelectionChangedEventArgs.ActionKind.SetEmpty:
-                previewTranCon_.Reset();
-                TaskTable.Clear();
-                taskElemsToRows_.Clear();
-                rowsToTasks_.Clear();
+                unselectAll_();
                 break;
             case AddIn.SelectionChangedEventArgs.ActionKind.Remove:
             {
                 Element element = ElementHelper.getElement(eventArgs);
-                if (taskElemsToRows_.ContainsKey(element))
-                {
-                    DataRow row = taskElemsToRows_[element];
-                    rowsToTasks_.Remove(row);
-                    TaskTable.Rows.Remove(row);
-                    taskElemsToRows_.Remove(element);
-                }
+                unselectElement_(element);
                 break;
             }
             case AddIn.SelectionChangedEventArgs.ActionKind.New:
             {
                 Element element = ElementHelper.getElement(eventArgs);
-
-                PenetrVueTask task;
-                if (PenetrVueTask.getFromElement(element, AttrsXDoc, out task) &&
-                    !taskElemsToRows_.ContainsKey(element) && 
-                    null == rowsToTasks_.Values.FirstOrDefault(x => x.Oid == task.Oid))
-                {
-                    TaskTable.BeginLoadData();
-                    DataRow row = TaskTable.Rows.Add();
-
-                    row.SetField(PropKey.CODE, task.Code);
-                    row.SetField(PropKey.NAME, task.Name);
-                    row.SetField(FieldName.FLANGES, task.FlangesType);
-                    row.SetField(FieldName.DIAMETER, task.DiameterTypeStr);
-                    row.SetField(FieldName.LENGTH, task.LengthCm);
-
-                    row.SetField<string>(FieldName.REF_POINT1, task.GetRefPointCoords(0));
-                    row.SetField<string>(FieldName.REF_POINT2, task.GetRefPointCoords(1));
-                    row.SetField<string>(FieldName.REF_POINT3, task.GetRefPointCoords(2));
-                    
-                    foreach(var pair in task.DataGroupPropsValues)
-                    {
-                        Sp3dToDataGroupMapProperty dgProp = pair.Key;
-                        if (TaskTable.Columns.Contains(dgProp.TargetName))
-                        {
-                            row.SetField(dgProp.TargetName, pair.Value);
-                        }
-                    }
-
-                    taskElemsToRows_.Add(element, row);
-                    rowsToTasks_.Add(row, task);                    
-                    TaskTable.AcceptChanges();
-                    TaskTable.EndLoadData();
-                }
+                selectElement_(element);
 
                 break;
             }
-            //case AddIn.SelectionChangedEventArgs.ActionKind.SetChanged:
-            //{
-            //    if (lastSelectionAction_ != 
-            //        AddIn.SelectionChangedEventArgs.ActionKind.New)
-            //    {
-            //        break;
-            //    }
-            //    break;
-            //}
             }
            
             //TaskSelection.ResetBindings();
@@ -332,12 +282,45 @@ public class GroupByTaskModel : NotifyPropertyChangedBase
     private void Addin_SelectionChangedEvent(
         AddIn sender, AddIn.SelectionChangedEventArgs eventArgs)
     {
-        if (eventArgs.Action == lastSelectionAction_  && 
-            eventArgs.FilePosition == lastFilePos_)
-        {
-            return;
-        }
+        //if (eventArgs.Action == lastSelectionAction_  && 
+        //    eventArgs.FilePosition == lastFilePos_)
+        //{
+        //    return;
+        //}
 
+        try
+        {
+            switch ((int)eventArgs.Action)
+            {
+            case (int)AddIn.SelectionChangedEventArgs.ActionKind.SetEmpty:
+                unselectAll_();
+                break;
+            case (int)AddIn.SelectionChangedEventArgs.ActionKind.SetChanged:
+            case 7: // ActionKind.Remove
+            case 5: // ActionKind.New:
+            case (int)AddIn.SelectionChangedEventArgs.ActionKind.DragNew:
+            {
+                refreshSelection_();
+                break;
+            }
+            }
+
+            OnPropertyChanged(NP.TaskSelection);
+        }
+        catch (Exception ex)
+        {
+            // todo обработать
+            ex.AddToMessageCenter();
+        }
+        finally
+        {
+            lastSelectionAction_ = eventArgs.Action;
+            lastFilePos_ = eventArgs.FilePosition;
+        }
+    }
+
+    private void refreshSelection_()
+    {
         Dictionary<IntPtr, Element> selectionSet = new Dictionary<IntPtr, Element>();
         uint nums = SelectionSetManager.NumSelected();
         for (uint i = 0; i < nums; ++i)
@@ -354,31 +337,70 @@ public class GroupByTaskModel : NotifyPropertyChangedBase
             }
         }
 
-        try
+        if (selectionSet.Count == 0)
         {
-            switch ((int)eventArgs.Action)
+            unselectAll_();
+        }
+        else
+        {
+            foreach (Element element in taskElemsToRows_.Keys)
             {
-            case (int)AddIn.SelectionChangedEventArgs.ActionKind.SetEmpty:
-                tasks_.Clear();
-                TaskSelection.Clear();
-                previewTranCon_.Reset();
-                break;
-            case (int)AddIn.SelectionChangedEventArgs.ActionKind.SetChanged:
-            {
-                // remove unselected
-                foreach (IntPtr ptr in tasks_.Keys)
+                if (!selectionSet.ContainsKey(element.GetNativeElementRef()))
                 {
-                    if (!selectionSet.ContainsKey(ptr))
-                    {
-                        tasks_.Remove(ptr);
-                    }
+                    unselectElement_(element);
                 }
+            }
 
-                // add new
-                TaskSelection.RaiseListChangedEvents = false;
-                foreach (Element element in selectionSet.Values)
-                {
+            foreach (Element el in selectionSet.Values)
+            {
+                selectElement_(el);
+            }
+        }
+    }
+#endif
+
+    private void unselectAll_()
+    {
+        previewTranCon_.Reset();
+        TaskTable.Clear();
+        taskElemsToRows_.Clear();
+        rowsToTasks_.Clear();
+    }
+
+    private void selectElement_(Element element)
+    {
+        PenetrVueTask task;
+        if (PenetrVueTask.getFromElement(element, AttrsXDoc, out task) &&
+            !taskElemsToRows_.ContainsKey(element) && 
+            null == rowsToTasks_.Values.FirstOrDefault(x => x.Oid == task.Oid)) // ?
+        {
+            TaskTable.BeginLoadData();
+            DataRow row = TaskTable.Rows.Add();
+
+            row.SetField(PropKey.CODE, task.Code);
+            row.SetField(PropKey.NAME, task.Name);
+            row.SetField(FieldName.FLANGES, task.FlangesType);
+            row.SetField(FieldName.DIAMETER, task.DiameterTypeStr);
+            row.SetField(FieldName.LENGTH, task.LengthCm);
+
+            row.SetField<string>(FieldName.REF_POINT1, task.GetRefPointCoords(0));
+            row.SetField<string>(FieldName.REF_POINT2, task.GetRefPointCoords(1));
+            row.SetField<string>(FieldName.REF_POINT3, task.GetRefPointCoords(2));
                 
+            foreach(var pair in task.DataGroupPropsValues)
+            {
+                Sp3dToDataGroupMapProperty dgProp = pair.Key;
+                if (TaskTable.Columns.Contains(dgProp.TargetName))
+                {
+                    row.SetField(dgProp.TargetName, pair.Value);
+                }
+            }
+
+            taskElemsToRows_.Add(element, row);
+            rowsToTasks_.Add(row, task);                    
+            TaskTable.AcceptChanges();
+            TaskTable.EndLoadData();
+            
         #if DEBUG
                 //BCOM.Element comEl = ElementHelper.getElementCOM(element);
 
@@ -393,66 +415,19 @@ public class GroupByTaskModel : NotifyPropertyChangedBase
                 //    previewTranCon_.AppendCopyOfElement(cross);
                 //}
         #endif
-
-                    IntPtr elementRef = element.GetNativeElementRef();
-                    PenetrVueTask task;
-                    if (PenetrVueTask.getFromElement(element, out task) &&
-                        !tasks_.ContainsKey(elementRef))
-                    {
-                        Logger.Log.Info($"Выбор объекта заадния {task.ToString()}");
-                        tasks_.Add(elementRef, task);
-                        TaskSelection.Add(task);
-                    }
-                }
-                
-                TaskSelection.RaiseListChangedEvents = true;
-
-                break;
-            }
-            case 7: // ActionKind.Remove
-            {
-                foreach (IntPtr ptr in tasks_.Keys)
-                {
-                    if (tasks_.ContainsKey(ptr))
-                    {
-                        TaskSelection.Remove(tasks_[ptr]);
-                        tasks_.Remove(ptr);
-                    }
-                }
-                break;
-            }
-            case 5: // ActionKind.New:
-            {
-                TaskSelection.RaiseListChangedEvents = false;
-                foreach (Element element in selectionSet.Values)
-                {
-                    PenetrVueTask task;
-                    if (PenetrVueTask.getFromElement(element, out task))
-                    {
-                        tasks_.Add(element.GetNativeElementRef(), task);
-                        TaskSelection.Add(task);
-                    }
-                }                
-                TaskSelection.RaiseListChangedEvents = true;
-                break;
-            }
-            }
-
-            TaskSelection.ResetBindings();
-            OnPropertyChanged(NP.TaskSelection);
-        }
-        catch (Exception ex)
-        {
-            // todo обработать
-            ex.AddToMessageCenter();
-        }
-        finally
-        {
-            lastSelectionAction_ = eventArgs.Action;
-            lastFilePos_ = eventArgs.FilePosition;
         }
     }
-#endif
+
+    private void unselectElement_(Element element)
+    {
+        if (taskElemsToRows_.ContainsKey(element))
+        {
+            DataRow row = taskElemsToRows_[element];
+            rowsToTasks_.Remove(row);
+            TaskTable.Rows.Remove(row);
+            taskElemsToRows_.Remove(element);
+        }
+    }
 
     public bool isProjectDefined => penData_.ProjectId != 0;
 
@@ -590,6 +565,7 @@ public class GroupByTaskModel : NotifyPropertyChangedBase
                     penetr.AddProjection();
                     penetr.AddPerforation();
                     penetr.AddToModel(false);
+                    penetr.SetTags();
 
                     row.SetField(FieldName.STATUS, "DONE");
                     // TODO статус о выполнении
@@ -606,47 +582,6 @@ public class GroupByTaskModel : NotifyPropertyChangedBase
         });
 
         Session.Instance.EndUndoGroup();
-
-
-        //ElementHelper.RunByRecovertingSettings(() => {
-        //    //foreach (PenetrVueTask task in TaskSelection)
-        //    //{
-        //    //    PenetrInfo penInfo = penData_.getPenInfo(
-        //    //        task.FlangesType, task.DiameterType.Number);
-
-        //    //    PenetrHelper.addToModel(task, penInfo);
-        //    //}
-        //});
-
-        //var activeSets = App.ActiveSettings;
-
-        //BCOM.Level activeLevel = activeSets.Level;
-        //BCOM.LineStyle activeLineStyle = activeSets.LineStyle;
-        //int activeLineWeight = activeSets.LineWeight;
-        //int activeColor = activeSets.Color;
-
-        //var activeModel = App.ActiveModelReference;
-        //try
-        //{
-        //    foreach (PenetrVueTask task in TaskSelection)
-        //    {
-        //        PenetrInfo penInfo = penData_.getPenInfo(
-        //            task.FlangesType, task.DiameterType.Number);
-                
-        //        PenetrHelper.addToModel(task, penInfo);
-        //    }
-        //}
-        //catch (Exception ex)
-        //{
-        //    ex.AddToMessageCenter();
-        //}
-        //finally
-        //{
-        //    activeSets.Level = activeLevel;
-        //    activeSets.LineStyle = activeLineStyle;
-        //    activeSets.LineWeight = activeLineWeight;
-        //    activeSets.Color = activeColor;
-        //}
     }
     
     /// <summary>

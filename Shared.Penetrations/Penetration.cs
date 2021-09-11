@@ -9,6 +9,7 @@ using BCOM = Bentley.Interop.MicroStationDGN;
 using TFCOM = Bentley.Interop.TFCom;
 using System.Linq;
 using Bentley.Interop.TFCom;
+using Embedded.Penetrations.Shared.Mapping;
 
 #if V8i
 using Bentley.MicroStation;
@@ -247,6 +248,20 @@ public class Penetration : EmbeddedBase
             });
         }
         return projInfoList;
+    }
+
+    public bool SetTags()
+    {
+        BCOM.Element bcomElement;
+        FrameList.GetElement(out bcomElement);
+
+        bool res = false;
+
+        foreach (TagToDataGroupMapProperty mapTag in TagsToDataGroupMapping.Instance.Items)
+        {
+            res |= TagsToDataGroupConverter.SetMapTagOnElement(bcomElement, mapTag);
+        }
+        return res;
     }
 
     public const string CELL_NAME = "Penetration";

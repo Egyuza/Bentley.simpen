@@ -205,10 +205,9 @@ public static class BentleyExtensions
 
     public static Element ToElement(this BCOM.Element bcomElement)
     {
-    #if CONNECT
-        id = element.ElementId;
-        modelRef = App.MdlGetModelReferenceFromModelRefP(
-            (long)element.GetNativeDgnModelRef());
+    #if CONNECT        
+        return Element.GetFromElementRefAndModelRef(
+            (IntPtr)bcomElement.MdlElementRef(), (IntPtr)bcomElement.ModelReference.MdlModelRefP());
     #elif V8i
         return Element.ElementFactory(
             (IntPtr)bcomElement.MdlElementRef(), 
