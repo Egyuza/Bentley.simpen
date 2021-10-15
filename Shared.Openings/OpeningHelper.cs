@@ -63,16 +63,7 @@ static class OpeningHelper
     public static bool getFromElement(Element element, XDocument attrsXDoc,
         out OpeningTask task)
     {
-        task = new OpeningTask();
-        XDocument xDoc = ElementHelper.getSp3dXDocument(element);
-        xDoc.Merge(attrsXDoc);
-
-        // TODO
-        //task.Code = xDoc.Root.
-        //    getChildByRegexPath("P3DEquipment/Name", out propName)?.Value;
-        //string propName;
-
-        Sp3dToDGMapping.Instance.LoadValuesFromXDoc(xDoc, task.DataGroupPropsValues);
+        task = null;        
 
         BCOM.Element bcomEl = element.ToElementCOM();
 
@@ -86,7 +77,7 @@ static class OpeningHelper
         //}
 
         BCOM.CellElement cell = element.ToCellElementCOM();
-       // BCOM.Point3d[] verts = cell.AsSmartSolidElement.GetVertices();
+       
 
         var brep = AppTF.CreateTFBrep();
         brep.InitFromElement(bcomEl, App.ActiveModelReference);
@@ -99,7 +90,7 @@ static class OpeningHelper
 
         if (verts.Count() > 8)
         {
-            // встречалиь случаи с количеством вершин 24 шт.
+            // встречались случаи с количеством вершин 24 шт.
             verts = new HashSet<BCOM.Point3d>(verts).Take(8).ToArray();
         }
 
@@ -238,13 +229,12 @@ static class OpeningHelper
                 }
 
                 {
-                    /*
+                    /* TODO
                      Если только одна поверхность:
                         1. через точку контура провести нормаль
                         2. найти поверхности, кот. пересекает нормаль                     
                     */
                 }
-
 
                 break;
             }
@@ -333,25 +323,36 @@ static class OpeningHelper
             BCOM.Point3d projOriginFirst =
                 contour.Centroid().ProjectToPlane3d(planeFirst);
 
-            task.Origin = projOriginFirst;
+            task = new OpeningTask();
+            { // инициализация объекта задания
+                XDocument xDoc = ElementHelper.getSp3dXDocument(element);
+                xDoc.Merge(attrsXDoc);
+                Sp3dToDGMapping.Instance.LoadValuesFromXDoc(xDoc, task.DataGroupPropsValues);
 
-            { // Высота
-                task.Height = dimensions[0].Length;
-                task.HeigthVec = App.Point3dNormalize(dimensions[0].Vector);
-			}
-			{// Ширина
-                task.Width = dimensions[1].Length;
-                task.WidthVec = App.Point3dNormalize(dimensions[1].Vector);
-			}
-			{ // Глубина
-				BCOM.Point3d projOriginSecond = 
-                    projOriginFirst.ProjectToPlane3d(planeSecond);
-                task.Depth = Math.Round(
-                    App.Point3dDistance(projOriginFirst, projOriginSecond), 5);
-                task.DepthVec = App.Point3dNormalize(
-                    App.Point3dSubtract(projOriginSecond, projOriginFirst));                
-			}
+                // TODO
+                //task.Code = xDoc.Root.
+                //    getChildByRegexPath("P3DEquipment/Name", out propName)?.Value;
+                //string propName;
 
+                task.Origin = projOriginFirst;
+
+                { // Высота
+                    task.Height = dimensions[0].Length;
+                    task.HeigthVec = App.Point3dNormalize(dimensions[0].Vector);
+                }
+                { // Ширина
+                    task.Width = dimensions[1].Length;
+                    task.WidthVec = App.Point3dNormalize(dimensions[1].Vector);
+                }
+                { // Глубина
+                    BCOM.Point3d projOriginSecond =
+                        projOriginFirst.ProjectToPlane3d(planeSecond);
+                    task.Depth = Math.Round(
+                        App.Point3dDistance(projOriginFirst, projOriginSecond), 5);
+                    task.DepthVec = App.Point3dNormalize(
+                        App.Point3dSubtract(projOriginSecond, projOriginFirst));
+                }
+            }
         }
         return true;	    		    
     }

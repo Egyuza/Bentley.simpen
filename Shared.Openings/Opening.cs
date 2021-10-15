@@ -172,7 +172,7 @@ public class Opening : BentleyInteropBase
             res = addToModel_(model);
         }
         // DataGroup свойства:
-        res &= SetDataGroupInstance();
+        res |= SetDataGroupInstance();
 
         return res;
     }

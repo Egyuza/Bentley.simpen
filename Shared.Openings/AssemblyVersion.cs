@@ -16,7 +16,7 @@ namespace Embedded.Openings.Shared
                 if (version_ != null)
                     return version_;
 
-                version_ = new Version(2, 3, 0, 0);
+                version_ = new Version(2, 4, 0, 0);
 
                 Version dllVersion = 
                     Assembly.GetExecutingAssembly().GetName().Version;

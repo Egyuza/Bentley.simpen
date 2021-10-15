@@ -154,7 +154,7 @@ public class Penetration : EmbeddedBase
 
     public override TFPerforatorList GetPerfoList()
     {
-        double pipeInsideDiam = PenInfo.pipeDiameterInside / taskUOR.activeSubPerMaster;
+        double pipeOutsideDiam = PenInfo.pipeDiameterOutside / taskUOR.activeSubPerMaster;
         double length = Task.LengthCm *10 / taskUOR.activeSubPerMaster;
 
         var angles = Task.CorrectiveAngles;
@@ -164,7 +164,7 @@ public class Penetration : EmbeddedBase
         // ПЕРФОРАТОР
         BCOM.EllipseElement perfoEl = 
             App.CreateEllipseElement2(null, App.Point3dZero(), 
-                pipeInsideDiam/2, pipeInsideDiam/2, 
+                pipeOutsideDiam/2, pipeOutsideDiam/2, 
                 App.Matrix3dIdentity(), BCOM.MsdFillMode.Filled);
         {
             BCOM.Point3d offset = App.Point3dAddScaled(

@@ -15,12 +15,12 @@ namespace Embedded.Penetrations.Shared
             {
                 if (version_ != null)
                     return version_;
-
-                version_ = new Version(2, 25, 0, 0);
+                
+                version_ = new Version(2, 26, 0, 0);
 
                 Version dllVersion = 
                     Assembly.GetExecutingAssembly().GetName().Version;
-
+                
                 Debug.Assert(version_ == dllVersion, 
                     $"Версия dll='{dllVersion}' не совпадает " + 
                     $"с назначенной версией приложения='{version_}'");

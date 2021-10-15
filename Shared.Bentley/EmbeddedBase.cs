@@ -191,7 +191,7 @@ public abstract class EmbeddedBase : BentleyInteropBase
                 res = addToModel_(model);
             }
             // DataGroup свойства:
-            res &= SetDataGroupInstance_();
+            res |= SetDataGroupInstance_();
         });
 
         return res;

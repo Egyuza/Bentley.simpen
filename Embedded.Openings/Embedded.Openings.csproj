@@ -119,8 +119,8 @@
     <EmbeddedResource Include="commands.xml" />
   </ItemGroup>
   <Import Project="..\Shared\Shared.projitems" Label="Shared" />
-  <Import Project="..\Shared.Bentley\Shared.Bentley.projitems" Label="Shared" />
   <Import Project="..\Shared.Openings\Shared.Openings.projitems" Label="Shared" />
+  <Import Project="..\Shared.Bentley\Shared.Bentley.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>xcopy $(TargetDir)* "c:\Program Files (x86)\Bentley\AECOsimBuildingDesigner V8i Ss6\AECOsimBuildingDesigner\assemblies\OIM\Embedded.Openings" /I/Y/S</PostBuildEvent>
