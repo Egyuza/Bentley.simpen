@@ -123,7 +123,13 @@
   <Import Project="..\Shared.Bentley\Shared.Bentley.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy $(TargetDir)* "c:\Program Files (x86)\Bentley\AECOsimBuildingDesigner V8i Ss6\AECOsimBuildingDesigner\assemblies\OIM\Embedded.Openings" /I/Y/S</PostBuildEvent>
+    <PostBuildEvent>xcopy $(TargetDir)* "c:\Program Files (x86)\Bentley\AECOsimBuildingDesigner V8i Ss6\AECOsimBuildingDesigner\assemblies\OIM\Embedded.Openings" /I/Y/S
+
+
+IF $(ConfigurationName) == Release (
+powershell Compress-Archive -Path '$(TargetDir)*.dll', '$(TargetDir)*.xml', '$(TargetDir)Mapping' -DestinationPath 'c:\Work\Атомпроект\simpen\Distrib\Embedded.Openings\Embedded.Openings v_ [v8i].zip' -Force
+
+)</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
