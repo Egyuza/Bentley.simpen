@@ -163,7 +163,7 @@ static class OpeningHelper
                 var intersectedPlanes = new List<TFCOM.TFPlane>();
 
                 TFCOM.TFPlane tfPlane;
-                IEnumerable<TFCOM.TFBrepFaceListClass> faceLists = brepList.GetFacesEx();
+                IEnumerable<TFCOM.TFBrepFace> faceLists = brepList.GetFacesEx();
                 foreach(var faceList in faceLists)
                 {
                     if (faceList.IsPlanarAndIntersectsElement(bcomEl, out tfPlane))

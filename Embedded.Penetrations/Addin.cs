@@ -4,6 +4,12 @@ using System.Reflection;
 namespace Embedded.Penetrations
 {
 
+/*
+Пример загрузки через домен:
+    // загрузка: mdl load simpen.ui,,simpenDomain; simpen.ui form
+    // выгрузка: clr unload domain simpenDomain
+*/
+
 [Bentley.MicroStation.AddIn(        
     KeyinTree = "Embedded.Penetrations.commands.xml",
     MdlTaskID = "Embedded.Penetrations")

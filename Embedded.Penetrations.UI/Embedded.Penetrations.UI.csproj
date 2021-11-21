@@ -9,9 +9,11 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Embedded.Penetrations.UI</RootNamespace>
     <AssemblyName>Embedded.Penetrations.UI</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion Condition="'$(Configuration.StartsWith(`V8i-`))' == 'true'">v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion Condition="'$(Configuration.StartsWith(`V8i-`))' == 'false'">v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -22,6 +24,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <UseVSHostingProcess>false</UseVSHostingProcess>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -30,6 +33,52 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Cn-Debug|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Cn-Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Cn-Release|AnyCPU'">
+    <OutputPath>bin\Cn-Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'V8i-Debug|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\V8i-Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'V8i-Release|AnyCPU'">
+    <OutputPath>bin\V8i-Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <LangVersion>7.3</LangVersion>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Develop|AnyCPU'">
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="PresentationCore" />
@@ -45,12 +94,89 @@
     <Reference Include="UIAutomationProvider" />
     <Reference Include="WindowsBase" />
     <Reference Include="WindowsFormsIntegration" />
-    <Reference Include="WPFToolkit">
-      <HintPath>..\packages\WPFToolkit\WPFToolkit.dll</HintPath>
+  </ItemGroup>
+  <ItemGroup Condition="'$(Configuration.StartsWith(`V8i-`))' == 'true'">
+    <Reference Include="Telerik.WinControls">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Lib\V8i\Telerik.WinControls.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="Xceed.Wpf.Toolkit">
-      <HintPath>..\..\..\..\Program Files (x86)\Bentley\AECOsimBuildingDesigner V8i Ss6\AECOsimBuildingDesigner\assemblies\Xceed.Wpf.Toolkit.dll</HintPath>
+    <Reference Include="Telerik.WinControls.UI">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Lib\V8i\Telerik.WinControls.UI.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Telerik.WinControls.GridView">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Lib\V8i\Telerik.WinControls.GridView.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Telerik.WinControls.Themes.Office2010Silver">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Lib\V8i\Telerik.WinControls.Themes.Office2010Silver.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="TelerikCommon">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Lib\V8i\TelerikCommon.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup Condition="'$(Configuration.StartsWith(`Cn-`))' == 'true'">
+    <Reference Include="Telerik.WinControls">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Lib\Connect\Telerik.WinControls.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Telerik.WinControls.UI">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Lib\Connect\Telerik.WinControls.UI.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Telerik.WinControls.GridView">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Lib\Connect\Telerik.WinControls.GridView.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Telerik.WinControls.Themes.Office2010Blue">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Lib\Connect\Telerik.WinControls.Themes.Office2010Blue.dll</HintPath>
+    </Reference>
+    <Reference Include="Telerik.WinControls.Themes.Office2010Silver">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Lib\Connect\Telerik.WinControls.Themes.Office2010Silver.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="TelerikCommon">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Lib\Connect\TelerikCommon.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup Condition="'$(Configuration)' == 'Develop'">
+    <EmbeddedResource Include="Properties\licenses.licx" />
+    <Reference Include="Telerik.WinControls">
+      <SpecificVersion>False</SpecificVersion>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Telerik.WinControls.UI">
+      <SpecificVersion>False</SpecificVersion>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Telerik.WinControls.GridView">
+      <SpecificVersion>False</SpecificVersion>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Telerik.WinControls.Themes.Office2010Blue">
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="Telerik.WinControls.Themes.Office2010Silver">
+      <SpecificVersion>False</SpecificVersion>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="TelerikCommon">
+      <SpecificVersion>False</SpecificVersion>
+      <Private>False</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -60,8 +186,11 @@
     <Compile Include="PenetrationForm.Designer.cs">
       <DependentUpon>PenetrationForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="PenetrView.xaml.cs">
-      <DependentUpon>PenetrView.xaml</DependentUpon>
+    <Compile Include="PenFormTelerik.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PenFormTelerik.Designer.cs">
+      <DependentUpon>PenFormTelerik.cs</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
@@ -74,6 +203,9 @@
     <EmbeddedResource Include="PenetrationForm.resx">
       <DependentUpon>PenetrationForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="PenFormTelerik.resx">
+      <DependentUpon>PenFormTelerik.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -81,12 +213,6 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Page Include="PenetrView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
   </ItemGroup>
   <Import Project="..\Shared\Shared.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

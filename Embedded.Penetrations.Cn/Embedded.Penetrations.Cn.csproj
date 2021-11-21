@@ -7,7 +7,7 @@
     <ProjectGuid>{E3596EDD-11ED-49A9-BC77-471AA38FDCF0}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Embedded.Penetrations.C</RootNamespace>
+    <RootNamespace>Embedded.Penetrations</RootNamespace>
     <AssemblyName>Embedded.Penetrations.Cn</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -154,7 +154,7 @@
   </ItemGroup>
   <Import Project="..\Shared\Shared.projitems" Label="Shared" />
   <Import Project="..\Shared.Bentley\Shared.Bentley.projitems" Label="Shared" />
-  <Import Project="..\Shared.Penetrations\Shared.Penetrations.projitems" Label="Shared" />
+  <Import Project="..\Embedded.Penetrations.Shared\Shared.Penetrations.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>xcopy $(TargetDir)* "c:\Program Files\Bentley\AECOsim CONNECT Edition\AECOsimBuildingDesigner\Assemblies\OIM\Embedded.Penetrations" /I/Y/S

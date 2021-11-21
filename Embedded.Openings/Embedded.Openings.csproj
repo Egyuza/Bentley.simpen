@@ -119,7 +119,7 @@
     <EmbeddedResource Include="commands.xml" />
   </ItemGroup>
   <Import Project="..\Shared\Shared.projitems" Label="Shared" />
-  <Import Project="..\Shared.Openings\Shared.Openings.projitems" Label="Shared" />
+  <Import Project="..\Embedded.Openings.Shared\Shared.Openings.projitems" Label="Shared" />
   <Import Project="..\Shared.Bentley\Shared.Bentley.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

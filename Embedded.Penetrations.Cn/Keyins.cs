@@ -3,17 +3,24 @@ using Embedded.Penetrations.Shared;
 using Embedded.Penetrations.Shared.Mapping;
 using System;
 using System.Windows.Forms;
+using Shared.Bentley;
 
-namespace Embedded.Penetrations.Cn
+namespace Embedded.Penetrations
 {
 static class Keyins
 {
-    // загрузка: mdl load simpen.ui,,simpenDomain; simpen.ui form
-    // выгрузка: clr unload domain simpenDomain
     public static void showForm(string unparsed)
     {
-        //WindowHelper.show(new PenetrForm(), "pen_id");
-        PenetrationVM.getInstance(Addin.Instance, unparsed).showForm();
+        try
+        {
+            PenetrationVM.getInstance(
+                Addin.Instance, new KeyinOptions(unparsed)).showForm();
+        }
+        catch (Exception ex)
+        {
+            Logger.Log.Error(ex);
+            ex.ShowMessageBox();
+        }
     }
 
     public static void convertTagsToDataGroup(string unparsed)
@@ -24,7 +31,8 @@ static class Keyins
         }
         catch (Exception ex)
         {
-            MessageBox.Show(ex.Message, "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            Logger.Log.Error(ex);
+            ex.ShowMessageBox();
         }
     }
 }

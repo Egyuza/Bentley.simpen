@@ -3,6 +3,7 @@ using BCOM = Bentley.Interop.MicroStationDGN;
 using TFCOM = Bentley.Interop.TFCom;
 
 using Shared.Bentley;
+using System.Collections.Generic;
 
 #if V8i
 using BMI = Bentley.MicroStation.InteropServices;
@@ -114,6 +115,56 @@ public class PenetrPrimitiveCmd : BentleyInteropBase, BCOM.IPrimitiveCommandEven
             else 
             {
                 // TODO обход по поверхностям
+
+                var targetFaces = new List<TFCOM.TFBrepFace>();
+
+                TFCOM.TFBrepList brepList = AppTF.CreateTFBrep();
+
+                try
+                {
+                    // может быть исключение
+                    brepList.InitFromElement(firstHitElem, App.ActiveModelReference);
+                }
+                catch (Exception)
+                {
+                }
+
+                foreach (TFCOM.TFBrepFace faceList in brepList?.GetFacesEx())
+                {                  
+                    TFCOM.TFPlane tfPlane;
+                    if (faceList.IsPlanar(out tfPlane))
+                    {
+                        //BCOM.ShapeElement shapeElement;
+
+                        //BCOM.Point3d[] verts;
+                        //faceList.AsTFBrepFace.GetVertexLocations(out verts);
+                        //BCOM.ShapeElement shape = App.CreateShapeElement1(null, verts);
+
+                        BCOM.Point3d closest;
+                        BCOM.Point3d normal;
+                        BCOM.Point2d param;
+                       // faceList.GetClosestPoint(out closest, out normal, out param, ref Point);
+
+                        tfPlane.GetNormal(out normal);
+
+                        if (faceList as TFCOM.TFBrepFaceListClass != null)
+                        {
+                            normal = App.Point3dNegate(normal);
+                        }
+
+                        userTask.Rotation = App.Matrix3dFromRotationBetweenVectors(
+                            ZAxis, normal);
+
+                        break;
+
+                        //if (closest.EqualsPoint(Point))
+                        //{
+                        //    targetFaces.Add(faceList);
+                        //}
+                    }
+                }
+
+                ;
             }
         }
 

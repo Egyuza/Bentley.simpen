@@ -3,6 +3,7 @@ using System.Windows.Forms;
 using System.Collections.Generic;
 
 using BCOM = Bentley.Interop.MicroStationDGN;
+using System.Reflection;
 
 #if V8i
 using BMI = Bentley.MicroStation.InteropServices;
@@ -19,8 +20,13 @@ internal static class WindowHelper
     static Dictionary<Form, WindowContent> cache = 
         new Dictionary<Form, WindowContent>();
 
-    internal static void show(Form form, string id)
+    internal static void show(Form form, string id = null)
     {
+        if (id == null)
+        {
+            id = Assembly.GetExecutingAssembly().GetName().Name + "_" + form.GetType().Name;
+        }
+
         WindowManager winMngr = // ! вычислит только если Addin загружено в DefaultDomain
             WindowManager.GetForMicroStation();
         

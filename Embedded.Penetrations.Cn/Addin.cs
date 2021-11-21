@@ -3,7 +3,7 @@ using Bentley.MstnPlatformNET;
 
 using shared = Shared;
 
-namespace Embedded.Penetrations.Cn
+namespace Embedded.Penetrations
 {
 [AddInAttribute(MdlTaskID = "Embedded.Penetrations.Cn")]
 public sealed class Addin : Bentley.MstnPlatformNET.AddIn

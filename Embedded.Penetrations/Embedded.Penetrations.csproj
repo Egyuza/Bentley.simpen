@@ -120,16 +120,15 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="TODO.txt" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\Embedded.Penetrations.UI\Embedded.Penetrations.UI.csproj">
       <Project>{2c1825d3-6bb5-4340-a921-7c8088ca5167}</Project>
       <Name>Embedded.Penetrations.UI</Name>
-      <Private>True</Private>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Content Include="TODO.txt" />
-  </ItemGroup>
-  <Import Project="..\Shared.Penetrations\Shared.Penetrations.projitems" Label="Shared" />
+  <Import Project="..\Embedded.Penetrations.Shared\Shared.Penetrations.projitems" Label="Shared" />
   <Import Project="..\Shared.Bentley\Shared.Bentley.projitems" Label="Shared" />
   <Import Project="..\Shared\Shared.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

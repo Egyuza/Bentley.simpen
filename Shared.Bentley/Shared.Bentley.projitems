@@ -15,6 +15,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)ElementHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)BentleyExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)EmbeddedBase.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)KeyinOptions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Logger.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ProjectionInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)RoundTool.cs" />

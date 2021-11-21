@@ -21,25 +21,25 @@ public class PenetrationVM : BentleyInteropBase
     private static Bentley.MicroStation.AddIn addin_;
 
     public static PenetrationVM getInstance(
-        Bentley.MicroStation.AddIn addin, string unparsed)
+        Bentley.MicroStation.AddIn addin, KeyinOptions options)
     {
         addin_ = addin;
-        return loadInstace(new GroupByTaskModel(addin), unparsed);
+        return loadInstace(new GroupByTaskModel(addin), options);
     }
 #elif CONNECT
-    private static Bentley.MstnPlatformNET.AddIn addin_;
+        private static Bentley.MstnPlatformNET.AddIn addin_;
     public static PenetrationVM getInstance(
-        Bentley.MstnPlatformNET.AddIn addin, string unparsed)
+        Bentley.MstnPlatformNET.AddIn addin, KeyinOptions options)
     {
         addin_ = addin;
-        return loadInstace(new GroupByTaskModel(addin), unparsed);
+        return loadInstace(new GroupByTaskModel(addin), options);
     }
 #endif
 
     private static PenetrationVM loadInstace(
-        GroupByTaskModel penModel, string unparsed)
+        GroupByTaskModel penModel, KeyinOptions options)
     {
-        var options = new List<string> (unparsed?.ToUpper().Split(' '));
+        isDebugMode_ = options.IsDebug;
 
         var wspace = App.ActiveWorkspace;
         if (wspace.IsConfigurationVariableDefined("AEP_EMB_PEN_LOG_FOLDER"))
@@ -52,25 +52,13 @@ public class PenetrationVM : BentleyInteropBase
             Logger.IsActive = bool.Parse(
                 wspace.ConfigurationVariableValue("AEP_EMB_PEN_LOG"));
         }
-        // доп.
-        if (options.Contains("LOG"))
-        {
-            Logger.IsActive = true;
-        }
 
         Logger.Log.Info(new string('=', 22) + " LOAD " + new string('=', 22));
-
-        isDebugMode_ = options.Contains("DEBUG");
-        if (isDebugMode_)
-        {
-            Logger.Log.Info("запущено в DEBUG режиме");
-        }        
 
         instance_ = instance_ ?? new PenetrationVM(penModel);
         instance_.loadContext();
         return instance_;
     }
-
 
     public void loadContext()
     {
@@ -91,12 +79,11 @@ public class PenetrationVM : BentleyInteropBase
     private void PenModel__PropertyChanged(object sender, PropertyChangedEventArgs e)
     {
         var pname = e.PropertyName;
-    }
-    
+    }    
     public void showForm()
     {
         initializeForm();
-        WindowHelper.show(form_, "Embedded::Penetration");
+        WindowHelper.show(form_);
     }
 
     private void initializeForm()

@@ -823,19 +823,19 @@ public static class ElementHelper
         return plane3D;
     }
 
-    public static IEnumerable<TFCOM.TFBrepFaceListClass> GetFacesEx(
+    public static IEnumerable<TFCOM.TFBrepFace> GetFacesEx(
         this TFCOM.TFBrepList brepList)
     {
-        var res = new HashSet<TFCOM.TFBrepFaceListClass>();
+        var res = new HashSet<TFCOM.TFBrepFace>();
 
-        var faceList = brepList.GetFaces() as TFCOM.TFBrepFaceListClass;
-        if (faceList.GetCount() == 0)
+        TFCOM.TFBrepFaceList faceList = brepList.GetFaces();
+        if (faceList == null || faceList.AsTFBrepFace == null || faceList.GetCount() == 0 )
             return res;
 
-        res.Add(faceList.AsTFBrepFace as TFCOM.TFBrepFaceListClass);
-        while(null != (faceList = faceList.GetNext() as TFCOM.TFBrepFaceListClass))
+        res.Add(faceList.AsTFBrepFace);
+        while(null != (faceList = faceList.GetNext()))
         {
-            res.Add(faceList.AsTFBrepFace as TFCOM.TFBrepFaceListClass);
+            res.Add(faceList.AsTFBrepFace);
         }
         return res;
     }

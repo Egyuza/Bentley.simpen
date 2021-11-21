@@ -9,18 +9,20 @@
 
     <SubKeyinTables>
         <KeyinTable ID="Commands">
-            <Keyword CommandWord="PENETRATIONS"/>
-            <Keyword CommandWord="LEADER"/>
+          <Keyword CommandWord="PENETRATIONS"/>
+          <Keyword CommandWord="LEADER"/>
           <Keyword CommandWord="TAGS_TO_DATAGROUP"/>
           <Keyword CommandWord="EXPORT_SP3D_PENDATA_TO_CSV"/>
+          <Keyword CommandWord="TEST"/>
         </KeyinTable>
     </SubKeyinTables>
     
     <KeyinHandlers>
-        <KeyinHandler Keyin="EMBEDDED PENETRATIONS" Function="Embedded.Penetrations.Keyins.showForm"/>
-        <KeyinHandler Keyin="EMBEDDED LEADER" Function="Embedded.Penetrations.Keyins.drawLeader"/>
+      <KeyinHandler Keyin="EMBEDDED PENETRATIONS" Function="Embedded.Penetrations.Keyins.showForm"/>
+      <KeyinHandler Keyin="EMBEDDED LEADER" Function="Embedded.Penetrations.Keyins.drawLeader"/>
       <KeyinHandler Keyin="EMBEDDED TAGS_TO_DATAGROUP" Function="Embedded.Penetrations.Keyins.convertTagsToDataGroup"/>
       <KeyinHandler Keyin="EMBEDDED EXPORT_SP3D_PENDATA_TO_CSV" Function="Embedded.Penetrations.Keyins.exportSp3dDataToCsv"/>
+      <KeyinHandler Keyin="EMBEDDED TEST" Function="Embedded.Penetrations.Keyins.Test"/>
     </KeyinHandlers>
 
 </KeyinTree>
