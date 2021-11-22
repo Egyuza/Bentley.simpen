@@ -26,7 +26,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;CONNECT</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -59,7 +59,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release_V8i|AnyCPU'">
     <OutputPath>bin\Release_V8i\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;CONNECT</DefineConstants>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -68,7 +68,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release_Cn|AnyCPU'">
     <OutputPath>bin\Release_Cn\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;CONNECT</DefineConstants>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -86,7 +86,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Cn-Release|AnyCPU'">
     <OutputPath>bin\Cn-Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;CONNECT</DefineConstants>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -166,6 +166,7 @@
     </Reference>
     <Reference Include="Bentley.Logging.log4net-2.0">
       <HintPath>c:\Program Files\Bentley\OpenBuildings CONNECT Edition\OpenBuildingsDesigner\Assemblies\ECFramework\Bentley.Logging.log4net-2.0.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="Bentley.MicroStation">
       <HintPath>c:\Program Files\Bentley\OpenBuildings CONNECT Edition\OpenBuildingsDesigner\Assemblies\Bentley.MicroStation.dll</HintPath>
@@ -226,8 +227,11 @@
   <PropertyGroup>
     <PostBuildEvent>xcopy $(TargetDir)* "c:\Program Files\Bentley\OpenBuildings CONNECT Edition\OpenBuildingsDesigner\Assemblies\OIM\Embedded.Penetrations" /I/Y/S
 
+set dest=c:\Work\Атомпроект\simpen\Distrib\Embedded.Penetrations\Embedded.Penetrations v_ [connect_5].zip
+
 IF $(ConfigurationName) == Release (
-powershell Compress-Archive -Path '$(TargetDir)*.dll', '$(TargetDir)*.xml', '$(TargetDir)Mapping' -DestinationPath 'c:\Work\Атомпроект\simpen\Distrib\Embedded.Penetrations\Embedded.Penetrations v_ [connect_5].zip' -Force
+del "%25dest%25"
+powershell Compress-Archive -Path '$(TargetDir)*.dll', '$(TargetDir)*.xml', '$(TargetDir)Mapping' -DestinationPath '%25dest%25' -Force
 
 )</PostBuildEvent>
   </PropertyGroup>

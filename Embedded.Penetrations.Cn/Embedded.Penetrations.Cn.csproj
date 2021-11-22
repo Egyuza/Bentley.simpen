@@ -104,6 +104,7 @@
     </Reference>
     <Reference Include="Bentley.Logging.log4net-2.0">
       <HintPath>c:\Program Files\Bentley\AECOsim CONNECT Edition\AECOsimBuildingDesigner\Assemblies\ECFramework\Bentley.Logging.log4net-2.0.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="Bentley.MicroStation">
       <HintPath>c:\Program Files\Bentley\AECOsim CONNECT Edition\AECOsimBuildingDesigner\Assemblies\Bentley.MicroStation.dll</HintPath>
@@ -159,8 +160,10 @@
   <PropertyGroup>
     <PostBuildEvent>xcopy $(TargetDir)* "c:\Program Files\Bentley\AECOsim CONNECT Edition\AECOsimBuildingDesigner\Assemblies\OIM\Embedded.Penetrations" /I/Y/S
 
+set dest=c:\Work\Атомпроект\simpen\Distrib\Embedded.Penetrations\Embedded.Penetrations v_ [connect_3].zip
 IF $(ConfigurationName) == Release (
-powershell Compress-Archive -Path '$(TargetDir)*.dll', '$(TargetDir)*.xml', '$(TargetDir)Mapping' -DestinationPath 'c:\Work\Атомпроект\simpen\Distrib\Embedded.Penetrations\Embedded.Penetrations v_ [connect].zip' -Force
+del "%25dest%25"
+powershell Compress-Archive -Path '$(TargetDir)*.dll', '$(TargetDir)*.xml', '$(TargetDir)Mapping' -DestinationPath '%25dest%25' -Force
 
 )</PostBuildEvent>
   </PropertyGroup>

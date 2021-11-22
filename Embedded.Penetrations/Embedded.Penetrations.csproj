@@ -135,8 +135,10 @@
   <PropertyGroup>
     <PostBuildEvent>xcopy $(TargetDir)* "c:\Program Files (x86)\Bentley\AECOsimBuildingDesigner V8i Ss6\AECOsimBuildingDesigner\assemblies\OIM\Embedded.Penetrations" /I/Y/S
 
+set dest=c:\Work\Атомпроект\simpen\Distrib\Embedded.Penetrations\Embedded.Penetrations v_ [v8i].zip
 IF $(ConfigurationName) == Release (
-powershell Compress-Archive -Path '$(TargetDir)*.dll', '$(TargetDir)*.xml', '$(TargetDir)Mapping' -DestinationPath 'c:\Work\Атомпроект\simpen\Distrib\Embedded.Penetrations\Embedded.Penetrations v_ [v8i].zip' -Force
+del "%25dest%25"
+powershell Compress-Archive -Path '$(TargetDir)*.dll', '$(TargetDir)*.xml', '$(TargetDir)Mapping' -DestinationPath '%25dest%25' -Force
 
 )</PostBuildEvent>
   </PropertyGroup>
