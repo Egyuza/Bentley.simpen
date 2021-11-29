@@ -97,115 +97,115 @@
   <ItemGroup>
     <Reference Include="Bentley.Building.Api">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>c:\Program Files\Bentley\OpenBuildings CONNECT Edition\OpenBuildingsDesigner\Assemblies\Bentley.Building.Api.dll</HintPath>
+      <HintPath>c:\Work\_Libs\OpenBuildings CONNECT Edition 10.06.03.04\OpenBuildingsDesigner\Assemblies\Bentley.Building.Api.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Bentley.Building.DataGroupSystem">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>c:\Program Files\Bentley\OpenBuildings CONNECT Edition\OpenBuildingsDesigner\Assemblies\Bentley.Building.DataGroupSystem.dll</HintPath>
+      <HintPath>c:\Work\_Libs\OpenBuildings CONNECT Edition 10.06.03.04\OpenBuildingsDesigner\Assemblies\Bentley.Building.DataGroupSystem.dll</HintPath>
       <SpecificVersion>False</SpecificVersion>
       <Private>False</Private>
     </Reference>
     <Reference Include="Bentley.Building.DataGroupSystem.CustomTypeDescriptor">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>c:\Program Files\Bentley\OpenBuildings CONNECT Edition\OpenBuildingsDesigner\Assemblies\Bentley.Building.DataGroupSystem.CustomTypeDescriptor.dll</HintPath>
+      <HintPath>c:\Work\_Libs\OpenBuildings CONNECT Edition 10.06.03.04\OpenBuildingsDesigner\Assemblies\Bentley.Building.DataGroupSystem.CustomTypeDescriptor.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Bentley.Building.DataGroupSystem.Serialization">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>c:\Program Files\Bentley\OpenBuildings CONNECT Edition\OpenBuildingsDesigner\Assemblies\Bentley.Building.DataGroupSystem.Serialization.dll</HintPath>
+      <HintPath>c:\Work\_Libs\OpenBuildings CONNECT Edition 10.06.03.04\OpenBuildingsDesigner\Assemblies\Bentley.Building.DataGroupSystem.Serialization.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Bentley.Building.Structural.Api">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>c:\Program Files\Bentley\OpenBuildings CONNECT Edition\OpenBuildingsDesigner\Assemblies\Bentley.Building.Structural.Api.dll</HintPath>
+      <HintPath>c:\Work\_Libs\OpenBuildings CONNECT Edition 10.06.03.04\OpenBuildingsDesigner\Assemblies\Bentley.Building.Structural.Api.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Bentley.DgnDisplayNet">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>c:\Program Files\Bentley\OpenBuildings CONNECT Edition\OpenBuildingsDesigner\Bentley.DgnDisplayNet.dll</HintPath>
+      <HintPath>c:\Work\_Libs\OpenBuildings CONNECT Edition 10.06.03.04\OpenBuildingsDesigner\Bentley.DgnDisplayNet.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Bentley.DgnPlatformNET">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>c:\Program Files\Bentley\OpenBuildings CONNECT Edition\OpenBuildingsDesigner\Bentley.DgnPlatformNET.dll</HintPath>
+      <HintPath>c:\Work\_Libs\OpenBuildings CONNECT Edition 10.06.03.04\OpenBuildingsDesigner\Bentley.DgnPlatformNET.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Bentley.EC.Persistence3">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>c:\Program Files\Bentley\OpenBuildings CONNECT Edition\OpenBuildingsDesigner\Assemblies\ECFramework\Bentley.EC.Persistence3.dll</HintPath>
+      <HintPath>c:\Work\_Libs\OpenBuildings CONNECT Edition 10.06.03.04\OpenBuildingsDesigner\Assemblies\ECFramework\Bentley.EC.Persistence3.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Bentley.ECObjects.MixedMode3">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>c:\Program Files\Bentley\OpenBuildings CONNECT Edition\OpenBuildingsDesigner\Assemblies\ECFramework\Bentley.ECObjects.MixedMode3.dll</HintPath>
+      <HintPath>c:\Work\_Libs\OpenBuildings CONNECT Edition 10.06.03.04\OpenBuildingsDesigner\Assemblies\ECFramework\Bentley.ECObjects.MixedMode3.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Bentley.ECObjects3">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>c:\Program Files\Bentley\OpenBuildings CONNECT Edition\OpenBuildingsDesigner\Assemblies\ECFramework\Bentley.ECObjects3.dll</HintPath>
+      <HintPath>c:\Work\_Libs\OpenBuildings CONNECT Edition 10.06.03.04\OpenBuildingsDesigner\Assemblies\ECFramework\Bentley.ECObjects3.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Bentley.ECSystem3">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>c:\Program Files\Bentley\OpenBuildings CONNECT Edition\OpenBuildingsDesigner\Assemblies\ECFramework\Bentley.ECSystem3.dll</HintPath>
+      <HintPath>c:\Work\_Libs\OpenBuildings CONNECT Edition 10.06.03.04\OpenBuildingsDesigner\Assemblies\ECFramework\Bentley.ECSystem3.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Bentley.General.1.0">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>c:\Program Files\Bentley\OpenBuildings CONNECT Edition\OpenBuildingsDesigner\Assemblies\ECFramework\Bentley.General.1.0.dll</HintPath>
+      <HintPath>c:\Work\_Libs\OpenBuildings CONNECT Edition 10.06.03.04\OpenBuildingsDesigner\Assemblies\ECFramework\Bentley.General.1.0.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Bentley.GeometryNET">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>c:\Program Files\Bentley\OpenBuildings CONNECT Edition\OpenBuildingsDesigner\Bentley.GeometryNET.dll</HintPath>
+      <HintPath>c:\Work\_Libs\OpenBuildings CONNECT Edition 10.06.03.04\OpenBuildingsDesigner\Bentley.GeometryNET.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Bentley.GeometryNET.Common">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>c:\Program Files\Bentley\OpenBuildings CONNECT Edition\OpenBuildingsDesigner\Bentley.GeometryNET.Common.dll</HintPath>
+      <HintPath>c:\Work\_Libs\OpenBuildings CONNECT Edition 10.06.03.04\OpenBuildingsDesigner\Bentley.GeometryNET.Common.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Bentley.GeometryNET.Structs">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>c:\Program Files\Bentley\OpenBuildings CONNECT Edition\OpenBuildingsDesigner\Bentley.GeometryNET.Structs.dll</HintPath>
+      <HintPath>c:\Work\_Libs\OpenBuildings CONNECT Edition 10.06.03.04\OpenBuildingsDesigner\Bentley.GeometryNET.Structs.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Bentley.Interop.MicroStationDGN">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>c:\Program Files\Bentley\OpenBuildings CONNECT Edition\OpenBuildingsDesigner\Assemblies\Bentley.Interop.MicroStationDGN.dll</HintPath>
+      <HintPath>c:\Work\_Libs\OpenBuildings CONNECT Edition 10.06.03.04\OpenBuildingsDesigner\Assemblies\Bentley.Interop.MicroStationDGN.dll</HintPath>
       <EmbedInteropTypes>False</EmbedInteropTypes>
       <Private>False</Private>
     </Reference>
     <Reference Include="Bentley.Interop.TFCom">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>c:\Program Files\Bentley\OpenBuildings CONNECT Edition\OpenBuildingsDesigner\Assemblies\Bentley.Interop.TFCom.dll</HintPath>
+      <HintPath>c:\Work\_Libs\OpenBuildings CONNECT Edition 10.06.03.04\OpenBuildingsDesigner\Assemblies\Bentley.Interop.TFCom.dll</HintPath>
       <EmbedInteropTypes>False</EmbedInteropTypes>
       <Private>False</Private>
     </Reference>
     <Reference Include="Bentley.Logging.log4net-2.0">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>c:\Program Files\Bentley\OpenBuildings CONNECT Edition\OpenBuildingsDesigner\Assemblies\ECFramework\Bentley.Logging.log4net-2.0.dll</HintPath>
+      <HintPath>c:\Work\_Libs\OpenBuildings CONNECT Edition 10.06.03.04\OpenBuildingsDesigner\Assemblies\ECFramework\Bentley.Logging.log4net-2.0.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Bentley.MicroStation">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>c:\Program Files\Bentley\OpenBuildings CONNECT Edition\OpenBuildingsDesigner\Assemblies\Bentley.MicroStation.dll</HintPath>
+      <HintPath>c:\Work\_Libs\OpenBuildings CONNECT Edition 10.06.03.04\OpenBuildingsDesigner\Assemblies\Bentley.MicroStation.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Bentley.Platform">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>c:\Program Files\Bentley\OpenBuildings CONNECT Edition\OpenBuildingsDesigner\Assemblies\ECFramework\Bentley.Platform.dll</HintPath>
+      <HintPath>c:\Work\_Libs\OpenBuildings CONNECT Edition 10.06.03.04\OpenBuildingsDesigner\Assemblies\ECFramework\Bentley.Platform.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Bentley.UI">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>c:\Program Files\Bentley\OpenBuildings CONNECT Edition\OpenBuildingsDesigner\Assemblies\ECFramework\Bentley.UI.dll</HintPath>
+      <HintPath>c:\Work\_Libs\OpenBuildings CONNECT Edition 10.06.03.04\OpenBuildingsDesigner\Assemblies\ECFramework\Bentley.UI.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Bentley.Windowing">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>c:\Program Files\Bentley\OpenBuildings CONNECT Edition\OpenBuildingsDesigner\Assemblies\ECFramework\Bentley.Windowing.dll</HintPath>
+      <HintPath>c:\Work\_Libs\OpenBuildings CONNECT Edition 10.06.03.04\OpenBuildingsDesigner\Assemblies\ECFramework\Bentley.Windowing.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
@@ -219,7 +219,7 @@
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Serialization" />
     <Reference Include="ustation">
-      <HintPath>c:\Program Files\Bentley\OpenBuildings CONNECT Edition\OpenBuildingsDesigner\ustation.dll</HintPath>
+      <HintPath>c:\Work\_Libs\OpenBuildings CONNECT Edition 10.06.03.04\OpenBuildingsDesigner\ustation.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>
@@ -249,14 +249,14 @@
   <Import Project="..\Shared.Bentley\Shared.Bentley.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy $(TargetDir)* "c:\Program Files\Bentley\OpenBuildings CONNECT Edition\OpenBuildingsDesigner\Assemblies\OIM\Embedded.Penetrations" /I/Y/S
+    <PostBuildEvent>
+      xcopy $(TargetDir)* "c:\Program Files\Bentley\OpenBuildings CONNECT Edition\OpenBuildingsDesigner\Assemblies\OIM\Embedded.Penetrations" /I/Y/S
 
-set dest=c:\Work\Атомпроект\simpen\Distrib\Embedded.Penetrations\Embedded.Penetrations v_ [connect_6].zip
+      set dest=c:\Work\Атомпроект\simpen\Distrib\Embedded.Penetrations\Embedded.Penetrations v_ [connect_6].zip
 
-IF $(ConfigurationName) == Release (
-del "%25dest%25"
-powershell Compress-Archive -Path '$(TargetDir)*.dll', '$(TargetDir)*.xml', '$(TargetDir)Mapping' -DestinationPath '%25dest%25' -Force
-
-)</PostBuildEvent>
+      IF $(ConfigurationName) == Release (
+        del "%25dest%25"
+        powershell Compress-Archive -Path '$(TargetDir)*.dll', '$(TargetDir)*.xml', '$(TargetDir)Mapping' -DestinationPath '%25dest%25' -Force
+      )</PostBuildEvent>
   </PropertyGroup>
 </Project>

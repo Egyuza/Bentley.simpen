@@ -37,6 +37,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Embedded.WPF.Penetrations",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Embedded.Penetrations.Cn6", "Embedded.Penetrations.Cn6\Embedded.Penetrations.Cn6.csproj", "{BD6F6979-17D4-4F0C-9D61-4F4098FE12FB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Embedded.Penetrations.Cn8", "Embedded.Penetrations.Cn8\Embedded.Penetrations.Cn8.csproj", "{A4653E31-52B1-44B5-A3B3-F2392AF18074}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Shared\Shared.projitems*{2c1825d3-6bb5-4340-a921-7c8088ca5167}*SharedItemsImports = 4
@@ -44,6 +46,9 @@ Global
 		Embedded.Penetrations.Shared\Shared.Penetrations.projitems*{a25cdd2c-d7ef-481c-9a3e-430c27570d1f}*SharedItemsImports = 4
 		Shared.Bentley\Shared.Bentley.projitems*{a25cdd2c-d7ef-481c-9a3e-430c27570d1f}*SharedItemsImports = 4
 		Shared\Shared.projitems*{a25cdd2c-d7ef-481c-9a3e-430c27570d1f}*SharedItemsImports = 4
+		Embedded.Penetrations.Shared\Shared.Penetrations.projitems*{a4653e31-52b1-44b5-a3b3-f2392af18074}*SharedItemsImports = 4
+		Shared.Bentley\Shared.Bentley.projitems*{a4653e31-52b1-44b5-a3b3-f2392af18074}*SharedItemsImports = 4
+		Shared\Shared.projitems*{a4653e31-52b1-44b5-a3b3-f2392af18074}*SharedItemsImports = 4
 		Shared.Bentley\Shared.Bentley.projitems*{a63e37c8-3403-405b-808d-ad8260d8a1c7}*SharedItemsImports = 13
 		Embedded.Penetrations.Shared\Shared.Penetrations.projitems*{bd6f6979-17d4-4f0c-9d61-4f4098fe12fb}*SharedItemsImports = 4
 		Shared.Bentley\Shared.Bentley.projitems*{bd6f6979-17d4-4f0c-9d61-4f4098fe12fb}*SharedItemsImports = 4
@@ -420,6 +425,54 @@ Global
 		{BD6F6979-17D4-4F0C-9D61-4F4098FE12FB}.V8i-Release|Any CPU.Build.0 = Release|Any CPU
 		{BD6F6979-17D4-4F0C-9D61-4F4098FE12FB}.V8i-Release|Win32.ActiveCfg = Release|Any CPU
 		{BD6F6979-17D4-4F0C-9D61-4F4098FE12FB}.V8i-Release|Win32.Build.0 = Release|Any CPU
+		{A4653E31-52B1-44B5-A3B3-F2392AF18074}.Cn-Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A4653E31-52B1-44B5-A3B3-F2392AF18074}.Cn-Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A4653E31-52B1-44B5-A3B3-F2392AF18074}.Cn-Debug|Win32.ActiveCfg = Debug|Any CPU
+		{A4653E31-52B1-44B5-A3B3-F2392AF18074}.Cn-Debug|Win32.Build.0 = Debug|Any CPU
+		{A4653E31-52B1-44B5-A3B3-F2392AF18074}.Cn-Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A4653E31-52B1-44B5-A3B3-F2392AF18074}.Cn-Release|Any CPU.Build.0 = Release|Any CPU
+		{A4653E31-52B1-44B5-A3B3-F2392AF18074}.Cn-Release|Win32.ActiveCfg = Release|Any CPU
+		{A4653E31-52B1-44B5-A3B3-F2392AF18074}.Cn-Release|Win32.Build.0 = Release|Any CPU
+		{A4653E31-52B1-44B5-A3B3-F2392AF18074}.Debug_Cn|Any CPU.ActiveCfg = Debug|Any CPU
+		{A4653E31-52B1-44B5-A3B3-F2392AF18074}.Debug_Cn|Any CPU.Build.0 = Debug|Any CPU
+		{A4653E31-52B1-44B5-A3B3-F2392AF18074}.Debug_Cn|Win32.ActiveCfg = Debug|Any CPU
+		{A4653E31-52B1-44B5-A3B3-F2392AF18074}.Debug_Cn|Win32.Build.0 = Debug|Any CPU
+		{A4653E31-52B1-44B5-A3B3-F2392AF18074}.Debug_V8i|Any CPU.ActiveCfg = Debug|Any CPU
+		{A4653E31-52B1-44B5-A3B3-F2392AF18074}.Debug_V8i|Any CPU.Build.0 = Debug|Any CPU
+		{A4653E31-52B1-44B5-A3B3-F2392AF18074}.Debug_V8i|Win32.ActiveCfg = Debug|Any CPU
+		{A4653E31-52B1-44B5-A3B3-F2392AF18074}.Debug_V8i|Win32.Build.0 = Debug|Any CPU
+		{A4653E31-52B1-44B5-A3B3-F2392AF18074}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A4653E31-52B1-44B5-A3B3-F2392AF18074}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A4653E31-52B1-44B5-A3B3-F2392AF18074}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{A4653E31-52B1-44B5-A3B3-F2392AF18074}.Debug|Win32.Build.0 = Debug|Any CPU
+		{A4653E31-52B1-44B5-A3B3-F2392AF18074}.Develop|Any CPU.ActiveCfg = Debug|Any CPU
+		{A4653E31-52B1-44B5-A3B3-F2392AF18074}.Develop|Any CPU.Build.0 = Debug|Any CPU
+		{A4653E31-52B1-44B5-A3B3-F2392AF18074}.Develop|Win32.ActiveCfg = Debug|Any CPU
+		{A4653E31-52B1-44B5-A3B3-F2392AF18074}.Develop|Win32.Build.0 = Debug|Any CPU
+		{A4653E31-52B1-44B5-A3B3-F2392AF18074}.Release_Cn|Any CPU.ActiveCfg = Release|Any CPU
+		{A4653E31-52B1-44B5-A3B3-F2392AF18074}.Release_Cn|Any CPU.Build.0 = Release|Any CPU
+		{A4653E31-52B1-44B5-A3B3-F2392AF18074}.Release_Cn|Win32.ActiveCfg = Release|Any CPU
+		{A4653E31-52B1-44B5-A3B3-F2392AF18074}.Release_Cn|Win32.Build.0 = Release|Any CPU
+		{A4653E31-52B1-44B5-A3B3-F2392AF18074}.Release_Debug|Any CPU.ActiveCfg = Release|Any CPU
+		{A4653E31-52B1-44B5-A3B3-F2392AF18074}.Release_Debug|Any CPU.Build.0 = Release|Any CPU
+		{A4653E31-52B1-44B5-A3B3-F2392AF18074}.Release_Debug|Win32.ActiveCfg = Release|Any CPU
+		{A4653E31-52B1-44B5-A3B3-F2392AF18074}.Release_Debug|Win32.Build.0 = Release|Any CPU
+		{A4653E31-52B1-44B5-A3B3-F2392AF18074}.Release_V8i|Any CPU.ActiveCfg = Release|Any CPU
+		{A4653E31-52B1-44B5-A3B3-F2392AF18074}.Release_V8i|Any CPU.Build.0 = Release|Any CPU
+		{A4653E31-52B1-44B5-A3B3-F2392AF18074}.Release_V8i|Win32.ActiveCfg = Release|Any CPU
+		{A4653E31-52B1-44B5-A3B3-F2392AF18074}.Release_V8i|Win32.Build.0 = Release|Any CPU
+		{A4653E31-52B1-44B5-A3B3-F2392AF18074}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A4653E31-52B1-44B5-A3B3-F2392AF18074}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A4653E31-52B1-44B5-A3B3-F2392AF18074}.Release|Win32.ActiveCfg = Release|Any CPU
+		{A4653E31-52B1-44B5-A3B3-F2392AF18074}.Release|Win32.Build.0 = Release|Any CPU
+		{A4653E31-52B1-44B5-A3B3-F2392AF18074}.V8i-Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A4653E31-52B1-44B5-A3B3-F2392AF18074}.V8i-Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A4653E31-52B1-44B5-A3B3-F2392AF18074}.V8i-Debug|Win32.ActiveCfg = Debug|Any CPU
+		{A4653E31-52B1-44B5-A3B3-F2392AF18074}.V8i-Debug|Win32.Build.0 = Debug|Any CPU
+		{A4653E31-52B1-44B5-A3B3-F2392AF18074}.V8i-Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A4653E31-52B1-44B5-A3B3-F2392AF18074}.V8i-Release|Any CPU.Build.0 = Release|Any CPU
+		{A4653E31-52B1-44B5-A3B3-F2392AF18074}.V8i-Release|Win32.ActiveCfg = Release|Any CPU
+		{A4653E31-52B1-44B5-A3B3-F2392AF18074}.V8i-Release|Win32.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -439,6 +492,7 @@ Global
 		{4642F70A-ACCB-42AA-A949-3F0CF1CB5C9A} = {A4BBE183-BF63-4AFF-8A41-35EA5C1534C1}
 		{74F11097-7855-4AD4-BCF2-DA75B57F90E7} = {73580DDB-35D1-42D6-B4B1-AD891335F691}
 		{BD6F6979-17D4-4F0C-9D61-4F4098FE12FB} = {02658AE8-723A-4DB1-9882-A8463CE5D634}
+		{A4653E31-52B1-44B5-A3B3-F2392AF18074} = {02658AE8-723A-4DB1-9882-A8463CE5D634}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6C3FDAA1-71F4-42E5-83C1-513B415C8E8C}
