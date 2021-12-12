@@ -113,32 +113,13 @@ public static class PenetrHelper
     public static void addToModel(IPenetrTask task, PenetrInfo penInfo)
     {
         try
-        {               
-            //if (!checkForIntersects(task, penInfo)) // ! ВАЖНО
-            //{   // TODO ПРОВЕРКА НА ПЕРЕСЕЧЕНИЕ!
-
-            //    task.Warnings.Add("Пересечение с другими закладными");
-            //    System.Windows.Forms.MessageBox.Show("Пересечение с другими закладными");
-            //    continue;
-            //}
-
-            TFCOM.TFFrameListClass frameList = 
-                createFrameList(task, penInfo, PenetrTaskBase.LevelMain);
-                
-            addProjection(frameList, task, penInfo);
-
-            // TODO видимость контура перфоратора можно в конфиг. переменную
-            addPerforator(frameList, 
-                task, penInfo, PenetrTaskBase.LevelSymb, false);
-
-            frameList.ApplyPerforatorInModel();
-            frameList.AddToModel();
-                
-            BCOM.Element bcomElem;
-            frameList.GetElement(out bcomElem);   
-
-            setDataGroupInstance(bcomElem, task);
-        }        
+        {
+            var penetr = new Penetration(task);
+            penetr.AddProjection();
+            penetr.AddPerforation();
+            penetr.AddToModel(false);
+            penetr.SetTags();
+        }
         catch (Exception ex)
         {
             ex.ShowMessageBox();

@@ -147,22 +147,25 @@ public abstract class EmbeddedBase : BentleyInteropBase
                 CatalogTypeName, CatalogInstanceName);
             catalogEditHandle.UpdateInstanceDataDefaults();            
 
-            foreach (var pair in DataGroupPropsValues)
+            if (DataGroupPropsValues != null)
             {
-                Sp3dToDataGroupMapProperty mapProp = pair.Key;
-                string value = pair.Value;
-
-                DataGroupProperty prop = catalogEditHandle.GetProperties()
-                    .FirstOrDefault(x => x.Xpath == mapProp.TargetXPath);
-
-                if (prop == null)
+                foreach (var pair in DataGroupPropsValues)
                 {
-                    prop = new DataGroupProperty(
-                        mapProp.TargetName, value, mapProp.ReadOnly, mapProp.Visible);
-                    prop.Xpath = mapProp.TargetXPath;
-                    catalogEditHandle.Properties.Add(prop);
+                    Sp3dToDataGroupMapProperty mapProp = pair.Key;
+                    string value = pair.Value;
+
+                    DataGroupProperty prop = catalogEditHandle.GetProperties()
+                        .FirstOrDefault(x => x.Xpath == mapProp.TargetXPath);
+
+                    if (prop == null)
+                    {
+                        prop = new DataGroupProperty(
+                            mapProp.TargetName, value, mapProp.ReadOnly, mapProp.Visible);
+                        prop.Xpath = mapProp.TargetXPath;
+                        catalogEditHandle.Properties.Add(prop);
+                    }
+                    catalogEditHandle.SetValue(prop, value);
                 }
-                catalogEditHandle.SetValue(prop, value);
             }
 
             int res = catalogEditHandle.Rewrite((int)BCOM.MsdDrawingMode.Normal);

@@ -40,6 +40,8 @@ public class Penetration : EmbeddedBase
             Task.FlangesType, Task.DiameterType.Number);
         taskUOR = new UOR(task.ModelRef);
 
+        task.prepairDataGroup();
+
         Initialize();
     }
 
@@ -236,16 +238,19 @@ public class Penetration : EmbeddedBase
             }
         }
 
-        foreach(BCOM.Point3d? refPoint in Task.RefPoints)
+        if (Task.RefPoints != null)
         {
-            if (!refPoint.HasValue)
-                continue;
+            foreach(BCOM.Point3d? refPoint in Task.RefPoints)
+            {
+                if (!refPoint.HasValue)
+                    continue;
 
-            projInfoList.Add(new ProjectionInfo() {
-                Element = ElementHelper.createPoint(refPoint.Value),
-                LevelName = LEVEL_POINT_NAME,
-                ProjectionName = "refPoint"
-            });
+                projInfoList.Add(new ProjectionInfo() {
+                    Element = ElementHelper.createPoint(refPoint.Value),
+                    LevelName = LEVEL_POINT_NAME,
+                    ProjectionName = "refPoint"
+                });
+            }
         }
         return projInfoList;
     }
