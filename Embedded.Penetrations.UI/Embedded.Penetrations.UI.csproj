@@ -9,11 +9,12 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Embedded.Penetrations.UI</RootNamespace>
     <AssemblyName>Embedded.Penetrations.UI</AssemblyName>
-    <TargetFrameworkVersion Condition="'$(Configuration.StartsWith(`V8i-`))' == 'true'">v3.5</TargetFrameworkVersion>
-    <TargetFrameworkVersion Condition="'$(Configuration.StartsWith(`V8i-`))' == 'false'">v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -59,7 +60,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'V8i-Debug|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\V8i-Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;V8i</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <UseVSHostingProcess>false</UseVSHostingProcess>
@@ -69,7 +70,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'V8i-Release|AnyCPU'">
     <OutputPath>bin\V8i-Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;V8i</DefineConstants>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -81,8 +82,10 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="PresentationCore" />
-    <Reference Include="PresentationFramework" />
+    <Reference Include="Costura, Version=1.6.2.0, Culture=neutral, PublicKeyToken=9919ef960d84173d, processorArchitecture=MSIL">
+      <HintPath>..\packages\Costura.Fody.1.6.2\lib\portable-net+sl+win+wpa+wp\Costura.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -91,93 +94,14 @@
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="UIAutomationProvider" />
+    <Reference Include="Telerik.WinControls, Version=2021.3.1109.20, Culture=neutral, PublicKeyToken=5bb2a467cbec794e" />
+    <Reference Include="Telerik.WinControls.GridView, Version=2021.3.1109.20, Culture=neutral, PublicKeyToken=5bb2a467cbec794e, processorArchitecture=MSIL" />
+    <Reference Include="Telerik.WinControls.Themes.Office2010Blue, Version=2021.3.1109.20, Culture=neutral, PublicKeyToken=5bb2a467cbec794e, processorArchitecture=MSIL" />
+    <Reference Include="Telerik.WinControls.Themes.Office2010Silver, Version=2021.3.1109.20, Culture=neutral, PublicKeyToken=5bb2a467cbec794e, processorArchitecture=MSIL" />
+    <Reference Include="Telerik.WinControls.UI, Version=2021.3.1109.20, Culture=neutral, PublicKeyToken=5bb2a467cbec794e, processorArchitecture=MSIL" />
+    <Reference Include="TelerikCommon, Version=2021.3.1109.20, Culture=neutral, PublicKeyToken=5bb2a467cbec794e" />
     <Reference Include="WindowsBase" />
     <Reference Include="WindowsFormsIntegration" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(Configuration.StartsWith(`V8i-`))' == 'true'">
-    <Reference Include="Telerik.WinControls">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Lib\V8i\Telerik.WinControls.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Telerik.WinControls.UI">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Lib\V8i\Telerik.WinControls.UI.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Telerik.WinControls.GridView">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Lib\V8i\Telerik.WinControls.GridView.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Telerik.WinControls.Themes.Office2010Silver">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Lib\V8i\Telerik.WinControls.Themes.Office2010Silver.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="TelerikCommon">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Lib\V8i\TelerikCommon.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup Condition="'$(Configuration.StartsWith(`Cn-`))' == 'true'">
-    <Reference Include="Telerik.WinControls">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Lib\Connect\Telerik.WinControls.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Telerik.WinControls.UI">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Lib\Connect\Telerik.WinControls.UI.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Telerik.WinControls.GridView">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Lib\Connect\Telerik.WinControls.GridView.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Telerik.WinControls.Themes.Office2010Blue">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Lib\Connect\Telerik.WinControls.Themes.Office2010Blue.dll</HintPath>
-    </Reference>
-    <Reference Include="Telerik.WinControls.Themes.Office2010Silver">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Lib\Connect\Telerik.WinControls.Themes.Office2010Silver.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="TelerikCommon">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Lib\Connect\TelerikCommon.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup Condition="'$(Configuration)' == 'Develop'">
-    <EmbeddedResource Include="Properties\licenses.licx" />
-    <Reference Include="Telerik.WinControls">
-      <SpecificVersion>False</SpecificVersion>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Telerik.WinControls.UI">
-      <SpecificVersion>False</SpecificVersion>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Telerik.WinControls.GridView">
-      <SpecificVersion>False</SpecificVersion>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Telerik.WinControls.Themes.Office2010Blue">
-      <SpecificVersion>False</SpecificVersion>
-    </Reference>
-    <Reference Include="Telerik.WinControls.Themes.Office2010Silver">
-      <SpecificVersion>False</SpecificVersion>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="TelerikCommon">
-      <SpecificVersion>False</SpecificVersion>
-      <Private>False</Private>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="PenetrationForm.cs">
@@ -206,13 +130,18 @@
     <EmbeddedResource Include="PenFormTelerik.resx">
       <DependentUpon>PenFormTelerik.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Properties\licenses.licx" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="FodyWeavers.xml" />
   </ItemGroup>
   <Import Project="..\Shared\Shared.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
@@ -220,6 +149,15 @@
     <PostBuildEvent>
     </PostBuildEvent>
   </PropertyGroup>
+  <Import Project="..\packages\Fody.2.0.0\build\portable-net+sl+win+wpa+wp\Fody.targets" Condition="Exists('..\packages\Fody.2.0.0\build\portable-net+sl+win+wpa+wp\Fody.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Fody.2.0.0\build\portable-net+sl+win+wpa+wp\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Fody.2.0.0\build\portable-net+sl+win+wpa+wp\Fody.targets'))" />
+    <Error Condition="!Exists('..\packages\Costura.Fody.1.6.2\build\portable-net+sl+win+wpa+wp\Costura.Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Costura.Fody.1.6.2\build\portable-net+sl+win+wpa+wp\Costura.Fody.targets'))" />
+  </Target>
+  <Import Project="..\packages\Costura.Fody.1.6.2\build\portable-net+sl+win+wpa+wp\Costura.Fody.targets" Condition="Exists('..\packages\Costura.Fody.1.6.2\build\portable-net+sl+win+wpa+wp\Costura.Fody.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

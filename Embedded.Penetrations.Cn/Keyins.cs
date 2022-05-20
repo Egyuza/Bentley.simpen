@@ -35,5 +35,10 @@ static class Keyins
             ex.ShowMessageBox();
         }
     }
+
+    public static void Test(string unparsed)
+    {
+        WindowHelper.show(new UI.PenFormTelerik());
+    }
 }
 }

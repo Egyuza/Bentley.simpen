@@ -30,7 +30,8 @@ public class PenetrInfo
 
     public static long getFlangesType(string penCode)
     {
-        if (penCode == "C") return 5;
+        if (penCode == "C") 
+            return 5;
 
         try
         {

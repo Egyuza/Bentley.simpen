@@ -45,13 +45,13 @@ public class Penetration : EmbeddedBase
         Initialize();
     }
 
-    public override string CellName => CELL_NAME;
+    public override string CellName => PenConfigVariables.CellName.Value;
 
-    public override string LevelName => LEVEL_NAME;
+    public override string LevelName => PenConfigVariables.Level.Value;
 
-    public override string CatalogTypeName => DG_CATALOG_TYPE;
+    public override string CatalogTypeName => PenConfigVariables.DataGroupCatalogType.Value;
 
-    public override string CatalogInstanceName => DG_CATALOG_INSTANCE;
+    public override string CatalogInstanceName => PenConfigVariables.DataGroupCatalogInstance.Value;
 
     public override Dictionary<Sp3dToDataGroupMapProperty, string> 
     DataGroupPropsValues => Task.DataGroupPropsValues;
@@ -175,7 +175,7 @@ public class Penetration : EmbeddedBase
             perfoEl.Move(offset);
             perfoEl.Rotate(App.Point3dZero(), angles.X, angles.Y, angles.Z);
         }
-        perfoEl.Level = ElementHelper.GetOrCreateLevel(LEVEL_SYMB_NAME);
+        perfoEl.Level = ElementHelper.GetOrCreateLevel(PenConfigVariables.PerfoLevel);
         ElementHelper.setSymbologyByLevel(perfoEl);
         perfoEl.Transform(taskTran);
         perfoEl.Move(Task.Location);      
@@ -207,13 +207,13 @@ public class Penetration : EmbeddedBase
             projInfoList.Add(new ProjectionInfo() {
                 Element = ElementHelper.createCrossRound(pipeInsideDiam)
                     .transformByTask(Task, shiftZ: shift),
-                LevelName = LEVEL_SYMB_NAME,
+                LevelName = PenConfigVariables.ProjectionLevel.Value,
                 ProjectionName = "cross"
             });
             projInfoList.Add(new ProjectionInfo() {
                 Element = ElementHelper.createCircle(pipeInsideDiam)
                     .transformByTask(Task, shiftZ: shift),
-                LevelName = LEVEL_SYMB_NAME,
+                LevelName = PenConfigVariables.ProjectionLevel.Value,
                 ProjectionName = "circle"
             });
         }
@@ -223,7 +223,7 @@ public class Penetration : EmbeddedBase
             projInfoList.Add(new ProjectionInfo() {
                 Element = ElementHelper.createCircle(flangeOutsideDiam)
                     .transformByTask(Task, shiftZ: -Task.FlangeWallOffset),
-                LevelName = LEVEL_FLANGE_SYMB_NAME,
+                LevelName = PenConfigVariables.ProjectionFlangeLevel.Value,
                 ProjectionName = "flange"
             });
 
@@ -232,7 +232,7 @@ public class Penetration : EmbeddedBase
                 projInfoList.Add(new ProjectionInfo() {
                     Element = ElementHelper.createCircle(flangeOutsideDiam)
                         .transformByTask(Task, shiftZ: length -Task.FlangeWallOffset),
-                    LevelName = LEVEL_FLANGE_SYMB_NAME,
+                    LevelName = PenConfigVariables.ProjectionFlangeLevel.Value,
                     ProjectionName = "flange"
                 });
             }
@@ -247,7 +247,7 @@ public class Penetration : EmbeddedBase
 
                 projInfoList.Add(new ProjectionInfo() {
                     Element = ElementHelper.createPoint(refPoint.Value),
-                    LevelName = LEVEL_POINT_NAME,
+                    LevelName = PenConfigVariables.ProjectionPointLevel.Value,
                     ProjectionName = "refPoint"
                 });
             }
@@ -269,16 +269,17 @@ public class Penetration : EmbeddedBase
         return res;
     }
 
-    public const string CELL_NAME = "Penetration";
-    public const string CELL_NAME_OLD = "EmbeddedPart";
+    //public const string CELL_NAME = "Penetration";
+    //public const string CELL_NAME_OLD = "EmbeddedPart";
 
-    public const string DG_CATALOG_TYPE = "EmbeddedPart";
-    public const string DG_CATALOG_INSTANCE = "Embedded Part";
-    public const string DG_SCHEMA_NAME = "EmbPart";
+    //public const string DG_CATALOG_TYPE = "EmbeddedPart";
+    //public const string DG_CATALOG_INSTANCE = "Embedded Part";
+    //public const string DG_SCHEMA_NAME = "EmbPart";
 
-    private const string LEVEL_NAME = "C-EMBP-PNTR";
-    private const string LEVEL_SYMB_NAME = "C-EMB-ANNO";
-    private const string LEVEL_FLANGE_SYMB_NAME = "C-EMB-FLANGE";
-    private const string LEVEL_POINT_NAME = "C-EMB-POINT";
+    //private const string LEVEL_NAME = "C-EMBP-PNTR";
+    //private const string LEVEL_SYMB_NAME = "C-EMB-ANNO";
+    //private const string LEVEL_PERFORATOR = "C-EMB-PERF";
+    //private const string LEVEL_FLANGE_SYMB_NAME = "C-EMB-FLANGE";
+    //private const string LEVEL_POINT_NAME = "C-EMB-POINT";
 }
 }

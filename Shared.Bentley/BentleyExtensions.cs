@@ -266,6 +266,12 @@ public static class BentleyExtensions
         MessageCenter.AddMessage($"{progName}: {ex.Message}", ex.StackTrace, BCOM.MsdMessageCenterPriority.Error, openAlertDialog);
     }
 
+    public static void AddInfoToMessageCenter(string text, bool openAlertDialog = false) // TODO   
+    {
+        string progName = Assembly.GetExecutingAssembly().GetName().Name;
+        MessageCenter.AddMessage($"{progName}:\n{text}", text, BCOM.MsdMessageCenterPriority.Info, openAlertDialog);
+    }
+
     /// <summary> Оповещение - вывод текста ошибки </summary>
     public static void AlertIfDebug(this Exception ex)
     {

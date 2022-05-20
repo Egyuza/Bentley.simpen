@@ -133,9 +133,11 @@
   <Import Project="..\Shared\Shared.projitems" Label="Shared" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy $(TargetDir)* "c:\Program Files (x86)\Bentley\AECOsimBuildingDesigner V8i Ss6\AECOsimBuildingDesigner\assemblies\OIM\Embedded.Penetrations" /I/Y/S
+    <PostBuildEvent>del /s $(TargetDir)Telerik*
 
-set dest=c:\Work\Атомпроект\simpen\Distrib\Embedded.Penetrations\Embedded.Penetrations v_ [v8i].zip
+xcopy $(TargetDir)* "c:\Program Files (x86)\Bentley\AECOsimBuildingDesigner V8i Ss6\AECOsimBuildingDesigner\assemblies\OIM\$(TargetName)" /I/Y/S
+
+set dest=c:\Work\Атомпроект\simpen\Distrib\$(TargetName)\$(TargetName) v_ [v8i].zip
 IF $(ConfigurationName) == Release (
 del "%25dest%25"
 powershell Compress-Archive -Path '$(TargetDir)*.dll', '$(TargetDir)*.xml', '$(TargetDir)Mapping' -DestinationPath '%25dest%25' -Force

@@ -96,23 +96,10 @@ public abstract class PenetrTaskBase : BentleyInteropBase, IPenetrTask
 
     public override string ToString() => Name;
 
-    public static BCOM.Level LevelMain => ElementHelper.GetOrCreateLevel(LEVEL_NAME);
-    public static BCOM.Level LevelSymb => ElementHelper.GetOrCreateLevel(LEVEL_SYMB_NAME);
-    public static BCOM.Level LevelFlangeSymb => ElementHelper.GetOrCreateLevel(LEVEL_FLANGE_SYMB_NAME);
-    public static BCOM.Level LevelRefPoint => ElementHelper.GetOrCreateLevel(LEVEL_POINT_NAME);
-
-
-    public const string CELL_NAME = "Penetration";
-    public const string CELL_NAME_OLD = "EmbeddedPart";
-
-    public const string DG_CATALOG_TYPE = "EmbeddedPart";
-    public const string DG_CATALOG_INSTANCE = "Embedded Part";
-    public const string DG_SCHEMA_NAME = "EmbPart";
-
-    private const string LEVEL_NAME = "C-EMBP-PNTR";
-    private const string LEVEL_SYMB_NAME = "C-EMB-ANNO";
-    private const string LEVEL_FLANGE_SYMB_NAME = "C-EMB-FLANGE";
-    private const string LEVEL_POINT_NAME = "C-EMB-POINT";
+    public static BCOM.Level LevelMain => ElementHelper.GetOrCreateLevel(PenConfigVariables.Level.Value);
+    public static BCOM.Level LevelSymb => ElementHelper.GetOrCreateLevel(PenConfigVariables.ProjectionLevel.Value);
+    public static BCOM.Level LevelFlangeSymb => ElementHelper.GetOrCreateLevel(PenConfigVariables.ProjectionFlangeLevel.Value);
+    public static BCOM.Level LevelRefPoint => ElementHelper.GetOrCreateLevel(PenConfigVariables.ProjectionPointLevel.Value);
 
 }
 }

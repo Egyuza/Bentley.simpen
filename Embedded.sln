@@ -43,6 +43,10 @@ Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		Shared\Shared.projitems*{2c1825d3-6bb5-4340-a921-7c8088ca5167}*SharedItemsImports = 4
 		Embedded.Openings.Shared\Shared.Openings.projitems*{5074c78e-ec24-473a-84d0-a91472c89e28}*SharedItemsImports = 13
+		Shared\Shared.projitems*{6b0a1d7d-7508-489f-ba9f-024ffabd2cc1}*SharedItemsImports = 4
+		Embedded.Openings.Shared\Shared.Openings.projitems*{9454c148-8a26-4ece-bd3f-38b5ea8778c6}*SharedItemsImports = 4
+		Shared.Bentley\Shared.Bentley.projitems*{9454c148-8a26-4ece-bd3f-38b5ea8778c6}*SharedItemsImports = 4
+		Shared\Shared.projitems*{9454c148-8a26-4ece-bd3f-38b5ea8778c6}*SharedItemsImports = 4
 		Embedded.Penetrations.Shared\Shared.Penetrations.projitems*{a25cdd2c-d7ef-481c-9a3e-430c27570d1f}*SharedItemsImports = 4
 		Shared.Bentley\Shared.Bentley.projitems*{a25cdd2c-d7ef-481c-9a3e-430c27570d1f}*SharedItemsImports = 4
 		Shared\Shared.projitems*{a25cdd2c-d7ef-481c-9a3e-430c27570d1f}*SharedItemsImports = 4
@@ -54,6 +58,9 @@ Global
 		Shared.Bentley\Shared.Bentley.projitems*{bd6f6979-17d4-4f0c-9d61-4f4098fe12fb}*SharedItemsImports = 4
 		Shared\Shared.projitems*{bd6f6979-17d4-4f0c-9d61-4f4098fe12fb}*SharedItemsImports = 4
 		Shared\Shared.projitems*{d601eecb-b677-47a3-8082-b5616ce59e48}*SharedItemsImports = 13
+		Embedded.Penetrations.Shared\Shared.Penetrations.projitems*{e3596edd-11ed-49a9-bc77-471aa38fdcf0}*SharedItemsImports = 4
+		Shared.Bentley\Shared.Bentley.projitems*{e3596edd-11ed-49a9-bc77-471aa38fdcf0}*SharedItemsImports = 4
+		Shared\Shared.projitems*{e3596edd-11ed-49a9-bc77-471aa38fdcf0}*SharedItemsImports = 4
 		Embedded.Penetrations.Shared\Shared.Penetrations.projitems*{f415c176-6c28-4570-a31d-ddd2fecec1b4}*SharedItemsImports = 13
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

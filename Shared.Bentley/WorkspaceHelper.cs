@@ -18,7 +18,7 @@ public static class WorkspaceHelper
         if (!App.ActiveWorkspace.IsConfigurationVariableDefined(variableName))
         {
             throw new Exception(
-                $"Не определена конфигурационная переменная пути файла маппинга '{variableName}'");
+                $"Не определена конфигурационная переменная '{variableName}'");
         }
          
         return App.ActiveWorkspace.ConfigurationVariableValue(variableName);

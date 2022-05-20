@@ -4,6 +4,7 @@ using Embedded.Penetrations.Shared.Mapping;
 using System;
 using System.Windows.Forms;
 using Shared.Bentley;
+using System.Text;
 
 namespace Embedded.Penetrations
 {
@@ -49,5 +50,15 @@ static class Keyins
         WindowHelper.show(new UI.PenFormTelerik());
     }
 
+    public static void ShowConfigVariablesList(string unparsed)
+    {
+        var builder = new StringBuilder("Список конфигурационных переменных:\n\n");
+
+        var list = PenConfigVariables.GetVariables();
+        list.Sort((x,y) => x.Name.CompareTo(y.Name));
+        list.ForEach(x => builder.AppendLine($"{x.Name} = {x.TryGetValue()}\n"));
+
+        BentleyExtensions.AddInfoToMessageCenter(builder.ToString(), true);
+    }
 }
 }

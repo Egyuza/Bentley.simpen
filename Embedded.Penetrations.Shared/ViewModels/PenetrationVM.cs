@@ -41,16 +41,13 @@ public class PenetrationVM : BentleyInteropBase
     {
         isDebugMode_ = options.IsDebug;
 
-        var wspace = App.ActiveWorkspace;
-        if (wspace.IsConfigurationVariableDefined("AEP_EMB_PEN_LOG_FOLDER"))
+        if (PenConfigVariables.LogFolder.IsDefined)
         {
-            Logger.setLogFolder(
-                wspace.ConfigurationVariableValue("AEP_EMB_PEN_LOG_FOLDER"));
+            Logger.setLogFolder(PenConfigVariables.LogFolder.Value);
         }
-        if (wspace.IsConfigurationVariableDefined("AEP_EMB_PEN_LOG"))
+        if (PenConfigVariables.Log.IsDefined)
         {
-            Logger.IsActive = bool.Parse(
-                wspace.ConfigurationVariableValue("AEP_EMB_PEN_LOG"));
+            Logger.IsActive = bool.Parse(PenConfigVariables.Log.Value);
         }
 
         Logger.Log.Info(new string('=', 22) + " LOAD " + new string('=', 22));

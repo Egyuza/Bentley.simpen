@@ -586,6 +586,12 @@ public static class ElementHelper
         return getMiddlePoint(element.Range.Low,element.Range.High);
     }
 
+    public static BCOM.Level GetOrCreateLevel(ConfigVariable cfgVar)
+    {
+        var temp = cfgVar.ValueNonExpand();
+        return GetOrCreateLevel(cfgVar.Value);
+    }
+
     public static BCOM.Level GetOrCreateLevel(string name)
     {
         BCOM.Levels levels = App.ActiveDesignFile.Levels;

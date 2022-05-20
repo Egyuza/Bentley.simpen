@@ -147,7 +147,7 @@ class UpdateModel : BentleyInteropBase
         var cellsToUpdateList = new List<CellElement>();
 
         foreach (string cellName in new string[] 
-            {PenetrTaskBase.CELL_NAME, PenetrTaskBase.CELL_NAME_OLD})
+            {PenConfigVariables.CellName.Value, PenConfigVariables.CellNameOld.Value})
         {
             criteria.IncludeOnlyCell(cellName);
 
@@ -171,12 +171,12 @@ class UpdateModel : BentleyInteropBase
                 TFFrameListClass frameList = new TFFrameListClass();
                 try
                 {
-                    if (cellName.Equals(PenetrTaskBase.CELL_NAME))
+                    if (cellName.Equals(PenConfigVariables.CellName.Value))
                     {
                         //frameList.InitFromElement(cell);
                         //process(frameList, ref dirty, updateImidiatly);
                     }
-                    else if (cellName.Equals(PenetrTaskBase.CELL_NAME_OLD))
+                    else if (cellName.Equals(PenConfigVariables.CellNameOld.Value))
                     {
                         processOld(ref cell, ref dirty, updateImidiatly); // CELL  
                         frameList.InitFromElement(cell); // FRAME

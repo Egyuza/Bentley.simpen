@@ -10,6 +10,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)AssemblyVersion.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)PenConfigVariables.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DiameterType.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Models\GroupByTaskModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)IPenetrTask.cs" />

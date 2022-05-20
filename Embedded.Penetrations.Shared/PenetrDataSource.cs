@@ -40,7 +40,14 @@ public class PenetrDataSource
 
     private PenetrDataSource() 
     {
-        refresh();
+        try
+        {
+            refresh();
+        }
+        catch (Exception ex)
+        {
+            ex.ShowMessageBox();
+        }
     }
 
     public long ProjectId { get { return projId_; } }
@@ -65,30 +72,33 @@ public class PenetrDataSource
 
         BCOM.Workspace wspace = App.ActiveWorkspace;
 
-        string server = wspace.IsConfigurationVariableDefined("AEP_SAVRD_SERVER") ?
-            wspace.ConfigurationVariableValue("AEP_SAVRD_SERVER") : "vibe1.sp.spbaep.ru";
+        string server = PenConfigVariables.SqlServer.Value;
+        //wspace.IsConfigurationVariableDefined("AEP_SAVRD_SERVER") ?
+        //    wspace.ConfigurationVariableValue("AEP_SAVRD_SERVER") : "vibe1.sp.spbaep.ru";
                     
         { // ОТЛАДКА
             // server = "badserver";
         }
 
-        string passServer = 
-            wspace.IsConfigurationVariableDefined("AEP_SAVRD_PASS_SERVER") ?
-            wspace.ConfigurationVariableValue("AEP_SAVRD_PASS_SERVER") : 
-            "pw-srv.sp.spbaep.ru";
-        
-        string db = wspace.IsConfigurationVariableDefined("AEP_SAVRD_BASE") ?
-            wspace.ConfigurationVariableValue("AEP_SAVRD_BASE") : "parts";          
+        string passServer = PenConfigVariables.SqlPassServer.Value;
+            //wspace.IsConfigurationVariableDefined("AEP_SAVRD_PASS_SERVER") ?
+            //wspace.ConfigurationVariableValue("AEP_SAVRD_PASS_SERVER") : 
+            //"pw-srv.sp.spbaep.ru";
+
+        string db = PenConfigVariables.Database.Value;
+            //wspace.IsConfigurationVariableDefined("AEP_SAVRD_BASE") ?
+            //wspace.ConfigurationVariableValue("AEP_SAVRD_BASE") : "parts";          
     
-        projId_ = wspace.IsConfigurationVariableDefined("EMBDB_PROJECT_ID") ?
-            long.Parse(wspace.ConfigurationVariableValue("EMBDB_PROJECT_ID")) : 
-            0L;
+        projId_ = long.Parse(PenConfigVariables.ProjectId.Value);
+            //wspace.IsConfigurationVariableDefined("EMBDB_PROJECT_ID") ?
+            //long.Parse(wspace.ConfigurationVariableValue("EMBDB_PROJECT_ID")) : 
+            //0L;
 
-        // offtake project id
-        // 0 - no project
+            // offtake project id
+            // 0 - no project
 
-        // TODO read vba settings:
-        string user = "so2user";
+            // TODO read vba settings:
+            string user = "so2user";
         string pwd = "so2user";
 
         string connectionString = string.Format( 

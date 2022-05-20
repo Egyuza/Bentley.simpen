@@ -29,25 +29,32 @@
         private void InitializeComponent()
         {
             System.Windows.Forms.ToolStrip toolStrip1;
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle13 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle14 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle15 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle10 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle11 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle12 = new System.Windows.Forms.DataGridViewCellStyle();
             this.toolStripLabel1 = new System.Windows.Forms.ToolStripLabel();
             this.statusProject = new System.Windows.Forms.ToolStripLabel();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripLabel3 = new System.Windows.Forms.ToolStripLabel();
             this.toolStripProgressBar1 = new System.Windows.Forms.ToolStripProgressBar();
             this.statusInfo = new System.Windows.Forms.ToolStripLabel();
+            this.attrsInfoLabel = new System.Windows.Forms.ToolStripLabel();
+            this.attrsInfoText = new System.Windows.Forms.ToolStripLabel();
             this.tlpSets = new System.Windows.Forms.TableLayoutPanel();
             this.dgvCreationTasks = new System.Windows.Forms.DataGridView();
             this.tlpMain = new System.Windows.Forms.TableLayoutPanel();
-            this.label1 = new System.Windows.Forms.Label();
-            this.lblSelectionCount = new System.Windows.Forms.Label();
+            this.panel1 = new System.Windows.Forms.Panel();
             this.chboxEdit = new System.Windows.Forms.CheckBox();
+            this.label1 = new System.Windows.Forms.Label();
             this.btnPreview = new System.Windows.Forms.Button();
+            this.lblSelectionCount = new System.Windows.Forms.Label();
+            this.flowLayoutPanel4 = new System.Windows.Forms.FlowLayoutPanel();
+            this.btnScanGroup = new System.Windows.Forms.Button();
+            this.btnLoadXmlAttributes = new System.Windows.Forms.Button();
             this.btnAddToModel = new System.Windows.Forms.Button();
             this.grbxTasks = new System.Windows.Forms.GroupBox();
             this.tabCtrlMain = new System.Windows.Forms.TabControl();
+            this.tabGroupByTask = new System.Windows.Forms.TabPage();
             this.tabCreate = new System.Windows.Forms.TabPage();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             this.flowLayoutPanel3 = new System.Windows.Forms.FlowLayoutPanel();
@@ -78,7 +85,6 @@
             this.label8 = new System.Windows.Forms.Label();
             this.label16 = new System.Windows.Forms.Label();
             this.numIncrement = new System.Windows.Forms.NumericUpDown();
-            this.tabGroupByTask = new System.Windows.Forms.TabPage();
             this.tabUpdate = new System.Windows.Forms.TabPage();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.flowLayoutPanel2 = new System.Windows.Forms.FlowLayoutPanel();
@@ -90,19 +96,16 @@
             this.label5 = new System.Windows.Forms.Label();
             this.trvUpdate = new System.Windows.Forms.TreeView();
             this.tlpForm = new System.Windows.Forms.TableLayoutPanel();
-            this.panel1 = new System.Windows.Forms.Panel();
-            this.flowLayoutPanel4 = new System.Windows.Forms.FlowLayoutPanel();
-            this.btnScanGroup = new System.Windows.Forms.Button();
-            this.btnLoadXmlAttributes = new System.Windows.Forms.Button();
-            this.attrsInfoLabel = new System.Windows.Forms.ToolStripLabel();
-            this.attrsInfoText = new System.Windows.Forms.ToolStripLabel();
             toolStrip1 = new System.Windows.Forms.ToolStrip();
             toolStrip1.SuspendLayout();
             this.tlpSets.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvCreationTasks)).BeginInit();
             this.tlpMain.SuspendLayout();
+            this.panel1.SuspendLayout();
+            this.flowLayoutPanel4.SuspendLayout();
             this.grbxTasks.SuspendLayout();
             this.tabCtrlMain.SuspendLayout();
+            this.tabGroupByTask.SuspendLayout();
             this.tabCreate.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
             this.flowLayoutPanel3.SuspendLayout();
@@ -111,13 +114,10 @@
             ((System.ComponentModel.ISupportInitialize)(this.numAngleY)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numAngleX)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numIncrement)).BeginInit();
-            this.tabGroupByTask.SuspendLayout();
             this.tabUpdate.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             this.flowLayoutPanel2.SuspendLayout();
             this.tlpForm.SuspendLayout();
-            this.panel1.SuspendLayout();
-            this.flowLayoutPanel4.SuspendLayout();
             this.SuspendLayout();
             // 
             // toolStrip1
@@ -137,9 +137,9 @@
             this.statusInfo,
             this.attrsInfoLabel,
             this.attrsInfoText});
-            toolStrip1.Location = new System.Drawing.Point(0, 168);
+            toolStrip1.Location = new System.Drawing.Point(0, 289);
             toolStrip1.Name = "toolStrip1";
-            toolStrip1.Size = new System.Drawing.Size(483, 23);
+            toolStrip1.Size = new System.Drawing.Size(484, 23);
             toolStrip1.TabIndex = 4;
             toolStrip1.Text = "toolStrip1";
             // 
@@ -185,6 +185,23 @@
             this.statusInfo.Text = "...";
             this.statusInfo.Visible = false;
             // 
+            // attrsInfoLabel
+            // 
+            this.attrsInfoLabel.ForeColor = System.Drawing.SystemColors.ControlDark;
+            this.attrsInfoLabel.Name = "attrsInfoLabel";
+            this.attrsInfoLabel.Size = new System.Drawing.Size(98, 20);
+            this.attrsInfoLabel.Text = "Файл атрибутов:";
+            this.attrsInfoLabel.Visible = false;
+            // 
+            // attrsInfoText
+            // 
+            this.attrsInfoText.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.attrsInfoText.ForeColor = System.Drawing.Color.OliveDrab;
+            this.attrsInfoText.Name = "attrsInfoText";
+            this.attrsInfoText.Size = new System.Drawing.Size(16, 20);
+            this.attrsInfoText.Text = "...";
+            this.attrsInfoText.Visible = false;
+            // 
             // tlpSets
             // 
             this.tlpSets.ColumnCount = 1;
@@ -196,8 +213,8 @@
             this.tlpSets.Name = "tlpSets";
             this.tlpSets.RowCount = 1;
             this.tlpSets.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tlpSets.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 126F));
-            this.tlpSets.Size = new System.Drawing.Size(463, 65);
+            this.tlpSets.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 65F));
+            this.tlpSets.Size = new System.Drawing.Size(464, 186);
             this.tlpSets.TabIndex = 1;
             // 
             // dgvCreationTasks
@@ -208,23 +225,23 @@
             this.dgvCreationTasks.BackgroundColor = System.Drawing.SystemColors.Control;
             this.dgvCreationTasks.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.dgvCreationTasks.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.Single;
-            dataGridViewCellStyle13.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle13.BackColor = System.Drawing.SystemColors.ControlLight;
-            dataGridViewCellStyle13.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            dataGridViewCellStyle13.ForeColor = System.Drawing.SystemColors.WindowText;
-            dataGridViewCellStyle13.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle13.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle13.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dgvCreationTasks.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle13;
+            dataGridViewCellStyle10.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle10.BackColor = System.Drawing.SystemColors.ControlLight;
+            dataGridViewCellStyle10.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            dataGridViewCellStyle10.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle10.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle10.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle10.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dgvCreationTasks.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle10;
             this.dgvCreationTasks.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
-            dataGridViewCellStyle14.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle14.BackColor = System.Drawing.SystemColors.Window;
-            dataGridViewCellStyle14.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            dataGridViewCellStyle14.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
-            dataGridViewCellStyle14.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle14.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle14.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.dgvCreationTasks.DefaultCellStyle = dataGridViewCellStyle14;
+            dataGridViewCellStyle11.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle11.BackColor = System.Drawing.SystemColors.Window;
+            dataGridViewCellStyle11.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            dataGridViewCellStyle11.ForeColor = System.Drawing.SystemColors.ControlDarkDark;
+            dataGridViewCellStyle11.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle11.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle11.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.dgvCreationTasks.DefaultCellStyle = dataGridViewCellStyle11;
             this.dgvCreationTasks.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgvCreationTasks.EditMode = System.Windows.Forms.DataGridViewEditMode.EditOnEnter;
             this.dgvCreationTasks.EnableHeadersVisualStyles = false;
@@ -232,18 +249,18 @@
             this.dgvCreationTasks.Margin = new System.Windows.Forms.Padding(0, 1, 0, 0);
             this.dgvCreationTasks.MultiSelect = false;
             this.dgvCreationTasks.Name = "dgvCreationTasks";
-            dataGridViewCellStyle15.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle15.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle15.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            dataGridViewCellStyle15.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle15.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle15.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dgvCreationTasks.RowHeadersDefaultCellStyle = dataGridViewCellStyle15;
+            dataGridViewCellStyle12.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle12.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle12.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            dataGridViewCellStyle12.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle12.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle12.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dgvCreationTasks.RowHeadersDefaultCellStyle = dataGridViewCellStyle12;
             this.dgvCreationTasks.RowHeadersVisible = false;
             this.dgvCreationTasks.RowTemplate.DefaultCellStyle.ForeColor = System.Drawing.Color.Black;
             this.dgvCreationTasks.RowTemplate.Height = 20;
             this.dgvCreationTasks.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvCreationTasks.Size = new System.Drawing.Size(463, 64);
+            this.dgvCreationTasks.Size = new System.Drawing.Size(464, 185);
             this.dgvCreationTasks.TabIndex = 2;
             this.dgvCreationTasks.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvCreationTasks_CellContentClick);
             // 
@@ -261,8 +278,36 @@
             this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 52F));
             this.tlpMain.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tlpMain.Size = new System.Drawing.Size(475, 142);
+            this.tlpMain.Size = new System.Drawing.Size(476, 263);
             this.tlpMain.TabIndex = 1;
+            // 
+            // panel1
+            // 
+            this.panel1.Controls.Add(this.chboxEdit);
+            this.panel1.Controls.Add(this.label1);
+            this.panel1.Controls.Add(this.btnPreview);
+            this.panel1.Controls.Add(this.lblSelectionCount);
+            this.panel1.Controls.Add(this.flowLayoutPanel4);
+            this.panel1.Controls.Add(this.btnAddToModel);
+            this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panel1.Location = new System.Drawing.Point(0, 211);
+            this.panel1.Margin = new System.Windows.Forms.Padding(0);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(476, 52);
+            this.panel1.TabIndex = 9;
+            // 
+            // chboxEdit
+            // 
+            this.chboxEdit.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.chboxEdit.AutoSize = true;
+            this.chboxEdit.Location = new System.Drawing.Point(306, 3);
+            this.chboxEdit.Margin = new System.Windows.Forms.Padding(6, 6, 3, 3);
+            this.chboxEdit.Name = "chboxEdit";
+            this.chboxEdit.Size = new System.Drawing.Size(167, 17);
+            this.chboxEdit.TabIndex = 8;
+            this.chboxEdit.Text = "разрешить редактирование";
+            this.chboxEdit.UseVisualStyleBackColor = true;
+            this.chboxEdit.CheckedChanged += new System.EventHandler(this.chboxEdit_CheckedChanged);
             // 
             // label1
             // 
@@ -274,6 +319,20 @@
             this.label1.TabIndex = 10;
             this.label1.Text = "Выбрано:";
             // 
+            // btnPreview
+            // 
+            this.btnPreview.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnPreview.AutoSize = true;
+            this.btnPreview.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.btnPreview.Location = new System.Drawing.Point(317, 26);
+            this.btnPreview.MinimumSize = new System.Drawing.Size(75, 0);
+            this.btnPreview.Name = "btnPreview";
+            this.btnPreview.Size = new System.Drawing.Size(75, 23);
+            this.btnPreview.TabIndex = 7;
+            this.btnPreview.Text = "Просмотр";
+            this.btnPreview.UseVisualStyleBackColor = true;
+            this.btnPreview.Click += new System.EventHandler(this.btnPreview_Click);
+            // 
             // lblSelectionCount
             // 
             this.lblSelectionCount.AutoSize = true;
@@ -284,39 +343,55 @@
             this.lblSelectionCount.TabIndex = 11;
             this.lblSelectionCount.Text = "0";
             // 
-            // chboxEdit
+            // flowLayoutPanel4
             // 
-            this.chboxEdit.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.chboxEdit.AutoSize = true;
-            this.chboxEdit.Location = new System.Drawing.Point(305, 3);
-            this.chboxEdit.Margin = new System.Windows.Forms.Padding(6, 6, 3, 3);
-            this.chboxEdit.Name = "chboxEdit";
-            this.chboxEdit.Size = new System.Drawing.Size(167, 17);
-            this.chboxEdit.TabIndex = 8;
-            this.chboxEdit.Text = "разрешить редактирование";
-            this.chboxEdit.UseVisualStyleBackColor = true;
-            this.chboxEdit.CheckedChanged += new System.EventHandler(this.chboxEdit_CheckedChanged);
+            this.flowLayoutPanel4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.flowLayoutPanel4.AutoSize = true;
+            this.flowLayoutPanel4.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.flowLayoutPanel4.Controls.Add(this.btnScanGroup);
+            this.flowLayoutPanel4.Controls.Add(this.btnLoadXmlAttributes);
+            this.flowLayoutPanel4.Location = new System.Drawing.Point(1, 27);
+            this.flowLayoutPanel4.Margin = new System.Windows.Forms.Padding(0);
+            this.flowLayoutPanel4.Name = "flowLayoutPanel4";
+            this.flowLayoutPanel4.Size = new System.Drawing.Size(187, 25);
+            this.flowLayoutPanel4.TabIndex = 14;
             // 
-            // btnPreview
+            // btnScanGroup
             // 
-            this.btnPreview.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnPreview.AutoSize = true;
-            this.btnPreview.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.btnPreview.Location = new System.Drawing.Point(316, 26);
-            this.btnPreview.MinimumSize = new System.Drawing.Size(75, 0);
-            this.btnPreview.Name = "btnPreview";
-            this.btnPreview.Size = new System.Drawing.Size(75, 23);
-            this.btnPreview.TabIndex = 7;
-            this.btnPreview.Text = "Просмотр";
-            this.btnPreview.UseVisualStyleBackColor = true;
-            this.btnPreview.Click += new System.EventHandler(this.btnPreview_Click);
+            this.btnScanGroup.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.btnScanGroup.AutoSize = true;
+            this.btnScanGroup.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.btnScanGroup.Location = new System.Drawing.Point(2, 0);
+            this.btnScanGroup.Margin = new System.Windows.Forms.Padding(2, 0, 0, 2);
+            this.btnScanGroup.MinimumSize = new System.Drawing.Size(75, 0);
+            this.btnScanGroup.Name = "btnScanGroup";
+            this.btnScanGroup.Size = new System.Drawing.Size(83, 23);
+            this.btnScanGroup.TabIndex = 12;
+            this.btnScanGroup.Text = "Сканировать";
+            this.btnScanGroup.UseVisualStyleBackColor = true;
+            this.btnScanGroup.Visible = false;
+            // 
+            // btnLoadXmlAttributes
+            // 
+            this.btnLoadXmlAttributes.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.btnLoadXmlAttributes.AutoSize = true;
+            this.btnLoadXmlAttributes.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.btnLoadXmlAttributes.Location = new System.Drawing.Point(87, 0);
+            this.btnLoadXmlAttributes.Margin = new System.Windows.Forms.Padding(2, 0, 0, 2);
+            this.btnLoadXmlAttributes.MinimumSize = new System.Drawing.Size(75, 0);
+            this.btnLoadXmlAttributes.Name = "btnLoadXmlAttributes";
+            this.btnLoadXmlAttributes.Size = new System.Drawing.Size(100, 23);
+            this.btnLoadXmlAttributes.TabIndex = 13;
+            this.btnLoadXmlAttributes.Text = "Файл атрибутов";
+            this.btnLoadXmlAttributes.UseVisualStyleBackColor = true;
+            this.btnLoadXmlAttributes.Click += new System.EventHandler(this.btnLoadXmlAttributes_Click);
             // 
             // btnAddToModel
             // 
             this.btnAddToModel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnAddToModel.AutoSize = true;
             this.btnAddToModel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.btnAddToModel.Location = new System.Drawing.Point(397, 26);
+            this.btnAddToModel.Location = new System.Drawing.Point(398, 26);
             this.btnAddToModel.MinimumSize = new System.Drawing.Size(75, 0);
             this.btnAddToModel.Name = "btnAddToModel";
             this.btnAddToModel.Size = new System.Drawing.Size(75, 23);
@@ -331,7 +406,7 @@
             this.grbxTasks.Dock = System.Windows.Forms.DockStyle.Fill;
             this.grbxTasks.Location = new System.Drawing.Point(3, 3);
             this.grbxTasks.Name = "grbxTasks";
-            this.grbxTasks.Size = new System.Drawing.Size(469, 84);
+            this.grbxTasks.Size = new System.Drawing.Size(470, 205);
             this.grbxTasks.TabIndex = 7;
             this.grbxTasks.TabStop = false;
             this.grbxTasks.Text = "Задания:";
@@ -346,17 +421,27 @@
             this.tabCtrlMain.Margin = new System.Windows.Forms.Padding(0);
             this.tabCtrlMain.Name = "tabCtrlMain";
             this.tabCtrlMain.SelectedIndex = 0;
-            this.tabCtrlMain.Size = new System.Drawing.Size(483, 168);
+            this.tabCtrlMain.Size = new System.Drawing.Size(484, 289);
             this.tabCtrlMain.TabIndex = 2;
             this.tabCtrlMain.SelectedIndexChanged += new System.EventHandler(this.tabControl1_SelectedIndexChanged);
+            // 
+            // tabGroupByTask
+            // 
+            this.tabGroupByTask.Controls.Add(this.tlpMain);
+            this.tabGroupByTask.Location = new System.Drawing.Point(4, 22);
+            this.tabGroupByTask.Name = "tabGroupByTask";
+            this.tabGroupByTask.Size = new System.Drawing.Size(476, 263);
+            this.tabGroupByTask.TabIndex = 0;
+            this.tabGroupByTask.Text = "Групповой по заданию";
+            this.tabGroupByTask.UseVisualStyleBackColor = true;
             // 
             // tabCreate
             // 
             this.tabCreate.Controls.Add(this.tableLayoutPanel2);
             this.tabCreate.Location = new System.Drawing.Point(4, 22);
             this.tabCreate.Name = "tabCreate";
-            this.tabCreate.Padding = new System.Windows.Forms.Padding(3, 3, 3, 3);
-            this.tabCreate.Size = new System.Drawing.Size(475, 142);
+            this.tabCreate.Padding = new System.Windows.Forms.Padding(3);
+            this.tabCreate.Size = new System.Drawing.Size(476, 263);
             this.tabCreate.TabIndex = 2;
             this.tabCreate.Text = "Построение";
             this.tabCreate.UseVisualStyleBackColor = true;
@@ -375,7 +460,7 @@
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel2.Size = new System.Drawing.Size(469, 136);
+            this.tableLayoutPanel2.Size = new System.Drawing.Size(470, 257);
             this.tableLayoutPanel2.TabIndex = 2;
             // 
             // flowLayoutPanel3
@@ -386,10 +471,10 @@
             this.flowLayoutPanel3.Controls.Add(this.button2);
             this.flowLayoutPanel3.Controls.Add(this.button3);
             this.flowLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.flowLayoutPanel3.Location = new System.Drawing.Point(0, 107);
+            this.flowLayoutPanel3.Location = new System.Drawing.Point(0, 228);
             this.flowLayoutPanel3.Margin = new System.Windows.Forms.Padding(0);
             this.flowLayoutPanel3.Name = "flowLayoutPanel3";
-            this.flowLayoutPanel3.Size = new System.Drawing.Size(469, 29);
+            this.flowLayoutPanel3.Size = new System.Drawing.Size(470, 29);
             this.flowLayoutPanel3.TabIndex = 5;
             // 
             // btnStartPrimitive
@@ -478,7 +563,7 @@
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel3.Size = new System.Drawing.Size(469, 107);
+            this.tableLayoutPanel3.Size = new System.Drawing.Size(470, 228);
             this.tableLayoutPanel3.TabIndex = 6;
             // 
             // label6
@@ -753,22 +838,12 @@
             0,
             0});
             // 
-            // tabGroupByTask
-            // 
-            this.tabGroupByTask.Controls.Add(this.tlpMain);
-            this.tabGroupByTask.Location = new System.Drawing.Point(4, 22);
-            this.tabGroupByTask.Name = "tabGroupByTask";
-            this.tabGroupByTask.Size = new System.Drawing.Size(475, 142);
-            this.tabGroupByTask.TabIndex = 0;
-            this.tabGroupByTask.Text = "Групповой по заданию";
-            this.tabGroupByTask.UseVisualStyleBackColor = true;
-            // 
             // tabUpdate
             // 
             this.tabUpdate.Controls.Add(this.tableLayoutPanel1);
             this.tabUpdate.Location = new System.Drawing.Point(4, 22);
             this.tabUpdate.Name = "tabUpdate";
-            this.tabUpdate.Size = new System.Drawing.Size(475, 142);
+            this.tabUpdate.Size = new System.Drawing.Size(476, 263);
             this.tabUpdate.TabIndex = 1;
             this.tabUpdate.Text = "Обновление";
             this.tabUpdate.UseVisualStyleBackColor = true;
@@ -787,7 +862,7 @@
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(475, 142);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(476, 263);
             this.tableLayoutPanel1.TabIndex = 2;
             // 
             // flowLayoutPanel2
@@ -801,9 +876,9 @@
             this.flowLayoutPanel2.Controls.Add(this.label4);
             this.flowLayoutPanel2.Controls.Add(this.label5);
             this.flowLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.flowLayoutPanel2.Location = new System.Drawing.Point(3, 69);
+            this.flowLayoutPanel2.Location = new System.Drawing.Point(3, 190);
             this.flowLayoutPanel2.Name = "flowLayoutPanel2";
-            this.flowLayoutPanel2.Size = new System.Drawing.Size(469, 70);
+            this.flowLayoutPanel2.Size = new System.Drawing.Size(470, 70);
             this.flowLayoutPanel2.TabIndex = 5;
             // 
             // label2
@@ -883,7 +958,7 @@
             this.trvUpdate.Dock = System.Windows.Forms.DockStyle.Fill;
             this.trvUpdate.Location = new System.Drawing.Point(3, 3);
             this.trvUpdate.Name = "trvUpdate";
-            this.trvUpdate.Size = new System.Drawing.Size(469, 60);
+            this.trvUpdate.Size = new System.Drawing.Size(470, 181);
             this.trvUpdate.TabIndex = 6;
             this.trvUpdate.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.trvUpdate_NodeMouseDoubleClick);
             // 
@@ -901,89 +976,14 @@
             this.tlpForm.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tlpForm.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tlpForm.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tlpForm.Size = new System.Drawing.Size(483, 191);
+            this.tlpForm.Size = new System.Drawing.Size(484, 312);
             this.tlpForm.TabIndex = 4;
-            // 
-            // panel1
-            // 
-            this.panel1.Controls.Add(this.chboxEdit);
-            this.panel1.Controls.Add(this.label1);
-            this.panel1.Controls.Add(this.btnPreview);
-            this.panel1.Controls.Add(this.lblSelectionCount);
-            this.panel1.Controls.Add(this.flowLayoutPanel4);
-            this.panel1.Controls.Add(this.btnAddToModel);
-            this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel1.Location = new System.Drawing.Point(0, 90);
-            this.panel1.Margin = new System.Windows.Forms.Padding(0);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(475, 52);
-            this.panel1.TabIndex = 9;
-            // 
-            // flowLayoutPanel4
-            // 
-            this.flowLayoutPanel4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.flowLayoutPanel4.AutoSize = true;
-            this.flowLayoutPanel4.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.flowLayoutPanel4.Controls.Add(this.btnScanGroup);
-            this.flowLayoutPanel4.Controls.Add(this.btnLoadXmlAttributes);
-            this.flowLayoutPanel4.Location = new System.Drawing.Point(1, 27);
-            this.flowLayoutPanel4.Margin = new System.Windows.Forms.Padding(0);
-            this.flowLayoutPanel4.Name = "flowLayoutPanel4";
-            this.flowLayoutPanel4.Size = new System.Drawing.Size(187, 25);
-            this.flowLayoutPanel4.TabIndex = 14;
-            // 
-            // btnScanGroup
-            // 
-            this.btnScanGroup.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btnScanGroup.AutoSize = true;
-            this.btnScanGroup.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.btnScanGroup.Location = new System.Drawing.Point(2, 0);
-            this.btnScanGroup.Margin = new System.Windows.Forms.Padding(2, 0, 0, 2);
-            this.btnScanGroup.MinimumSize = new System.Drawing.Size(75, 0);
-            this.btnScanGroup.Name = "btnScanGroup";
-            this.btnScanGroup.Size = new System.Drawing.Size(83, 23);
-            this.btnScanGroup.TabIndex = 12;
-            this.btnScanGroup.Text = "Сканировать";
-            this.btnScanGroup.UseVisualStyleBackColor = true;
-            this.btnScanGroup.Visible = false;
-            // 
-            // btnLoadXmlAttributes
-            // 
-            this.btnLoadXmlAttributes.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btnLoadXmlAttributes.AutoSize = true;
-            this.btnLoadXmlAttributes.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.btnLoadXmlAttributes.Location = new System.Drawing.Point(87, 0);
-            this.btnLoadXmlAttributes.Margin = new System.Windows.Forms.Padding(2, 0, 0, 2);
-            this.btnLoadXmlAttributes.MinimumSize = new System.Drawing.Size(75, 0);
-            this.btnLoadXmlAttributes.Name = "btnLoadXmlAttributes";
-            this.btnLoadXmlAttributes.Size = new System.Drawing.Size(100, 23);
-            this.btnLoadXmlAttributes.TabIndex = 13;
-            this.btnLoadXmlAttributes.Text = "Файл атрибутов";
-            this.btnLoadXmlAttributes.UseVisualStyleBackColor = true;
-            this.btnLoadXmlAttributes.Click += new System.EventHandler(this.btnLoadXmlAttributes_Click);
-            // 
-            // attrsInfoLabel
-            // 
-            this.attrsInfoLabel.ForeColor = System.Drawing.SystemColors.ControlDark;
-            this.attrsInfoLabel.Name = "attrsInfoLabel";
-            this.attrsInfoLabel.Size = new System.Drawing.Size(98, 20);
-            this.attrsInfoLabel.Text = "Файл атрибутов:";
-            this.attrsInfoLabel.Visible = false;
-            // 
-            // attrsInfoText
-            // 
-            this.attrsInfoText.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.attrsInfoText.ForeColor = System.Drawing.Color.OliveDrab;
-            this.attrsInfoText.Name = "attrsInfoText";
-            this.attrsInfoText.Size = new System.Drawing.Size(16, 20);
-            this.attrsInfoText.Text = "...";
-            this.attrsInfoText.Visible = false;
             // 
             // PenetrationForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(483, 191);
+            this.ClientSize = new System.Drawing.Size(484, 312);
             this.Controls.Add(this.tlpForm);
             this.MinimumSize = new System.Drawing.Size(425, 230);
             this.Name = "PenetrationForm";
@@ -995,8 +995,13 @@
             this.tlpSets.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dgvCreationTasks)).EndInit();
             this.tlpMain.ResumeLayout(false);
+            this.panel1.ResumeLayout(false);
+            this.panel1.PerformLayout();
+            this.flowLayoutPanel4.ResumeLayout(false);
+            this.flowLayoutPanel4.PerformLayout();
             this.grbxTasks.ResumeLayout(false);
             this.tabCtrlMain.ResumeLayout(false);
+            this.tabGroupByTask.ResumeLayout(false);
             this.tabCreate.ResumeLayout(false);
             this.tableLayoutPanel2.ResumeLayout(false);
             this.tableLayoutPanel2.PerformLayout();
@@ -1008,17 +1013,12 @@
             ((System.ComponentModel.ISupportInitialize)(this.numAngleY)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numAngleX)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numIncrement)).EndInit();
-            this.tabGroupByTask.ResumeLayout(false);
             this.tabUpdate.ResumeLayout(false);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
             this.flowLayoutPanel2.ResumeLayout(false);
             this.flowLayoutPanel2.PerformLayout();
             this.tlpForm.ResumeLayout(false);
-            this.panel1.ResumeLayout(false);
-            this.panel1.PerformLayout();
-            this.flowLayoutPanel4.ResumeLayout(false);
-            this.flowLayoutPanel4.PerformLayout();
             this.ResumeLayout(false);
 
         }

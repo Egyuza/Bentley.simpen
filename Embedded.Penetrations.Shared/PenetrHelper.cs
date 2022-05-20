@@ -303,7 +303,7 @@ public static class PenetrHelper
             frameList.AsTFFrame.Add3DElement(elem);
         }
 
-        frameList.AsTFFrame.SetName(PenetrTaskBase.CELL_NAME); // ранее было 'EmbeddedPart'
+        frameList.AsTFFrame.SetName(PenConfigVariables.CellName.Value); // ранее было 'EmbeddedPart'
         return frameList;
     }
 
@@ -883,8 +883,8 @@ public static class PenetrHelper
             return false;
 
         var cell = element.AsCellElement();
-        return cell.Name == PenetrTaskBase.CELL_NAME || 
-            cell.Name == PenetrTaskBase.CELL_NAME_OLD;
+        return cell.Name == PenConfigVariables.CellName.Value || 
+            cell.Name == PenConfigVariables.CellNameOld.Value;
     }
 
     static BCOM.Application App
