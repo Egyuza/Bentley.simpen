@@ -85,6 +85,18 @@ public class PenetrationVM : BentleyInteropBase
 
     private void initializeForm()
     {
+        try
+        {
+            initialize_();
+        }
+        catch (Exception ex)
+        {
+            ex.Alert();
+        }
+    }
+
+    private void initialize_()
+    {
         if (form_ != null && !form_.IsDisposed) {
             return;
         }
@@ -185,8 +197,8 @@ public class PenetrationVM : BentleyInteropBase
         form_.cbxDiameter.DataSource = singleModel_.CurrentDiameters;
         form_.cbxFlanges.DataSource = 
             PenetrDataSource.Instance.getFlangeNumbersSort();
-        form_.cbxFlanges.SelectedIndex = 0;
-        form_.cbxDiameter.SelectedIndex = 0;
+        form_.cbxFlanges.SelectedIndex = form_.cbxFlanges.Items.Count > 0 ? 0 : -1;
+        form_.cbxDiameter.SelectedIndex = form_.cbxDiameter.Items.Count > 0 ? 0 : - 1;
                 
         #if DEBUG
             // form_.tabControl1.TabPages.RemoveAt(0); // TODO временно до отладки и ввода в работу        

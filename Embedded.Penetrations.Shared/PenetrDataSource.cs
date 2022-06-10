@@ -276,7 +276,7 @@ public class PenetrDataSource
     public List<DiameterType> getDiameters(long flangesTypeIndex)
     {
         var dataRows = data_.AsEnumerable().
-            Where(x => projId_ != 0 ? x.Field<long>("prjId") == projId_ : 
+            Where(x => projId_ != 0 ? x.Field<long>("prjID") == projId_ : 
                 x.Field<long>("depID") == depId_).
             Where(x => x.Field<long>("flanNumber") == flangesTypeIndex).
             OrderBy(x => x.Field<long>("diamNumber")).
@@ -301,7 +301,7 @@ public class PenetrDataSource
     public List<long> getFlangeNumbersSort()
     {
         List<long> flanNumbers = data_.AsEnumerable().
-            Where(x => projId_ != 0 ? x.Field<long>("prjId") == projId_ : 
+            Where(x => projId_ != 0 ? x.Field<long>("prjID") == projId_ : 
                 x.Field<long>("depID") == depId_)
             .Select(x => x.Field<long>("flanNumber")).Distinct().ToList();
         flanNumbers.Sort();
@@ -311,7 +311,7 @@ public class PenetrDataSource
     public PenetrInfo getPenInfo(long flangesTypeIndex, long diameterIndex)
     {
         DataRow row = data_.AsEnumerable().First(x => 
-            (projId_ != 0 ? x.Field<long>("prjId") == projId_ : 
+            (projId_ != 0 ? x.Field<long>("prjID") == projId_ : 
                     x.Field<long>("depID") == depId_) &&
             //x.Field<long>("prjID") == projId_ &&
             x.Field<long>("flanNumber") == flangesTypeIndex &&

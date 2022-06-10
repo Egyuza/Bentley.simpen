@@ -252,7 +252,6 @@ public class GroupByTaskModel : NotifyPropertyChangedBase
             {
                 Element element = ElementHelper.getElement(eventArgs);
                 selectElement_(element);
-
                 break;
             }
             }

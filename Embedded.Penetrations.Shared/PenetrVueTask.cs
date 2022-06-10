@@ -758,7 +758,12 @@ public class PenetrVueTask : BentleyInteropBase, IPenetrTask
 
         BCOM.Point3d projPoint;
         brepList.FindClosestPoint(out projPoint, Location);
-        projPoints.Add(App.Point3dDistance(Location, projPoint), projPoint);
+
+        double dist = App.Point3dDistance(Location, projPoint);
+        if (!projPoints.ContainsKey(dist))
+        {
+            projPoints.Add(dist, projPoint);
+        }
     }
 
     private bool isAvaliableTFFromType(int tftype)
