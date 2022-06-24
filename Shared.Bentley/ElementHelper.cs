@@ -387,12 +387,24 @@ public static class ElementHelper
     //}
 
 
-    public static void extractFromElement(Element element, out long id,
+    public static bool extractFromElement(Element element, out long id,
         out IntPtr elemRef, out IntPtr modelRef)
     {
-        id = element.ElementId;
-        elemRef = element.GetNativeElementRef();
-        modelRef = element.GetNativeDgnModelRef();
+        id = default;
+        elemRef = default;
+        modelRef = default;
+
+        try
+        {
+            id = element.ElementId;
+            elemRef = element.GetNativeElementRef();
+            modelRef = element.GetNativeDgnModelRef();
+            return true;
+        }
+        catch (Exception)
+        {
+        }
+        return false;
     }
 
     public static Element getElement(IntPtr elemRef, IntPtr modelRef)
@@ -415,7 +427,7 @@ public static class ElementHelper
     public static BCOM.Element getElementCOM(this Element element)
     {
         var modelRef = App.MdlGetModelReferenceFromModelRefP(
-            (long)element.GetNativeDgnModelRef());
+            element.GetNativeDgnModelRef());
         return modelRef.GetElementByID(element.ElementId);
     }
 
@@ -426,8 +438,8 @@ public static class ElementHelper
 
     public static BCOM.Element getElementCOM(AddIn.SelectionChangedEventArgs eventArgs)
     {
-        var activeModel = App.MdlGetModelReferenceFromModelRefP(
-        (int)eventArgs.DgnModelRef.GetNative());
+        BCOM.ModelReference activeModel = 
+            App.MdlGetModelReferenceFromModelRefP(eventArgs.DgnModelRef.GetNative());
 
         var cache = activeModel.ElementCacheContainingFilePosition(
             (int)eventArgs.FilePosition);

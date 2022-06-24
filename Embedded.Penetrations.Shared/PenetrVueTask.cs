@@ -37,7 +37,7 @@ public class PenetrVueTask : BentleyInteropBase, IPenetrTask
     public long elemId { get; private set; }
     private IntPtr modelRefP;
     public BCOM.ModelReference ModelRef => 
-        App.MdlGetModelReferenceFromModelRefP((int)modelRefP);
+        App.MdlGetModelReferenceFromModelRefP(modelRefP);
 
     public BCOM.Attachment getAttachment() => 
         ModelRef.AsAttachment(App.ActiveModelReference);
@@ -182,7 +182,6 @@ public class PenetrVueTask : BentleyInteropBase, IPenetrTask
             long id;
             IntPtr elRef, modelRef;
             ElementHelper.extractFromElement(element, out id, out elRef, out modelRef);
-
             elemRefP = elRef;
             modelRefP = modelRef;
             elemId = id;
@@ -209,6 +208,8 @@ public class PenetrVueTask : BentleyInteropBase, IPenetrTask
 
         rawLocation_ = (!App.Point3dEqual(task.Location, App.Point3dZero()))
             ?  task.Location :  Cell.Origin;
+
+        long activeModelRef = App.ActiveModelReference.MdlModelRefP();
 
         if (ModelRef.IsAttachmentOf(App.ActiveModelReference))
         {
@@ -299,7 +300,7 @@ public class PenetrVueTask : BentleyInteropBase, IPenetrTask
         Oid = taskData.Oid;
 
         BCOM.ModelReference taskModel =
-            App.MdlGetModelReferenceFromModelRefP((int)modelRefP);
+            App.MdlGetModelReferenceFromModelRefP(modelRefP);
         //BCOM.Element bcomEl = taskModel.GetElementByID(elemId);
 
         Rotation = taskData.getRotation();
@@ -384,7 +385,7 @@ public class PenetrVueTask : BentleyInteropBase, IPenetrTask
     private BCOM.CellElement getTaskCell()
     {
         BCOM.ModelReference taskModel = // TODO 
-            App.MdlGetModelReferenceFromModelRefP((int)modelRefP);
+            App.MdlGetModelReferenceFromModelRefP(modelRefP);
 
         BCOM.ModelReference activeModel = App.ActiveModelReference;
 
@@ -459,7 +460,7 @@ public class PenetrVueTask : BentleyInteropBase, IPenetrTask
     private void findFlangesOld()
     {
         BCOM.ModelReference model =
-            App.MdlGetModelReferenceFromModelRefP((int)modelRefP);
+            App.MdlGetModelReferenceFromModelRefP(modelRefP);
 
         SingleFlangeSide = App.Vector3dZero();
 
@@ -536,7 +537,7 @@ public class PenetrVueTask : BentleyInteropBase, IPenetrTask
             return;
 
         BCOM.ModelReference taskModel = // TODO 
-            App.MdlGetModelReferenceFromModelRefP((int)modelRefP);
+            App.MdlGetModelReferenceFromModelRefP(modelRefP);
         BCOM.ModelReference activeModel = App.ActiveModelReference;
 
         FlangesGeom.Clear();

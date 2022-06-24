@@ -188,7 +188,7 @@ public static class BentleyExtensions
         #if CONNECT
             id = element.ElementId;
             modelRef = App.MdlGetModelReferenceFromModelRefP(
-                (long)element.GetNativeDgnModelRef());
+                element.GetNativeDgnModelRef());
         #elif V8i
             id = element.ElementID;
             modelRef = App.MdlGetModelReferenceFromModelRefP(
@@ -196,6 +196,11 @@ public static class BentleyExtensions
         #endif
 
         return modelRef.GetElementByID(id);
+    }
+
+    public static BCOM.ModelReference MdlGetModelReferenceFromModelRefP(this BCOM.Application app, IntPtr nativeModelRefP)
+    {
+        return app.MdlGetModelReferenceFromModelRefP((long)nativeModelRefP);
     }
 
     public static BCOM.CellElement ToCellElementCOM(this Element element)
